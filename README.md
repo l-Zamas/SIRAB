@@ -12,6 +12,7 @@
 5. [Requisitos funcionales](#5-requisitos-funcionales)
 6. [Convenciones de trabajo](#6-convenciones-de-trabajo)
 7. [Seguridad y privacidad](#7-seguridad-y-privacidad)
+8. [Reglas de commits](#8-seguridad-y-privacidad)
 
 
 ## 1. Qué hace SIRAB
@@ -61,7 +62,30 @@ Decisiones principales:
 ## 4. Estructura de carpetas
 
 ```
-Comming soon
+SIRAB/
+└── src/
+    ├── main/
+    │   ├── java/
+    │   │   └── com/sirab/
+    │   │       ├── config/
+    │   │       ├── registro/
+    │   │       │   └── web/
+    │   │       └── SirabApplication.java
+    │   └── resources/
+    │       ├── templates/
+    │       │   └── familia/
+    │       ├── application.properties
+    │       ├── application-dev.properties
+    │       └── application-prod.properties
+    │
+    └── test/
+        ├── java/
+        │   └── com/sirab/
+        │       └── SirabApplicationTests.java
+        └── resources/
+            ├── application-test.properties
+            └── messages.properties
+
 ```
 
 ## 5. Requisitos funcionales
@@ -100,3 +124,19 @@ SIRAB maneja datos personales sensibles de personas en situación de vulnerabili
 - **Protección de datos:** en Colombia aplica la Ley 1581 de 2012. Debe confirmarse el cumplimiento con asesoría antes de operar con datos reales.
 - **Nunca** subir al repositorio contraseñas, llaves ni datos reales.
 
+
+## 8. Reglas de commits
+
+| Tipo | Descripción | Ejemplo |
+|---|---|---|
+| `feat` | Agrega una nueva funcionalidad. | `feat: agregar módulo de usuarios` |
+| `fix` | Corrige un error en el código. | `fix: corregir validación del formulario` |
+| `docs` | Crea o actualiza documentación. | `docs: actualizar README` |
+| `style` | Realiza cambios de formato sin afectar la lógica. | `style: ajustar indentación` |
+| `refactor` | Reestructura el código sin cambiar su comportamiento. | `refactor: simplificar lógica de autenticación` |
+| `perf` | Mejora el rendimiento. | `perf: optimizar consultas SQL` |
+| `test` | Agrega o modifica pruebas. | `test: agregar pruebas de registro` |
+| `build` | Modifica dependencias o herramientas de compilación. | `build: actualizar dependencias de Maven` |
+| `ci` | Modifica procesos de integración continua. | `ci: configurar ejecución de pruebas` |
+| `chore` | Realiza tareas generales de mantenimiento. | `chore: actualizar archivo .gitignore` |
+| `revert` | Revierte un commit anterior. | `revert: revertir cambios del módulo de usuarios` |
