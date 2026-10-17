@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Situación de la familia - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/familia/registro/ubicacion}">‹ Atrás</a>
+    <div th:replace="~{familia/fragmentos-registro :: progreso(3)}"></div>
+    <h1>¿Hay en tu familia...?</h1>
+    <p>Esto nos ayuda a atender primero a quien más lo necesita.</p>
+    <form th:action="@{/familia/registro/situacion}" th:object="${situacionForm}" method="post">
+        <fieldset class="opciones">
+            <legend class="solo-lectores">Selecciona las situaciones presentes en tu familia</legend>
+            <label class="opcion" for="menoresDeCinco">
+                <span>Menores de 5 años</span>
+                <input id="menoresDeCinco" type="checkbox" th:field="*{menoresDeCinco}">
+            </label>
+            <label class="opcion" for="adultosMayores">
+                <span>Adultos mayores</span>
+                <input id="adultosMayores" type="checkbox" th:field="*{adultosMayores}">
+            </label>
+            <label class="opcion" for="personasConDiscapacidad">
+                <span>Personas con discapacidad</span>
+                <input id="personasConDiscapacidad" type="checkbox" th:field="*{personasConDiscapacidad}">
+            </label>
+            <label class="opcion" for="mujeresGestantes">
+                <span>Mujeres gestantes</span>
+                <input id="mujeresGestantes" type="checkbox" th:field="*{mujeresGestantes}">
+            </label>
+        </fieldset>
+        <button type="submit">Continuar</button>
+    </form>
+</main>
+</body>
+</html>

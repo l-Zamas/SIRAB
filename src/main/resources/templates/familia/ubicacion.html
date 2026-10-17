@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ubicación - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/familia/registro/datos}">‹ Atrás</a>
+    <div th:replace="~{familia/fragmentos-registro :: progreso(2)}"></div>
+    <h1>¿Dónde están?</h1>
+    <p>Así sabremos a dónde llegar con la ayuda.</p>
+    <form th:action="@{/familia/registro/ubicacion}" th:object="${ubicacionForm}" method="post">
+        <div class="campo">
+            <label for="barrio">Barrio</label>
+            <input id="barrio" type="text" th:field="*{barrio}" maxlength="120" autocomplete="address-level3"
+                   th:attr="aria-invalid=${#fields.hasErrors('barrio')},
+                            aria-describedby=${#fields.hasErrors('barrio')} ? 'barrio-error' : null">
+            <p class="error" id="barrio-error" role="alert"
+               th:if="${#fields.hasErrors('barrio')}" th:errors="*{barrio}"></p>
+        </div>
+        <div class="campo">
+            <label for="direccionReferencia">Dirección o punto de referencia</label>
+            <input id="direccionReferencia" type="text" th:field="*{direccionReferencia}" maxlength="255"
+                   autocomplete="street-address"
+                   th:attr="aria-invalid=${#fields.hasErrors('direccionReferencia')},
+                            aria-describedby=${#fields.hasErrors('direccionReferencia')} ? 'direccion-error' : null">
+            <p class="error" id="direccion-error" role="alert"
+               th:if="${#fields.hasErrors('direccionReferencia')}" th:errors="*{direccionReferencia}"></p>
+        </div>
+        <button class="secundario" id="usarUbicacion" type="button">Usar mi ubicación actual</button>
+        <p id="estadoUbicacion" role="status" aria-live="polite"></p>
+        <button type="submit">Continuar</button>
+    </form>
+</main>
+<script th:src="@{/js/registro-location.js}" defer></script>
+</body>
+</html>

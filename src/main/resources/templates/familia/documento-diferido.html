@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documento de identidad - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/familia/registro/necesidades}">‹ Atrás</a>
+    <div th:replace="~{familia/fragmentos-registro :: progreso(5)}"></div>
+    <h1>Documento de identidad</h1>
+    <p>El prototipo propone subir una foto para que el personal de campo verifique el registro.</p>
+    <section class="aviso" role="note">
+        <h2>La carga digital aún no está habilitada</h2>
+        <p>
+            El documento contiene información sensible. No lo envíes ni almacenes aquí hasta que
+            SIRAB tenga almacenamiento protegido y acceso restringido para personal autorizado.
+            Puedes continuar sin adjuntarlo.
+        </p>
+    </section>
+    <form th:action="@{/familia/registro/documento}" method="post">
+        <button type="submit">Continuar sin adjuntar</button>
+    </form>
+</main>
+</body>
+</html>

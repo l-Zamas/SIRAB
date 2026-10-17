@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="progreso(paso)" class="progreso" aria-label="Progreso del registro">
+    <p th:text="'Paso ' + ${paso} + ' de 5'">Paso 1 de 5</p>
+    <ol>
+        <li th:each="indice : ${#numbers.sequence(1, 5)}"
+            th:classappend="${indice <= paso} ? ' completado' : ''"
+            th:aria-current="${indice == paso} ? 'step' : null">
+            <span class="solo-lectores" th:text="'Paso ' + ${indice}"></span>
+        </li>
+    </ol>
+</nav>
+</body>
+</html>

@@ -103,6 +103,10 @@ SIRAB/
 | Seguimiento | RF-09 | Generar historial de atención por familia | `seguimiento` |
 | Seguimiento | RF-10 | Generar reportes y consolidados para entidades coordinadoras (Alcaldía, UNGRD) | `reportes` |
 
+### Estado del registro familiar
+
+El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La consulta interna, el seguimiento de estado, la detección de duplicados, el modo sin conexión y el cálculo automático de urgencia continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
+
 ## 6. Convenciones de trabajo
 
 - **Ramas:** `main` (estable), `develop` (integración) y `feature/<modulo>-<descripcion>`.

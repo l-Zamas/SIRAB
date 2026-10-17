@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>No se pudo guardar - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <h1>No se pudo guardar el registro</h1>
+    <p th:text="${mensaje}">Intenta nuevamente más tarde.</p>
+    <a th:href="@{/familia/registro/resumen}">Volver al resumen</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Necesidades - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/familia/registro/situacion}">‹ Atrás</a>
+    <div th:replace="~{familia/fragmentos-registro :: progreso(4)}"></div>
+    <h1>¿Qué necesitan?</h1>
+    <p>Marca todo lo que aplique.</p>
+    <form th:action="@{/familia/registro/necesidades}" th:object="${necesidadesForm}" method="post">
+        <fieldset class="opciones necesidades">
+            <legend class="solo-lectores">Selecciona las necesidades de la familia</legend>
+            <label class="opcion-necesidad" th:each="necesidad : ${necesidadesDisponibles}"
+                   th:for="${'necesidad-' + necesidad.name()}">
+                <input type="checkbox" th:field="*{necesidades}" th:value="${necesidad}"
+                       th:id="${'necesidad-' + necesidad.name()}">
+                <span th:text="${necesidad.etiqueta}">Alimentos</span>
+            </label>
+        </fieldset>
+        <button type="submit">Continuar</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Revisa tu registro - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/familia/registro/necesidades}">‹ Atrás</a>
+    <h1>Revisa tu registro</h1>
+    <p>Confirma que todo esté correcto antes de enviar.</p>
+    <section class="tarjeta" aria-labelledby="resumen-titulo">
+        <h2 id="resumen-titulo">Tu registro</h2>
+        <dl class="resumen">
+            <dt>Registra</dt><dd th:text="${registro.nombreRegistrante}"></dd>
+            <dt>Integrantes</dt><dd th:text="${registro.numeroIntegrantes}"></dd>
+            <dt>Teléfono</dt><dd th:text="${#strings.isEmpty(registro.telefonoContacto) ? 'No indicado' : registro.telefonoContacto}"></dd>
+            <dt>Barrio</dt><dd th:text="${#strings.isEmpty(registro.barrio) ? 'No indicado' : registro.barrio}"></dd>
+            <dt>Dirección o referencia</dt><dd th:text="${#strings.isEmpty(registro.direccionReferencia) ? 'No indicada' : registro.direccionReferencia}"></dd>
+            <dt>Necesidades</dt>
+            <dd>
+                <span th:if="${#sets.isEmpty(registro.necesidades)}">Ninguna seleccionada</span>
+                <span th:each="necesidad, iter : ${registro.necesidades}"
+                      th:text="${necesidad.etiqueta} + ${iter.last ? '' : ', '}"></span>
+            </dd>
+            <dt>Documento</dt><dd>No adjuntado; carga digital no habilitada</dd>
+        </dl>
+        <h3>Situaciones de la familia</h3>
+        <ul>
+            <li th:each="situacion : ${registro.situaciones}" th:text="${situacion.etiqueta}"></li>
+            <li th:if="${#sets.isEmpty(registro.situaciones)}">Ninguna indicada</li>
+        </ul>
+    </section>
+    <p>
+        Al enviar confirmas el consentimiento. Solo el personal autorizado debe consultar los datos
+        para coordinar la ayuda.
+    </p>
+    <form th:action="@{/familia/registro/confirmar}" method="post">
+        <button type="submit">Enviar registro</button>
+    </form>
+    <a class="boton secundario" th:href="@{/familia/registro/datos}">Corregir datos</a>
+</main>
+</body>
+</html>

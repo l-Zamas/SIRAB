@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Datos de tu familia - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <a th:href="@{/familia/registro/consentimiento}">‹ Atrás</a>
+    <div th:replace="~{familia/fragmentos-registro :: progreso(1)}"></div>
+    <h1>Datos de tu familia</h1>
+    <p>Escribe quién registra y cómo contactarte.</p>
+    <form th:action="@{/familia/registro/datos}" th:object="${datosFamiliaForm}" method="post">
+        <div class="campo">
+            <label for="nombreRegistrante">Nombre de quien registra</label>
+            <input id="nombreRegistrante" type="text" th:field="*{nombreRegistrante}" maxlength="120"
+                   autocomplete="name" required
+                   th:attr="aria-invalid=${#fields.hasErrors('nombreRegistrante')},
+                            aria-describedby=${#fields.hasErrors('nombreRegistrante')} ? 'nombre-error' : null">
+            <p class="error" id="nombre-error" role="alert"
+               th:if="${#fields.hasErrors('nombreRegistrante')}" th:errors="*{nombreRegistrante}"></p>
+        </div>
+        <div class="campo">
+            <label for="numeroIntegrantes">Número de integrantes</label>
+            <input id="numeroIntegrantes" type="number" th:field="*{numeroIntegrantes}" min="1" required
+                   th:attr="aria-invalid=${#fields.hasErrors('numeroIntegrantes')},
+                            aria-describedby=${#fields.hasErrors('numeroIntegrantes')} ? 'integrantes-error' : null">
+            <p class="error" id="integrantes-error" role="alert"
+               th:if="${#fields.hasErrors('numeroIntegrantes')}" th:errors="*{numeroIntegrantes}"></p>
+        </div>
+        <div class="campo">
+            <label for="telefonoContacto">Teléfono de contacto</label>
+            <input id="telefonoContacto" type="tel" th:field="*{telefonoContacto}" maxlength="100"
+                   autocomplete="tel"
+                   th:attr="aria-invalid=${#fields.hasErrors('telefonoContacto')},
+                            aria-describedby=${#fields.hasErrors('telefonoContacto')} ? 'telefono-error' : null">
+            <p class="error" id="telefono-error" role="alert"
+               th:if="${#fields.hasErrors('telefonoContacto')}" th:errors="*{telefonoContacto}"></p>
+        </div>
+        <button type="submit">Continuar</button>
+    </form>
+</main>
+</body>
+</html>
