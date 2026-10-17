@@ -12,7 +12,7 @@
 5. [Requisitos funcionales](#5-requisitos-funcionales)
 6. [Convenciones de trabajo](#6-convenciones-de-trabajo)
 7. [Seguridad y privacidad](#7-seguridad-y-privacidad)
-8. [Reglas de commits](#8-seguridad-y-privacidad)
+8. [Reglas de commits](#8-reglas-de-commits)
 
 
 ## 1. Qué hace SIRAB
