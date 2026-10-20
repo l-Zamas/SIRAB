@@ -1,10 +1,13 @@
 package com.sirab.registro.service;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.Familia;
 import com.sirab.registro.FamiliaRepository;
 
@@ -36,5 +39,19 @@ public class RegistroFamiliarService {
         familia.setConsentimientoAt(command.consentimientoAt() == null ? Instant.now() : command.consentimientoAt());
         familia.setConsentimientoVersion(CONSENTIMIENTO_VERSION);
         familiaRepository.save(familia);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Familia> listarRegistros() {
+        return familiaRepository.findAll();
+    }
+
+    @Transactional
+    public Optional<Familia> actualizarEstado(Long familiaId, EstadoRegistro estado) {
+        return familiaRepository.findById(familiaId)
+                .map(familia -> {
+                    familia.setEstado(estado);
+                    return familia;
+                });
     }
 }

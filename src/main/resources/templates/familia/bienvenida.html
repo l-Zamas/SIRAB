@@ -6,14 +6,20 @@
     <title>SIRAB - Registro familiar</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
 </head>
-<body>
-    <main>
+<body class="landing-page">
+    <main class="landing-card">
         <h1 th:text="${nombre}">SIRAB</h1>
         <p>Sistema Integral de Respuesta y Ayuda para Buenaventura</p>
         <h2>Registra a tu familia para recibir ayuda</h2>
         <p>Cuéntanos qué necesitan. Nos toma unos minutos y puedes hacerlo desde tu celular.</p>
-        <a class="boton" th:href="@{/familia/registro/consentimiento}">Registrar mi familia</a>
-        <button type="button" disabled aria-disabled="true">Consultar mi estado (próximamente)</button>
+        <nav class="landing-actions" aria-label="Opciones para la ciudadanía">
+            <a class="boton" th:href="@{/familia/registro/consentimiento}">Registrar mi familia</a>
+            <button type="button" class="boton secundario" disabled aria-describedby="consulta-pendiente">
+                Consultar mi estado
+            </button>
+        </nav>
+        <p id="consulta-pendiente" role="status">La consulta de estado aún no está disponible.</p>
+        <p><a th:href="@{/login}">Acceso de personal</a></p>
         <p>Tus datos se usan solo para coordinar la ayuda.</p>
     </main>
 </body>

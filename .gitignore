@@ -31,6 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+!.vscode/
+.vscode/*
+!.vscode/launch.json
 application-local.properties
 .env
 data/documentos/

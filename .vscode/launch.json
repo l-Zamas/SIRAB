@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SirabApplication<sirab>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.sirab.SirabApplication",
+            "projectName": "sirab",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registros familiares - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main>
+    <form th:action="@{/logout}" method="post">
+        <button class="secundario" type="submit">Cerrar sesión</button>
+    </form>
+    <h1>Registros familiares</h1>
+    <p>Consulta el estado de cada registro y actualízalo según la gestión realizada.</p>
+    <p th:if="${#lists.isEmpty(registros)}">Aún no hay registros familiares.</p>
+    <div class="tabla-contenedor" th:unless="${#lists.isEmpty(registros)}">
+        <table>
+            <thead>
+            <tr>
+                <th scope="col">Registro</th>
+                <th scope="col">Familia</th>
+                <th scope="col">Barrio</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Actualizar estado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="registro : ${registros}">
+                <td th:text="${registro.id}"></td>
+                <td th:text="${registro.nombreRegistrante}"></td>
+                <td th:text="${#strings.isEmpty(registro.barrio) ? 'No indicado' : registro.barrio}"></td>
+                <td th:text="${registro.estado.etiqueta}"></td>
+                <td>
+                    <form class="actualizar-estado"
+                          th:action="@{/campo/registros/{id}/estado(id=${registro.id})}" method="post">
+                        <label class="solo-lectores" th:for="${'estado-' + registro.id}">
+                            Estado del registro <span th:text="${registro.id}"></span>
+                        </label>
+                        <select name="estado" th:id="${'estado-' + registro.id}">
+                            <option th:each="estado : ${estadosDisponibles}"
+                                    th:value="${estado.name()}"
+                                    th:text="${estado.etiqueta}"
+                                    th:selected="${estado == registro.estado}"></option>
+                        </select>
+                        <button type="submit">Guardar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

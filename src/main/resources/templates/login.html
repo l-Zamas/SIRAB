@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Acceso de personal - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <script th:src="@{/js/login.js}" defer></script>
+</head>
+<body class="login-page">
+<main class="login-card">
+    <a class="login-back" th:href="@{/}">‹ Volver al inicio</a>
+    <section class="login-staff" aria-labelledby="staff-title">
+        <div class="login-logo-frame">
+            <img class="login-logo" th:src="@{/images/WhatsApp Image 2026-10-20 at 12.58.44.jpeg}"
+                 alt="SIRAB - Sistema Integral de Respuesta y Ayuda para Buenaventura">
+        </div>
+        <header class="login-header">
+            <p class="login-eyebrow">Acceso del personal autorizado</p>
+            <h1 id="staff-title">Ingreso del personal</h1>
+            <p class="login-intro">Inicia sesión para acceder a las herramientas de trabajo de SIRAB.</p>
+        </header>
+        <p class="login-message login-error" role="alert" th:if="${param.error}">
+            Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.
+        </p>
+        <p class="login-message login-success" role="status" th:if="${param.logout}">
+            La sesión se cerró correctamente.
+        </p>
+        <form class="login-form" th:action="@{/login}" method="post">
+            <div class="campo login-field">
+                <label for="username">Correo</label>
+                <input id="username" name="username" type="email" autocomplete="username"
+                       maxlength="254" placeholder="tu-correo@ejemplo.com" required>
+            </div>
+            <div class="campo login-field">
+                <label for="password">Contraseña</label>
+                <div class="login-password">
+                    <input id="password" name="password" type="password"
+                           autocomplete="current-password" required>
+                    <button class="login-password-toggle" type="button" aria-controls="password"
+                            aria-label="Mostrar contraseña" aria-pressed="false">
+                        Mostrar
+                    </button>
+                </div>
+            </div>
+            <button class="login-submit" type="submit">
+                <span class="login-submit-label">Iniciar sesión</span>
+                <span class="login-submit-loading">Ingresando…</span>
+            </button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

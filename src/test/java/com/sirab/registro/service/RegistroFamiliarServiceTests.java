@@ -15,6 +15,7 @@ import com.sirab.registro.Familia;
 import com.sirab.registro.FamiliaRepository;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
+import com.sirab.registro.EstadoRegistro;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,5 +80,15 @@ class RegistroFamiliarServiceTests {
         assertThrows(IllegalArgumentException.class, () -> service.registrar(command));
 
         verifyNoInteractions(familiaRepository);
+    }
+
+    @Test
+    void actualizaEstadoDeRegistroExistente() {
+        Familia familia = new Familia();
+        when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
+
+        service.actualizarEstado(1L, EstadoRegistro.VERIFICADO);
+
+        assertEquals(EstadoRegistro.VERIFICADO, familia.getEstado());
     }
 }

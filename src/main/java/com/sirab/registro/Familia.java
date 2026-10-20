@@ -46,6 +46,10 @@ public class Familia {
     @Column(name = "consentimiento_version", length = 40)
     private String consentimientoVersion;
 
+    @Column(name = "estado", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private EstadoRegistro estado = EstadoRegistro.PENDIENTE;
+
     @ElementCollection
     @CollectionTable(
             name = "familia_necesidad",
@@ -125,6 +129,14 @@ public class Familia {
 
     public void setConsentimientoVersion(String consentimientoVersion) {
         this.consentimientoVersion = consentimientoVersion;
+    }
+
+    public EstadoRegistro getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoRegistro estado) {
+        this.estado = estado;
     }
 
     public Set<Necesidad> getNecesidades() {
