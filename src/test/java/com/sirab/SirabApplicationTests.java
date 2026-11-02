@@ -227,7 +227,12 @@ class SirabApplicationTests {
                 .andExpect(redirectedUrl("/familia/registro/ubicacion"));
         mockMvc.perform(get("/familia/registro/ubicacion").session(session))
                 .andExpect(status().isOk())
-                .andExpect(view().name("familia/ubicacion"));
+                .andExpect(view().name("familia/ubicacion"))
+                .andExpect(content().string(containsString("id=\"barrio\"")))
+                .andExpect(content().string(containsString("id=\"direccionReferencia\"")))
+                .andExpect(content().string(not(containsString("usarUbicacion"))))
+                .andExpect(content().string(not(containsString("estadoUbicacion"))))
+                .andExpect(content().string(not(containsString("registro-location.js"))));
 
         mockMvc.perform(post("/familia/registro/ubicacion")
                         .session(session)

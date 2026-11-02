@@ -30,11 +30,8 @@
             <p class="error" id="direccion-error" role="alert"
                th:if="${#fields.hasErrors('direccionReferencia')}" th:errors="*{direccionReferencia}"></p>
         </div>
-        <button class="secundario" id="usarUbicacion" type="button">Usar mi ubicación actual</button>
-        <p id="estadoUbicacion" role="status" aria-live="polite"></p>
         <button type="submit">Continuar</button>
     </form>
 </main>
-<script th:src="@{/js/registro-location.js}" defer></script>
 </body>
 </html>
