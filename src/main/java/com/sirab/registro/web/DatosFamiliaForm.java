@@ -15,6 +15,7 @@ public class DatosFamiliaForm {
     @Min(value = 1, message = "Debe indicarse al menos una persona.")
     private Integer numeroIntegrantes;
 
+    @NotBlank(message = "Ingresa un teléfono de contacto.")
     @Size(max = 100, message = "El teléfono no puede superar 100 caracteres.")
     private String telefonoContacto;
 
@@ -40,11 +41,5 @@ public class DatosFamiliaForm {
 
     public void setTelefonoContacto(String telefonoContacto) {
         this.telefonoContacto = telefonoContacto;
-    }
-
-    void clearPersonalValues() {
-        nombreRegistrante = null;
-        telefonoContacto = null;
-        numeroIntegrantes = null;
     }
 }

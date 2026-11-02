@@ -1,0 +1,2 @@
+ALTER TABLE familia
+    ADD COLUMN direccion VARCHAR(255) NULL;

@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -217,7 +218,9 @@ class SirabApplicationTests {
                 .andExpect(redirectedUrl("/familia/registro/datos"));
         mockMvc.perform(get("/familia/registro/datos").session(session))
                 .andExpect(status().isOk())
-                .andExpect(view().name("familia/datos-familia"));
+                .andExpect(view().name("familia/datos-familia"))
+                .andExpect(content().string(containsString("id=\"telefonoContacto\"")))
+                .andExpect(content().string(containsString("required")));
 
         mockMvc.perform(post("/familia/registro/datos")
                         .session(session)
@@ -231,7 +234,9 @@ class SirabApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("familia/ubicacion"))
                 .andExpect(content().string(containsString("id=\"barrio\"")))
+                .andExpect(content().string(containsString("id=\"direccion\"")))
                 .andExpect(content().string(containsString("id=\"direccionReferencia\"")))
+                .andExpect(content().string(containsString("required")))
                 .andExpect(content().string(not(containsString("usarUbicacion"))))
                 .andExpect(content().string(not(containsString("estadoUbicacion"))))
                 .andExpect(content().string(not(containsString("registro-location.js"))));
@@ -240,6 +245,7 @@ class SirabApplicationTests {
                         .session(session)
                         .with(csrf())
                         .param("barrio", "BARRIO_SINTETICO")
+                        .param("direccion", "DIRECCION_SINTETICA")
                         .param("direccionReferencia", "REFERENCIA_SINTETICA"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/situacion"));
@@ -277,6 +283,7 @@ class SirabApplicationTests {
         mockMvc.perform(get("/familia/registro/resumen").session(session))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("REGISTRO_SINTETICO")))
+                .andExpect(content().string(containsString("DIRECCION_SINTETICA")))
                 .andExpect(content().string(containsString("REFERENCIA_SINTETICA")));
         assertEquals(familyCountBefore, familiaRepository.count());
 
@@ -314,11 +321,13 @@ class SirabApplicationTests {
         mockMvc.perform(get("/familia/registro/ubicacion").session(session))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("value=\"BARRIO_SINTETICO\"")))
+                .andExpect(content().string(containsString("value=\"DIRECCION_SINTETICA\"")))
                 .andExpect(content().string(containsString("value=\"REFERENCIA_SINTETICA\"")));
         mockMvc.perform(post("/familia/registro/ubicacion")
                         .session(session)
                         .with(csrf())
                         .param("barrio", "BARRIO_CORREGIDO")
+                        .param("direccion", "DIRECCION_CORREGIDA")
                         .param("direccionReferencia", "REFERENCIA_CORREGIDA"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/situacion"));
@@ -361,6 +370,7 @@ class SirabApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("REGISTRO_CORREGIDO")))
                 .andExpect(content().string(containsString("BARRIO_CORREGIDO")))
+                .andExpect(content().string(containsString("DIRECCION_CORREGIDA")))
                 .andExpect(content().string(containsString("REFERENCIA_CORREGIDA")))
                 .andExpect(content().string(containsString("Adultos mayores")))
                 .andExpect(content().string(containsString("Medicamentos")))
@@ -381,7 +391,7 @@ class SirabApplicationTests {
         Familia saved = familiaRepository.findFirstByNombreRegistrante("REGISTRO_CORREGIDO").orElseThrow();
         assertEquals(3, saved.getNumeroIntegrantes());
         assertEquals("BARRIO_CORREGIDO", saved.getBarrio());
-
+        assertEquals("DIRECCION_CORREGIDA", saved.getDireccion());
         assertEquals("REFERENCIA_CORREGIDA", saved.getDireccionReferencia());
         assertEquals("TELEFONO_CORREGIDO", saved.getTelefonoContacto());
         assertEquals(Set.of(SituacionFamiliar.ADULTOS_MAYORES), saved.getSituaciones());
@@ -403,7 +413,7 @@ class SirabApplicationTests {
     }
 
     @Test
-    void rejectsMissingConsentAndInvalidDataWithoutEchoingPersonalValuesOrPersisting() throws Exception {
+    void rejectsMissingConsentAndInvalidDataWhilePreservingValidInputsWithoutPersisting() throws Exception {
         long familyCountBefore = familiaRepository.count();
         MockHttpSession session = new MockHttpSession();
 
@@ -435,9 +445,68 @@ class SirabApplicationTests {
                         .param("numeroIntegrantes", "0"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Debe indicarse al menos una persona.")))
-                .andExpect(content().string(not(containsString("DATO_PERSONAL_SINTETICO"))));
+                .andExpect(content().string(containsString("Ingresa un teléfono de contacto.")))
+                .andExpect(content().string(containsString("value=\"DATO_PERSONAL_SINTETICO\"")))
+                .andExpect(content().string(not(containsString("value=\"0\""))));
 
         assertEquals(familyCountBefore, familiaRepository.count());
+    }
+
+    @Test
+    void requiresNeighborhoodAndAddressButAllowsOptionalReference() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+
+        mockMvc.perform(post("/familia/registro/consentimiento")
+                        .session(session)
+                        .with(csrf())
+                        .param("aceptado", "true"))
+                .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(post("/familia/registro/datos")
+                        .session(session)
+                        .with(csrf())
+                        .param("nombreRegistrante", "REGISTRO_VALIDACION")
+                        .param("numeroIntegrantes", "2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Ingresa un teléfono de contacto.")));
+
+        mockMvc.perform(post("/familia/registro/datos")
+                        .session(session)
+                        .with(csrf())
+                        .param("nombreRegistrante", "REGISTRO_VALIDACION")
+                        .param("numeroIntegrantes", "2")
+                        .param("telefonoContacto", "TELEFONO_VALIDACION"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/ubicacion"));
+
+        mockMvc.perform(post("/familia/registro/ubicacion")
+                        .session(session)
+                        .with(csrf())
+                        .param("barrio", "BARRIO_VALIDACION"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Ingresa la dirección.")))
+                .andExpect(content().string(containsString("value=\"BARRIO_VALIDACION\"")));
+
+        mockMvc.perform(post("/familia/registro/ubicacion")
+                        .session(session)
+                        .with(csrf())
+                        .param("direccion", "DIRECCION_VALIDACION"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Ingresa el barrio.")))
+                .andExpect(content().string(containsString("value=\"DIRECCION_VALIDACION\"")));
+
+        mockMvc.perform(post("/familia/registro/ubicacion")
+                        .session(session)
+                        .with(csrf())
+                        .param("barrio", "BARRIO_VALIDACION")
+                        .param("direccion", "DIRECCION_VALIDACION"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/situacion"));
+
+        RegistroFamiliarDraft draft = (RegistroFamiliarDraft) session.getAttribute("registroFamiliarDraft");
+        assertEquals("BARRIO_VALIDACION", draft.getBarrio());
+        assertEquals("DIRECCION_VALIDACION", draft.getDireccion());
+        assertNull(draft.getDireccionReferencia());
     }
 
     @Test
@@ -531,6 +600,7 @@ class SirabApplicationTests {
                         .param("numeroIntegrantes", "1")
                         .param("telefonoContacto", "3000000000")
                         .param("barrio", "Barrio")
+                        .param("direccion", "Calle 1 # 2-3")
                         .param("direccionReferencia", "Referencia")
                         .param("situaciones", "MENORES_DE_CINCO")
                         .param("necesidades", "AGUA", "ALOJAMIENTO")

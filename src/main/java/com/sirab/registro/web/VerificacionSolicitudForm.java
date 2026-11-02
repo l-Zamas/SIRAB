@@ -27,7 +27,10 @@ public class VerificacionSolicitudForm {
     @Size(max = 120, message = "El barrio no puede superar 120 caracteres.")
     private String barrio;
 
-    @Size(max = 255, message = "La referencia no puede superar 255 caracteres.")
+    @Size(max = 255, message = "La dirección no puede superar 255 caracteres.")
+    private String direccion;
+
+    @Size(max = 255, message = "El punto de referencia no puede superar 255 caracteres.")
     private String direccionReferencia;
 
     private Set<SituacionFamiliar> situaciones = EnumSet.noneOf(SituacionFamiliar.class);
@@ -66,6 +69,14 @@ public class VerificacionSolicitudForm {
 
     public void setBarrio(String barrio) {
         this.barrio = barrio;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getDireccionReferencia() {

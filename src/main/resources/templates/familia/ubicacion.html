@@ -17,20 +17,30 @@
     <p class="registro-introduccion">Así sabremos a dónde llegar con la ayuda.</p>
     <form class="registro-formulario registro-ubicacion" th:action="@{/familia/registro/ubicacion}" th:object="${ubicacionForm}" method="post">
         <div class="campo">
-            <label for="barrio">Barrio</label>
+            <label for="barrio">Barrio (obligatorio)</label>
             <input id="barrio" type="text" th:field="*{barrio}" maxlength="120" autocomplete="address-level3"
+                   placeholder="Ej. Bellavista" required
                    th:attr="aria-invalid=${#fields.hasErrors('barrio')},
                             aria-describedby=${#fields.hasErrors('barrio')} ? 'barrio-error' : null">
             <p class="error" id="barrio-error" role="alert"
                th:if="${#fields.hasErrors('barrio')}" th:errors="*{barrio}"></p>
         </div>
         <div class="campo">
-            <label for="direccionReferencia">Dirección o punto de referencia</label>
-            <input id="direccionReferencia" type="text" th:field="*{direccionReferencia}" maxlength="255"
-                   autocomplete="street-address"
-                   th:attr="aria-invalid=${#fields.hasErrors('direccionReferencia')},
-                            aria-describedby=${#fields.hasErrors('direccionReferencia')} ? 'direccion-error' : null">
+            <label for="direccion">Dirección (obligatoria)</label>
+            <input id="direccion" type="text" th:field="*{direccion}" maxlength="255"
+                   autocomplete="street-address" placeholder="Ej. Calle 10 # 5-20" required
+                   th:attr="aria-invalid=${#fields.hasErrors('direccion')},
+                            aria-describedby=${#fields.hasErrors('direccion')} ? 'direccion-error' : null">
             <p class="error" id="direccion-error" role="alert"
+               th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></p>
+        </div>
+        <div class="campo">
+            <label for="direccionReferencia">Punto de referencia (opcional)</label>
+            <input id="direccionReferencia" type="text" th:field="*{direccionReferencia}" maxlength="255"
+                   placeholder="Ej. Frente a la escuela"
+                   th:attr="aria-invalid=${#fields.hasErrors('direccionReferencia')},
+                            aria-describedby=${#fields.hasErrors('direccionReferencia')} ? 'referencia-error' : null">
+            <p class="error" id="referencia-error" role="alert"
                th:if="${#fields.hasErrors('direccionReferencia')}" th:errors="*{direccionReferencia}"></p>
         </div>
         <button class="registro-primario" type="submit">Continuar</button>

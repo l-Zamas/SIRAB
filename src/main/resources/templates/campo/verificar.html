@@ -39,8 +39,10 @@
             <dd th:text="${#strings.isEmpty(solicitud.telefonoContacto) ? 'No indicado' : solicitud.telefonoContacto}"></dd>
             <dt>Barrio</dt>
             <dd th:text="${#strings.isEmpty(solicitud.barrio) ? 'No indicado' : solicitud.barrio}"></dd>
-            <dt>Dirección o referencia</dt>
-            <dd th:text="${#strings.isEmpty(solicitud.direccionReferencia) ? 'No indicada' : solicitud.direccionReferencia}"></dd>
+            <dt>Dirección</dt>
+            <dd th:text="${#strings.isEmpty(solicitud.direccion) ? 'No indicada' : solicitud.direccion}"></dd>
+            <dt>Punto de referencia</dt>
+            <dd th:text="${#strings.isEmpty(solicitud.direccionReferencia) ? 'No indicado' : solicitud.direccionReferencia}"></dd>
             <dt>Consentimiento registrado</dt>
             <dd th:text="${#temporals.format(solicitud.consentimientoAt, 'dd/MM/yyyy HH:mm')}"></dd>
             <dt>Situaciones familiares</dt>
@@ -91,7 +93,13 @@
                 <p class="error" th:errors="*{barrio}"></p>
             </div>
             <div class="campo">
-                <label for="direccionReferencia">Dirección o referencia</label>
+                <label for="direccion">Dirección</label>
+                <input id="direccion" type="text" th:field="*{direccion}"
+                       th:attr="aria-invalid=${#fields.hasErrors('direccion')}">
+                <p class="error" th:errors="*{direccion}"></p>
+            </div>
+            <div class="campo">
+                <label for="direccionReferencia">Punto de referencia</label>
                 <input id="direccionReferencia" type="text" th:field="*{direccionReferencia}"
                        th:attr="aria-invalid=${#fields.hasErrors('direccionReferencia')}">
                 <p class="error" th:errors="*{direccionReferencia}"></p>

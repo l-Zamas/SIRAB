@@ -8,6 +8,7 @@ import com.sirab.registro.SituacionFamiliar;
 public record RegistroFamiliarCommand(
         String nombreRegistrante,
         String barrio,
+        String direccion,
         String direccionReferencia,
         Integer numeroIntegrantes,
         String telefonoContacto,

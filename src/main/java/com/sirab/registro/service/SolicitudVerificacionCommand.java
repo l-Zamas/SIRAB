@@ -10,6 +10,7 @@ public record SolicitudVerificacionCommand(
         Integer numeroIntegrantes,
         String telefonoContacto,
         String barrio,
+        String direccion,
         String direccionReferencia,
         Set<SituacionFamiliar> situaciones,
         Set<Necesidad> necesidades,

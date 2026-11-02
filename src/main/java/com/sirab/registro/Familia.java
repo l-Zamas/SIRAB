@@ -32,6 +32,9 @@ public class Familia {
     @Column(length = 120)
     private String barrio;
 
+    @Column(name = "direccion", length = 255)
+    private String direccion;
+
     @Column(name = "direccion_referencia", length = 255)
     private String direccionReferencia;
 
@@ -100,6 +103,14 @@ public class Familia {
 
     public void setBarrio(String barrio) {
         this.barrio = barrio;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getDireccionReferencia() {

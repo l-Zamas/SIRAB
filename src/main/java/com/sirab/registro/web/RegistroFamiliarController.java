@@ -109,16 +109,26 @@ public class RegistroFamiliarController {
             return "redirect:/familia/registro/consentimiento";
         }
         if (bindingResult.hasErrors()) {
-            form.clearPersonalValues();
+            DatosFamiliaForm safeForm = new DatosFamiliaForm();
+            if (!bindingResult.hasFieldErrors("nombreRegistrante")) {
+                safeForm.setNombreRegistrante(form.getNombreRegistrante());
+            }
+            if (!bindingResult.hasFieldErrors("numeroIntegrantes")) {
+                safeForm.setNumeroIntegrantes(form.getNumeroIntegrantes());
+            }
+            if (!bindingResult.hasFieldErrors("telefonoContacto")) {
+                safeForm.setTelefonoContacto(form.getTelefonoContacto());
+            }
+            model.addAttribute("datosFamiliaForm", safeForm);
             model.addAttribute(
                     BindingResult.MODEL_KEY_PREFIX + "datosFamiliaForm",
-                    RegistroFormErrors.withoutRejectedValues(form, bindingResult));
+                    RegistroFormErrors.withoutRejectedValues(safeForm, bindingResult));
             return "familia/datos-familia";
         }
 
         draft.setNombreRegistrante(form.getNombreRegistrante().trim());
         draft.setNumeroIntegrantes(form.getNumeroIntegrantes());
-        draft.setTelefonoContacto(normalizeOptional(form.getTelefonoContacto()));
+        draft.setTelefonoContacto(form.getTelefonoContacto().trim());
         avanzarEtapa(draft, ETAPA_DATOS);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/ubicacion";
@@ -134,6 +144,7 @@ public class RegistroFamiliarController {
 
         UbicacionForm form = new UbicacionForm();
         form.setBarrio(draft.getBarrio());
+        form.setDireccion(draft.getDireccion());
         form.setDireccionReferencia(draft.getDireccionReferencia());
         model.addAttribute("ubicacionForm", form);
         return "familia/ubicacion";
@@ -152,14 +163,25 @@ public class RegistroFamiliarController {
             return "redirect:/familia/registro/datos";
         }
         if (bindingResult.hasErrors()) {
-            form.clearValues();
+            UbicacionForm safeForm = new UbicacionForm();
+            if (!bindingResult.hasFieldErrors("barrio")) {
+                safeForm.setBarrio(form.getBarrio());
+            }
+            if (!bindingResult.hasFieldErrors("direccion")) {
+                safeForm.setDireccion(form.getDireccion());
+            }
+            if (!bindingResult.hasFieldErrors("direccionReferencia")) {
+                safeForm.setDireccionReferencia(form.getDireccionReferencia());
+            }
+            model.addAttribute("ubicacionForm", safeForm);
             model.addAttribute(
                     BindingResult.MODEL_KEY_PREFIX + "ubicacionForm",
-                    RegistroFormErrors.withoutRejectedValues(form, bindingResult));
+                    RegistroFormErrors.withoutRejectedValues(safeForm, bindingResult));
             return "familia/ubicacion";
         }
 
-        draft.setBarrio(normalizeOptional(form.getBarrio()));
+        draft.setBarrio(form.getBarrio().trim());
+        draft.setDireccion(form.getDireccion().trim());
         draft.setDireccionReferencia(normalizeOptional(form.getDireccionReferencia()));
         avanzarEtapa(draft, ETAPA_UBICACION);
         session.setAttribute(BORRADOR, draft);

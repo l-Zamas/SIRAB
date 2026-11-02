@@ -36,6 +36,7 @@ class MySqlRegistroIntegrationTests {
         RegistroFamiliarCommand command = new RegistroFamiliarCommand(
                 syntheticRegistrant,
                 "TEST_BARRIO",
+                "TEST_DIRECCION",
                 "TEST_REFERENCE",
                 1,
                 "SYNTHETIC_PHONE",
@@ -50,6 +51,7 @@ class MySqlRegistroIntegrationTests {
                 .orElseThrow();
         assertEquals(1, saved.getNumeroIntegrantes());
         assertEquals("TEST_BARRIO", saved.getBarrio());
+        assertEquals("TEST_DIRECCION", saved.getDireccion());
         assertEquals("TEST_REFERENCE", saved.getDireccionReferencia());
         assertEquals("SYNTHETIC_PHONE", saved.getTelefonoContacto());
         assertEquals(Set.of(SituacionFamiliar.MENORES_DE_CINCO), saved.getSituaciones());

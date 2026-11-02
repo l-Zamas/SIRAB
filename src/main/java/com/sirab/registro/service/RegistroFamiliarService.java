@@ -56,6 +56,7 @@ public class RegistroFamiliarService {
         Familia familia = new Familia();
         familia.setNombreRegistrante(command.nombreRegistrante());
         familia.setBarrio(command.barrio());
+        familia.setDireccion(command.direccion());
         familia.setDireccionReferencia(command.direccionReferencia());
         familia.setNumeroIntegrantes(command.numeroIntegrantes());
         familia.setTelefonoContacto(command.telefonoContacto());
@@ -103,6 +104,7 @@ public class RegistroFamiliarService {
                     familia.getNumeroIntegrantes(),
                     familia.getTelefonoContacto(),
                     familia.getBarrio(),
+                    familia.getDireccion(),
                     familia.getDireccionReferencia(),
                     familia.getSituaciones(),
                     familia.getNecesidades(),
@@ -126,6 +128,7 @@ public class RegistroFamiliarService {
         String nombreRegistrante = command.nombreRegistrante().trim();
         String telefonoContacto = normalizarOpcional(command.telefonoContacto());
         String barrio = normalizarOpcional(command.barrio());
+        String direccion = normalizarOpcional(command.direccion());
         String direccionReferencia = normalizarOpcional(command.direccionReferencia());
         Set<SituacionFamiliar> situaciones = command.situaciones() == null ? Set.of() : command.situaciones();
         Set<Necesidad> necesidades = command.necesidades() == null ? Set.of() : command.necesidades();
@@ -134,7 +137,8 @@ public class RegistroFamiliarService {
         actualizarCampo(cambios, "Número de integrantes", familia.getNumeroIntegrantes(), command.numeroIntegrantes());
         actualizarCampo(cambios, "Teléfono de contacto", familia.getTelefonoContacto(), telefonoContacto);
         actualizarCampo(cambios, "Barrio", familia.getBarrio(), barrio);
-        actualizarCampo(cambios, "Dirección o referencia", familia.getDireccionReferencia(), direccionReferencia);
+        actualizarCampo(cambios, "Dirección", familia.getDireccion(), direccion);
+        actualizarCampo(cambios, "Punto de referencia", familia.getDireccionReferencia(), direccionReferencia);
         actualizarCampo(cambios, "Situaciones familiares",
                 valores(familia.getSituaciones()), valores(situaciones));
         actualizarCampo(cambios, "Necesidades", valores(familia.getNecesidades()), valores(necesidades));
@@ -143,6 +147,7 @@ public class RegistroFamiliarService {
         familia.setNumeroIntegrantes(command.numeroIntegrantes());
         familia.setTelefonoContacto(telefonoContacto);
         familia.setBarrio(barrio);
+        familia.setDireccion(direccion);
         familia.setDireccionReferencia(direccionReferencia);
         familia.setSituaciones(situaciones);
         familia.setNecesidades(necesidades);
@@ -347,6 +352,7 @@ public class RegistroFamiliarService {
             Integer numeroIntegrantes,
             String telefonoContacto,
             String barrio,
+            String direccion,
             String direccionReferencia,
             Set<SituacionFamiliar> situaciones,
             Set<Necesidad> necesidades,

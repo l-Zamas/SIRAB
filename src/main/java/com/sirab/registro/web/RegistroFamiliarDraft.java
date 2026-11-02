@@ -19,6 +19,7 @@ public final class RegistroFamiliarDraft implements Serializable {
     private Integer numeroIntegrantes;
     private String telefonoContacto;
     private String barrio;
+    private String direccion;
     private String direccionReferencia;
     private Set<SituacionFamiliar> situaciones = EnumSet.noneOf(SituacionFamiliar.class);
     private Set<Necesidad> necesidades = EnumSet.noneOf(Necesidad.class);
@@ -55,6 +56,14 @@ public final class RegistroFamiliarDraft implements Serializable {
 
     public void setBarrio(String barrio) {
         this.barrio = barrio;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getDireccionReferencia() {
@@ -105,6 +114,7 @@ public final class RegistroFamiliarDraft implements Serializable {
         return new RegistroFamiliarCommand(
                 nombreRegistrante,
                 barrio,
+                direccion,
                 direccionReferencia,
                 numeroIntegrantes,
                 telefonoContacto,

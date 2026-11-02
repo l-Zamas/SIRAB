@@ -56,6 +56,7 @@ class RegistroFamiliarServiceTests {
         RegistroFamiliarCommand command = new RegistroFamiliarCommand(
                 "REGISTRO_SINTETICO",
                 "BARRIO_SINTETICO",
+                "DIRECCION_SINTETICA",
                 "REFERENCIA_SINTETICA",
                 3,
                 "TELEFONO_SINTETICO",
@@ -72,6 +73,7 @@ class RegistroFamiliarServiceTests {
         Familia familia = captor.getValue();
         assertEquals(command.nombreRegistrante(), familia.getNombreRegistrante());
         assertEquals(command.barrio(), familia.getBarrio());
+        assertEquals(command.direccion(), familia.getDireccion());
         assertEquals(command.direccionReferencia(), familia.getDireccionReferencia());
         assertEquals(command.numeroIntegrantes(), familia.getNumeroIntegrantes());
         assertEquals(command.telefonoContacto(), familia.getTelefonoContacto());
@@ -86,6 +88,7 @@ class RegistroFamiliarServiceTests {
     void rechazaElRegistroSinConsentimiento() {
         RegistroFamiliarCommand command = new RegistroFamiliarCommand(
                 "REGISTRO_SINTETICO",
+                null,
                 null,
                 null,
                 1,
@@ -114,6 +117,7 @@ class RegistroFamiliarServiceTests {
                 3,
                 "3000000000",
                 "Barrio",
+                "Dirección",
                 "Referencia",
                 Set.of(SituacionFamiliar.ADULTOS_MAYORES),
                 Set.of(Necesidad.AGUA, Necesidad.ALOJAMIENTO),
@@ -126,7 +130,7 @@ class RegistroFamiliarServiceTests {
         VerificacionSolicitud verificacion = verificacionCaptor.getValue();
         assertEquals("campo@sirab.local", verificacion.getUsuarioCorreo());
         assertEquals("Verificación presencial", verificacion.getObservacion());
-        assertEquals(7, verificacion.getCambios().size());
+        assertEquals(8, verificacion.getCambios().size());
         assertEquals("Nombre de quien registra", verificacion.getCambios().get(0).getCampo());
         ArgumentCaptor<EstadoSolicitudHistorial> historialCaptor =
                 ArgumentCaptor.forClass(EstadoSolicitudHistorial.class);

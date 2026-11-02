@@ -35,9 +35,9 @@
                th:if="${#fields.hasErrors('numeroIntegrantes')}" th:errors="*{numeroIntegrantes}"></p>
         </div>
         <div class="campo">
-            <label for="telefonoContacto">Teléfono de contacto</label>
+            <label for="telefonoContacto">Teléfono de contacto (obligatorio)</label>
             <input id="telefonoContacto" type="tel" th:field="*{telefonoContacto}" maxlength="100"
-                   autocomplete="tel"
+                   autocomplete="tel" placeholder="Ej. 300 000 0000" required
                    th:attr="aria-invalid=${#fields.hasErrors('telefonoContacto')},
                             aria-describedby=${#fields.hasErrors('telefonoContacto')} ? 'telefono-error' : null">
             <p class="error" id="telefono-error" role="alert"

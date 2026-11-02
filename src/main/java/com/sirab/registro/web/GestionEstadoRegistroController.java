@@ -76,6 +76,7 @@ public class GestionEstadoRegistroController {
                             form.getNumeroIntegrantes(),
                             form.getTelefonoContacto(),
                             form.getBarrio(),
+                            form.getDireccion(),
                             form.getDireccionReferencia(),
                             form.getSituaciones(),
                             form.getNecesidades(),
@@ -173,6 +174,7 @@ public class GestionEstadoRegistroController {
             form.setNumeroIntegrantes(solicitud.numeroIntegrantes());
             form.setTelefonoContacto(solicitud.telefonoContacto());
             form.setBarrio(solicitud.barrio());
+            form.setDireccion(solicitud.direccion());
             form.setDireccionReferencia(solicitud.direccionReferencia());
             form.setSituaciones(solicitud.situaciones());
             form.setNecesidades(solicitud.necesidades());
