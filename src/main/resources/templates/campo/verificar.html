@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Solicitud familiar - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main class="campo-app">
+    <nav class="campo-navegacion" aria-label="Navegación de personal">
+        <a th:href="@{/campo/registros}">Volver a solicitudes</a>
+        <form th:action="@{/logout}" method="post">
+            <button class="secundario" type="submit">Cerrar sesión</button>
+        </form>
+    </nav>
+    <header class="campo-encabezado">
+        <div>
+            <p class="sobrelinea">Solicitud <span th:text="${solicitud.id}"></span></p>
+            <h1>Verificación y atención</h1>
+            <p>Revisa la información registrada con la familia y documenta cada resultado.</p>
+        </div>
+        <span class="estado" th:text="${solicitud.estado.etiqueta}"></span>
+    </header>
+
+    <p class="aviso aviso-exito" role="status" th:if="${mensaje}" th:text="${mensaje}"></p>
+    <p class="aviso aviso-error" role="alert" th:if="${aviso}" th:text="${aviso}"></p>
+
+    <section class="campo-seccion">
+        <h2>Datos registrados</h2>
+        <dl class="resumen">
+            <dt>Fecha de registro</dt>
+            <dd th:text="${#temporals.format(solicitud.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></dd>
+            <dt>Nombre de quien registra</dt>
+            <dd th:text="${solicitud.nombreRegistrante}"></dd>
+            <dt>Integrantes</dt>
+            <dd th:text="${solicitud.numeroIntegrantes}"></dd>
+            <dt>Teléfono</dt>
+            <dd th:text="${#strings.isEmpty(solicitud.telefonoContacto) ? 'No indicado' : solicitud.telefonoContacto}"></dd>
+            <dt>Barrio</dt>
+            <dd th:text="${#strings.isEmpty(solicitud.barrio) ? 'No indicado' : solicitud.barrio}"></dd>
+            <dt>Dirección o referencia</dt>
+            <dd th:text="${#strings.isEmpty(solicitud.direccionReferencia) ? 'No indicada' : solicitud.direccionReferencia}"></dd>
+            <dt>Consentimiento registrado</dt>
+            <dd th:text="${#temporals.format(solicitud.consentimientoAt, 'dd/MM/yyyy HH:mm')}"></dd>
+            <dt>Situaciones familiares</dt>
+            <dd>
+                <span th:if="${#sets.isEmpty(solicitud.situaciones)}">Ninguna indicada</span>
+                <span th:each="situacion, iter : ${solicitud.situaciones}">
+                    <span th:text="${situacion.etiqueta}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+            </dd>
+            <dt>Necesidades</dt>
+            <dd>
+                <span th:if="${#sets.isEmpty(solicitud.necesidades)}">Ninguna indicada</span>
+                <span th:each="necesidad, iter : ${solicitud.necesidades}">
+                    <span th:text="${necesidad.etiqueta}"></span><span th:if="${!iter.last}">, </span>
+                </span>
+            </dd>
+        </dl>
+        <p class="nota">No hay documentos adjuntos disponibles para esta solicitud.</p>
+    </section>
+
+    <section class="campo-seccion" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE}">
+        <h2>Verificar información</h2>
+        <p>Confirma o corrige los datos durante la revisión con la familia. Los cambios quedan registrados.</p>
+        <form th:action="@{/campo/registros/{id}/verificacion(id=${solicitud.id})}"
+              th:object="${verificacionForm}" method="post">
+            <div class="campo">
+                <label for="nombreRegistrante">Nombre de quien registra</label>
+                <input id="nombreRegistrante" type="text" th:field="*{nombreRegistrante}"
+                       th:attr="aria-invalid=${#fields.hasErrors('nombreRegistrante')}">
+                <p class="error" th:errors="*{nombreRegistrante}"></p>
+            </div>
+            <div class="campo">
+                <label for="numeroIntegrantes">Número de integrantes</label>
+                <input id="numeroIntegrantes" type="number" min="1" th:field="*{numeroIntegrantes}"
+                       th:attr="aria-invalid=${#fields.hasErrors('numeroIntegrantes')}">
+                <p class="error" th:errors="*{numeroIntegrantes}"></p>
+            </div>
+            <div class="campo">
+                <label for="telefonoContacto">Teléfono de contacto</label>
+                <input id="telefonoContacto" type="tel" th:field="*{telefonoContacto}"
+                       th:attr="aria-invalid=${#fields.hasErrors('telefonoContacto')}">
+                <p class="error" th:errors="*{telefonoContacto}"></p>
+            </div>
+            <div class="campo">
+                <label for="barrio">Barrio</label>
+                <input id="barrio" type="text" th:field="*{barrio}"
+                       th:attr="aria-invalid=${#fields.hasErrors('barrio')}">
+                <p class="error" th:errors="*{barrio}"></p>
+            </div>
+            <div class="campo">
+                <label for="direccionReferencia">Dirección o referencia</label>
+                <input id="direccionReferencia" type="text" th:field="*{direccionReferencia}"
+                       th:attr="aria-invalid=${#fields.hasErrors('direccionReferencia')}">
+                <p class="error" th:errors="*{direccionReferencia}"></p>
+            </div>
+            <fieldset>
+                <legend>Situaciones familiares identificadas</legend>
+                <div th:each="situacion : ${situacionesDisponibles}">
+                    <input type="checkbox" th:field="*{situaciones}" th:value="${situacion}">
+                    <label th:for="${#ids.prev('situaciones')}" th:text="${situacion.etiqueta}"></label>
+                </div>
+            </fieldset>
+            <fieldset class="necesidades">
+                <legend>Necesidades identificadas</legend>
+                <div th:each="necesidad : ${entregasDisponibles}">
+                    <input type="checkbox" th:field="*{necesidades}" th:value="${necesidad}">
+                    <label th:for="${#ids.prev('necesidades')}" th:text="${necesidad.etiqueta}"></label>
+                </div>
+            </fieldset>
+            <div class="campo">
+                <label for="observacion-verificacion">Observación de verificación</label>
+                <textarea id="observacion-verificacion" rows="4" th:field="*{observacion}"
+                          th:attr="aria-invalid=${#fields.hasErrors('observacion')}"></textarea>
+                <p class="error" th:errors="*{observacion}"></p>
+            </div>
+            <button type="submit">Confirmar verificación</button>
+        </form>
+    </section>
+
+    <section class="campo-seccion" th:if="${!#lists.isEmpty(solicitud.verificaciones)}">
+        <h2>Historial de verificaciones</h2>
+        <article class="registro-historial" th:each="verificacion : ${solicitud.verificaciones}">
+            <h3 th:text="${verificacion.resultado == T(com.sirab.registro.ResultadoVerificacion).CORREGIDA
+                ? 'Datos corregidos' : 'Datos confirmados'}"></h3>
+            <p>
+                <span th:text="${#temporals.format(verificacion.verificadaAt, 'dd/MM/yyyy HH:mm')}"></span>
+                · <span th:text="${verificacion.usuarioCorreo}"></span>
+            </p>
+            <p th:if="${verificacion.observacion}" th:text="${verificacion.observacion}"></p>
+            <ul th:if="${!#lists.isEmpty(verificacion.cambios)}">
+                <li th:each="cambio : ${verificacion.cambios}">
+                    <strong th:text="${cambio.campo}"></strong>:
+                    <span th:text="${cambio.valorAnterior == null ? 'Sin dato' : cambio.valorAnterior}"></span>
+                    → <span th:text="${cambio.valorNuevo == null ? 'Sin dato' : cambio.valorNuevo}"></span>
+                </li>
+            </ul>
+        </article>
+    </section>
+
+    <section class="campo-seccion"
+             th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO
+                 or solicitud.estado == T(com.sirab.registro.EstadoRegistro).ATENDIDO}">
+        <h2>Entregas de ayuda</h2>
+        <p>Registra cada entrega vinculada a una necesidad. Las atenciones parciales no cierran la solicitud.</p>
+        <form th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}"
+              th:action="@{/campo/registros/{id}/entregas(id=${solicitud.id})}"
+              th:object="${entregaForm}" method="post">
+            <div class="campo">
+                <label for="tipoAyuda">Necesidad atendida</label>
+                <select id="tipoAyuda" th:field="*{tipoAyuda}"
+                        th:attr="aria-invalid=${#fields.hasErrors('tipoAyuda')}">
+                    <option value="">Selecciona una necesidad</option>
+                    <option th:each="necesidad : ${solicitud.necesidades}"
+                            th:value="${necesidad}" th:text="${necesidad.etiqueta}"></option>
+                </select>
+                <p class="error" th:errors="*{tipoAyuda}"></p>
+            </div>
+            <div class="campo">
+                <label for="cantidad">Cantidad entregada (por ejemplo, 40 L)</label>
+                <input id="cantidad" type="text" th:field="*{cantidad}"
+                       th:attr="aria-invalid=${#fields.hasErrors('cantidad')}">
+                <p class="error" th:errors="*{cantidad}"></p>
+            </div>
+            <div class="campo">
+                <label for="fechaEntrega">Fecha de entrega</label>
+                <input id="fechaEntrega" type="date" th:field="*{fechaEntrega}"
+                       th:attr="aria-invalid=${#fields.hasErrors('fechaEntrega')}">
+                <p class="error" th:errors="*{fechaEntrega}"></p>
+            </div>
+            <div class="consentimiento">
+                <input id="satisfaceNecesidadCompleta" type="checkbox" th:field="*{satisfaceNecesidadCompleta}">
+                <label for="satisfaceNecesidadCompleta">
+                    Con esta entrega queda satisfecha completamente la necesidad seleccionada.
+                </label>
+            </div>
+            <div class="campo">
+                <label for="observacion-entrega">Observación de la entrega</label>
+                <textarea id="observacion-entrega" rows="3" th:field="*{observacion}"
+                          th:attr="aria-invalid=${#fields.hasErrors('observacion')}"></textarea>
+                <p class="error" th:errors="*{observacion}"></p>
+            </div>
+            <p class="aviso" th:if="${solicitud.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">
+                Registra alojamiento únicamente cuando haya sido proporcionado efectivamente.
+                Este registro no autoriza cupos ni asignaciones de albergue.
+            </p>
+            <p class="error" th:if="${#fields.hasGlobalErrors()}" th:each="error : ${#fields.globalErrors()}"
+               th:text="${error}"></p>
+            <button type="submit">Registrar entrega</button>
+        </form>
+
+        <p th:if="${#lists.isEmpty(solicitud.entregas)}">Aún no hay entregas registradas.</p>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(solicitud.entregas)}">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">Necesidad</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Satisfacción</th>
+                    <th scope="col">Registrada por</th>
+                    <th scope="col">Observación</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entrega : ${solicitud.entregas}">
+                    <td th:text="${entrega.tipoAyuda.etiqueta}"></td>
+                    <td th:text="${entrega.cantidad}"></td>
+                    <td th:text="${#temporals.format(entrega.fechaEntrega, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atención parcial'}"></td>
+                    <td th:text="${entrega.usuarioCorreo}"></td>
+                    <td th:text="${#strings.isEmpty(entrega.observacion) ? '—' : entrega.observacion}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cierre-solicitud" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}">
+            <form th:if="${puedeMarcarAtendido}"
+                  th:action="@{/campo/registros/{id}/atendido(id=${solicitud.id})}" method="post">
+                <label for="observacion-cierre">Observación de cierre (opcional)</label>
+                <textarea id="observacion-cierre" name="observacion" rows="2"></textarea>
+                <button type="submit">Marcar solicitud como atendida</button>
+            </form>
+            <div class="aviso" th:unless="${puedeMarcarAtendido}">
+                <p>La solicitud solo puede cerrarse cuando exista una entrega completa para cada necesidad.</p>
+                <ul th:if="${!#sets.isEmpty(solicitud.necesidades)}">
+                    <li th:each="necesidad : ${solicitud.necesidades}"
+                        th:unless="${necesidadesSatisfechas.contains(necesidad)}"
+                        th:text="${necesidad.etiqueta + ' pendiente de satisfacción completa'}"></li>
+                </ul>
+                <p th:if="${#sets.isEmpty(solicitud.necesidades)}">
+                    No hay necesidades registradas ni entregas que respalden el cierre.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Historial de estados</h2>
+        <ol class="lista-historial">
+            <li th:each="evento : ${solicitud.historialEstados}">
+                <strong th:text="${evento.estadoNuevo.etiqueta}"></strong>
+                <span th:if="${evento.estadoAnterior != null}"
+                      th:text="${' desde ' + evento.estadoAnterior.etiqueta}"></span>
+                <span th:text="${#temporals.format(evento.fechaHora, 'dd/MM/yyyy HH:mm')}"></span>
+                <span th:if="${evento.usuarioCorreo}" th:text="${' · ' + evento.usuarioCorreo}"></span>
+                <span th:if="${evento.actorTipo == T(com.sirab.registro.ActorTipoSolicitud).SISTEMA}">
+                    · Sistema
+                </span>
+                <p th:if="${evento.observacion}" th:text="${evento.observacion}"></p>
+            </li>
+        </ol>
+    </section>
+</main>
+</body>
+</html>

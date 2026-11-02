@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Registros familiares - SIRAB</title>
+    <title>Solicitudes familiares - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
 </head>
 <body>
-<main>
-    <form th:action="@{/logout}" method="post">
-        <button class="secundario" type="submit">Cerrar sesión</button>
-    </form>
-    <h1>Registros familiares</h1>
-    <p>Consulta el estado de cada registro y actualízalo según la gestión realizada.</p>
-    <p th:if="${#lists.isEmpty(registros)}">Aún no hay registros familiares.</p>
+<main class="campo-app">
+    <header class="campo-encabezado">
+        <div>
+            <p class="sobrelinea">Personal de campo</p>
+            <h1>Solicitudes familiares</h1>
+            <p>Consulta los registros y abre una solicitud para verificarla o revisar su atención.</p>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button class="secundario" type="submit">Cerrar sesión</button>
+        </form>
+    </header>
+
+    <p th:if="${#lists.isEmpty(registros)}" class="aviso">Aún no hay solicitudes familiares.</p>
     <div class="tabla-contenedor" th:unless="${#lists.isEmpty(registros)}">
         <table>
             <thead>
@@ -21,8 +27,10 @@
                 <th scope="col">Registro</th>
                 <th scope="col">Familia</th>
                 <th scope="col">Barrio</th>
+                <th scope="col">Integrantes</th>
+                <th scope="col">Necesidades</th>
                 <th scope="col">Estado</th>
-                <th scope="col">Actualizar estado</th>
+                <th scope="col">Acción</th>
             </tr>
             </thead>
             <tbody>
@@ -30,21 +38,19 @@
                 <td th:text="${registro.id}"></td>
                 <td th:text="${registro.nombreRegistrante}"></td>
                 <td th:text="${#strings.isEmpty(registro.barrio) ? 'No indicado' : registro.barrio}"></td>
-                <td th:text="${registro.estado.etiqueta}"></td>
+                <td th:text="${registro.numeroIntegrantes}"></td>
                 <td>
-                    <form class="actualizar-estado"
-                          th:action="@{/campo/registros/{id}/estado(id=${registro.id})}" method="post">
-                        <label class="solo-lectores" th:for="${'estado-' + registro.id}">
-                            Estado del registro <span th:text="${registro.id}"></span>
-                        </label>
-                        <select name="estado" th:id="${'estado-' + registro.id}">
-                            <option th:each="estado : ${estadosDisponibles}"
-                                    th:value="${estado.name()}"
-                                    th:text="${estado.etiqueta}"
-                                    th:selected="${estado == registro.estado}"></option>
-                        </select>
-                        <button type="submit">Guardar</button>
-                    </form>
+                    <span th:if="${#sets.isEmpty(registro.necesidades)}">No indicadas</span>
+                    <span th:each="necesidad, iter : ${registro.necesidades}">
+                        <span th:text="${necesidad.etiqueta}"></span><span th:if="${!iter.last}">, </span>
+                    </span>
+                </td>
+                <td><span class="estado" th:text="${registro.estado.etiqueta}"></span></td>
+                <td>
+                    <a class="boton enlace-accion"
+                       th:href="@{/campo/registros/{id}(id=${registro.id})}"
+                       th:text="${registro.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE
+                            ? 'Verificar solicitud' : 'Ver detalle'}">Ver detalle</a>
                 </td>
             </tr>
             </tbody>

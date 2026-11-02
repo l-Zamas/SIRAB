@@ -56,6 +56,21 @@ input[type="tel"] {
     font: inherit;
 }
 
+.campo-app input[type="date"],
+.campo-app select,
+.campo-app textarea {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid #737b87;
+    border-radius: 0.375rem;
+    font: inherit;
+}
+
+.campo-app textarea {
+    resize: vertical;
+}
+
 fieldset {
     display: grid;
     gap: 0.75rem;
@@ -279,6 +294,132 @@ td {
     font: inherit;
 }
 
+.campo-app {
+    width: min(100%, 76rem);
+}
+
+.campo-app h1,
+.campo-app h2,
+.campo-app h3 {
+    line-height: 1.25;
+}
+
+.campo-encabezado,
+.campo-navegacion {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.campo-encabezado {
+    margin-bottom: 1.5rem;
+}
+
+.campo-encabezado > form,
+.campo-navegacion > form {
+    margin: 0;
+}
+
+.campo-navegacion {
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.sobrelinea {
+    margin-bottom: 0.25rem;
+    color: #0759a6;
+    font-weight: 700;
+}
+
+.estado {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    color: #164e83;
+    background: #eaf3fc;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.enlace-accion {
+    min-width: 9rem;
+}
+
+.campo-seccion {
+    padding: clamp(1rem, 3vw, 1.5rem) 0;
+    border-top: 1px solid #d9dee7;
+}
+
+.campo-seccion > h2 {
+    margin-top: 0;
+}
+
+.campo-seccion .resumen {
+    max-width: 54rem;
+}
+
+.nota {
+    color: #48515d;
+    font-size: 0.9375rem;
+}
+
+.aviso-exito {
+    border-color: #9ac7a3;
+    background: #f0f8f1;
+}
+
+.aviso-error {
+    border-color: #d7a2a2;
+    color: #8b1e1e;
+    background: #fff5f5;
+}
+
+.registro-historial {
+    padding: 1rem 0;
+    border-top: 1px solid #d9dee7;
+    overflow-wrap: anywhere;
+}
+
+.registro-historial h3,
+.registro-historial p {
+    margin-top: 0;
+}
+
+.registro-historial li {
+    margin: 0.5rem 0;
+}
+
+.lista-historial {
+    display: grid;
+    gap: 0.75rem;
+    padding-left: 1.5rem;
+}
+
+.lista-historial li {
+    padding-left: 0.25rem;
+}
+
+.lista-historial p {
+    margin: 0.25rem 0;
+    color: #48515d;
+}
+
+.cierre-solicitud {
+    margin-top: 1.25rem;
+}
+
+.cierre-solicitud form {
+    max-width: 38rem;
+}
+
+.campo-app :focus-visible {
+    outline: 3px solid #d07800;
+    outline-offset: 3px;
+}
+
 @media (max-width: 30rem) {
     body {
         padding: 0.5rem;
@@ -297,5 +438,27 @@ td {
     .resumen dd {
         margin-bottom: 0.5rem;
         text-align: left;
+    }
+
+    .campo-encabezado {
+        flex-direction: column;
+    }
+
+    .campo-encabezado > form,
+    .campo-encabezado > form button,
+    .campo-encabezado .estado {
+        width: 100%;
+    }
+
+    .campo-navegacion {
+        align-items: flex-start;
+    }
+
+    .tabla-contenedor table {
+        min-width: 42rem;
+    }
+
+    .necesidades {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

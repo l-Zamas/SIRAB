@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -46,6 +47,9 @@ public class Familia {
     @Column(name = "consentimiento_version", length = 40)
     private String consentimientoVersion;
 
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private Instant fechaCreacion;
+
     @Column(name = "estado", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private EstadoRegistro estado = EstadoRegistro.PENDIENTE;
@@ -69,6 +73,13 @@ public class Familia {
     private Set<SituacionFamiliar> situaciones = new HashSet<>();
 
     public Familia() {
+    }
+
+    @PrePersist
+    void establecerFechaCreacion() {
+        if (fechaCreacion == null) {
+            fechaCreacion = Instant.now();
+        }
     }
 
     public Long getId() {
@@ -129,6 +140,10 @@ public class Familia {
 
     public void setConsentimientoVersion(String consentimientoVersion) {
         this.consentimientoVersion = consentimientoVersion;
+    }
+
+    public Instant getFechaCreacion() {
+        return fechaCreacion;
     }
 
     public EstadoRegistro getEstado() {

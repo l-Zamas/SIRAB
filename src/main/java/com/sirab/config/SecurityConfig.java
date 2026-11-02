@@ -24,7 +24,7 @@ public class SecurityConfig {
                         "/favicon.ico", "/error")
                 .permitAll()
                 .requestMatchers("/campo/**")
-                .hasAnyRole("PERSONAL_CAMPO", "ADMIN")
+                .hasRole("PERSONAL_CAMPO")
                 .requestMatchers("/coordinacion/**")
                 .hasAnyRole("COORDINACION", "ADMIN")
                 .requestMatchers("/admin/**")

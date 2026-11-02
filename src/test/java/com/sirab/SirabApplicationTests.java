@@ -19,10 +19,14 @@ import java.util.Set;
 import java.time.Instant;
 
 import com.sirab.registro.EstadoRegistro;
+import com.sirab.registro.ActorTipoSolicitud;
+import com.sirab.registro.EstadoSolicitudHistorialRepository;
+import com.sirab.registro.EntregaAyudaRepository;
 import com.sirab.registro.Familia;
 import com.sirab.registro.FamiliaRepository;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
+import com.sirab.registro.VerificacionSolicitudRepository;
 import com.sirab.seguridad.CuentaUsuario;
 import com.sirab.seguridad.CuentaUsuarioRepository;
 import com.sirab.seguridad.InicializarCuentasDesarrollo;
@@ -53,6 +57,15 @@ class SirabApplicationTests {
     private FamiliaRepository familiaRepository;
 
     @Autowired
+    private EstadoSolicitudHistorialRepository historialRepository;
+
+    @Autowired
+    private VerificacionSolicitudRepository verificacionRepository;
+
+    @Autowired
+    private EntregaAyudaRepository entregaAyudaRepository;
+
+    @Autowired
     private EntityManager entityManager;
 
     @Autowired
@@ -74,6 +87,7 @@ class SirabApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("familia/bienvenida"))
                 .andExpect(content().string(containsString("Sistema Integral de Respuesta")))
+                .andExpect(content().string(containsString("id=\"necesidades\"")))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
                         .string("Cache-Control", containsString("no-store")));
 
@@ -267,6 +281,10 @@ class SirabApplicationTests {
         assertEquals(EstadoRegistro.PENDIENTE, saved.getEstado());
         assertTrue(saved.getConsentimientoAt() != null);
         assertTrue(saved.getConsentimientoVersion() != null);
+        var historialInicial = historialRepository.findByFamilia_IdOrderByFechaHoraAsc(saved.getId());
+        assertEquals(1, historialInicial.size());
+        assertEquals(EstadoRegistro.PENDIENTE, historialInicial.get(0).getEstadoNuevo());
+        assertEquals(ActorTipoSolicitud.SISTEMA, historialInicial.get(0).getActorTipo());
         assertTrue(session.getAttribute("registroFamiliarDraft") == null);
     }
 
@@ -360,69 +378,104 @@ class SirabApplicationTests {
 
     @Test
     @Transactional
-    void fieldStaffCanChangeAnyRegistrationStateAndOtherRolesCannot() throws Exception {
+    void verificationAndDeliveryRequireFieldRoleAndEnforceStateRules() throws Exception {
         Familia familia = new Familia();
         familia.setNombreRegistrante("REGISTRO_ESTADO_SINTETICO");
         familia.setDireccionReferencia("REFERENCIA_ESTADO_SINTETICA");
         familia.setNumeroIntegrantes(1);
+        familia.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALOJAMIENTO));
         familia.setConsentimientoAt(Instant.now());
         familia = familiaRepository.saveAndFlush(familia);
+        Long familiaId = familia.getId();
 
-        mockMvc.perform(post("/campo/registros/{id}/estado", familia.getId())
+        mockMvc.perform(get("/campo/registros/{id}", familiaId)
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/campo/registros/{id}/verificacion", familiaId)
                         .with(user("coordinacion").roles("COORDINACION"))
                         .with(csrf())
-                        .param("estado", "ATENDIDO"))
+                        .param("nombreRegistrante", "Nombre alterado"))
                 .andExpect(status().isForbidden());
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(EstadoRegistro.PENDIENTE,
-                familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
 
-        mockMvc.perform(post("/campo/registros/{id}/estado", familia.getId())
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("estado", "ATENDIDO"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/campo/registros"));
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(EstadoRegistro.ATENDIDO,
-                familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
-
-        mockMvc.perform(post("/campo/registros/{id}/estado", familia.getId())
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("estado", "VERIFICADO"))
-                .andExpect(status().is3xxRedirection());
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(EstadoRegistro.VERIFICADO,
-                familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
-
-        mockMvc.perform(post("/campo/registros/{id}/estado", familia.getId())
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("estado", "ESTADO_INVALIDO"))
-                .andExpect(status().isBadRequest());
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(EstadoRegistro.VERIFICADO,
-                familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
-
-        mockMvc.perform(post("/campo/registros/{id}/estado", familia.getId())
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("estado", "PENDIENTE"))
-                .andExpect(status().is3xxRedirection());
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(EstadoRegistro.PENDIENTE,
-                familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
-
-        mockMvc.perform(post("/campo/registros/{id}/estado", Long.MAX_VALUE)
+        mockMvc.perform(post("/campo/registros/{id}/estado", familiaId)
                         .with(user("personal").roles("PERSONAL_CAMPO"))
                         .with(csrf())
                         .param("estado", "ATENDIDO"))
                 .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/campo/registros/{id}", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("campo/verificar"))
+                .andExpect(content().string(containsString("Verificar información")));
+
+        mockMvc.perform(post("/campo/registros/{id}/verificacion", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO"))
+                        .with(csrf())
+                        .param("nombreRegistrante", "Nombre verificado")
+                        .param("numeroIntegrantes", "1")
+                        .param("telefonoContacto", "3000000000")
+                        .param("barrio", "Barrio")
+                        .param("direccionReferencia", "Referencia")
+                        .param("situaciones", "MENORES_DE_CINCO")
+                        .param("necesidades", "AGUA", "ALOJAMIENTO")
+                        .param("observacion", "Datos revisados"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/campo/registros/" + familiaId));
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(EstadoRegistro.VERIFICADO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
+        assertEquals(1, verificacionRepository.findByFamilia_IdOrderByVerificadaAtDesc(familiaId).size());
+
+        mockMvc.perform(post("/campo/registros/{id}/entregas", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO"))
+                        .with(csrf())
+                        .param("tipoAyuda", "AGUA")
+                        .param("cantidad", "20 L")
+                        .param("fechaEntrega", "2026-02-01")
+                        .param("satisfaceNecesidadCompleta", "false"))
+                .andExpect(status().is3xxRedirection());
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(1, entregaAyudaRepository.findByFamilia_IdOrderByFechaEntregaDescIdDesc(familiaId).size());
+
+        mockMvc.perform(post("/campo/registros/{id}/atendido", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(EstadoRegistro.VERIFICADO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
+
+        mockMvc.perform(post("/campo/registros/{id}/entregas", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO"))
+                        .with(csrf())
+                        .param("tipoAyuda", "AGUA")
+                        .param("cantidad", "40 L")
+                        .param("fechaEntrega", "2026-02-02")
+                        .param("satisfaceNecesidadCompleta", "true"))
+                .andExpect(status().is3xxRedirection());
+        mockMvc.perform(post("/campo/registros/{id}/entregas", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO"))
+                        .with(csrf())
+                        .param("tipoAyuda", "ALOJAMIENTO")
+                        .param("cantidad", "Albergue proporcionado")
+                        .param("fechaEntrega", "2026-02-02")
+                        .param("satisfaceNecesidadCompleta", "true"))
+                .andExpect(status().is3xxRedirection());
+        mockMvc.perform(post("/campo/registros/{id}/atendido", familiaId)
+                        .with(user("personal").roles("PERSONAL_CAMPO"))
+                        .with(csrf())
+                        .param("observacion", "Todas las necesidades atendidas"))
+                .andExpect(status().is3xxRedirection());
+        entityManager.flush();
+        entityManager.clear();
+        assertEquals(EstadoRegistro.ATENDIDO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
+
+        var historial = historialRepository.findByFamilia_IdOrderByFechaHoraAsc(familiaId);
+        assertEquals(2, historial.size());
+        assertEquals(EstadoRegistro.VERIFICADO, historial.get(0).getEstadoNuevo());
+        assertEquals(EstadoRegistro.ATENDIDO, historial.get(1).getEstadoNuevo());
     }
 }
