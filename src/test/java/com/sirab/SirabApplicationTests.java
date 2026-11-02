@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Set;
 import java.time.Instant;
+import java.net.URI;
 
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.ActorTipoSolicitud;
@@ -87,7 +88,14 @@ class SirabApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("familia/bienvenida"))
                 .andExpect(content().string(containsString("Sistema Integral de Respuesta")))
+                .andExpect(content().string(containsString("cada necesidad cuenta.")))
+                .andExpect(content().string(containsString("Registrar mi familia")))
+                .andExpect(content().string(containsString("Consultar mi estado")))
+                .andExpect(content().string(containsString("La consulta aún no está disponible.")))
+                .andExpect(content().string(containsString("id=\"como-funciona\"")))
                 .andExpect(content().string(containsString("id=\"necesidades\"")))
+                .andExpect(content().string(containsString("/familia/registro/consentimiento")))
+                .andExpect(content().string(containsString("/login")))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
                         .string("Cache-Control", containsString("no-store")));
 
@@ -98,6 +106,11 @@ class SirabApplicationTests {
         mockMvc.perform(get("/css/registro.css"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("text/css"));
+
+        mockMvc.perform(get(URI.create(
+                        "http://localhost/images/WhatsApp%20Image%202026-10-20%20at%2012.58.44.jpeg")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("image/jpeg"));
 
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())

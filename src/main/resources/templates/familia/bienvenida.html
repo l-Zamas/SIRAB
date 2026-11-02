@@ -3,24 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SIRAB - Registro familiar</title>
+    <meta name="theme-color" content="#f7f8fa">
+    <meta name="description"
+          content="SIRAB ayuda a las familias de Buenaventura a registrar sus necesidades y facilita la coordinación de la respuesta.">
+    <title>SIRAB | Registro y coordinación de ayuda</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
 </head>
 <body class="landing-page">
-    <main class="landing-card">
-        <h1 th:text="${nombre}">SIRAB</h1>
-        <p>Sistema Integral de Respuesta y Ayuda para Buenaventura</p>
-        <h2>Registra a tu familia para recibir ayuda</h2>
-        <p>Cuéntanos qué necesitan. Nos toma unos minutos y puedes hacerlo desde tu celular.</p>
-        <nav class="landing-actions" aria-label="Opciones para la ciudadanía">
-            <a class="boton" th:href="@{/familia/registro/consentimiento}">Registrar mi familia</a>
-            <button type="button" class="boton secundario" disabled aria-describedby="consulta-pendiente">
-                Consultar mi estado
-            </button>
+    <a class="landing-skip" href="#contenido">Saltar al contenido principal</a>
+
+    <header class="landing-header">
+        <a class="landing-wordmark" th:href="@{/}" aria-label="SIRAB, inicio">
+            <span th:text="${nombre}">SIRAB</span>
+            <span class="landing-wordmark-caption">Respuesta y ayuda</span>
+        </a>
+        <nav class="landing-nav" aria-label="Navegación principal">
+            <a href="#como-funciona">Cómo funciona</a>
+            <a href="#necesidades">Necesidades</a>
+            <a class="landing-staff-link" th:href="@{/login}">Acceso de personal</a>
         </nav>
-        <p id="consulta-pendiente" role="status">La consulta de estado aún no está disponible.</p>
-        <p><a th:href="@{/login}">Acceso de personal</a></p>
-        <p>Tus datos se usan solo para coordinar la ayuda.</p>
+    </header>
+
+    <main id="contenido" class="landing-main">
+        <section class="landing-hero" aria-labelledby="hero-title">
+            <div class="landing-hero-copy landing-reveal">
+                <p class="landing-eyebrow"><span aria-hidden="true"></span> Buenaventura · Respuesta y ayuda</p>
+                <h1 id="hero-title">Cuando más importa, <span>cada necesidad cuenta.</span></h1>
+                <p class="landing-lead">
+                    SIRAB ayuda a organizar la respuesta a las familias afectadas.
+                    Cuéntanos qué necesita tu familia para que esa información pueda orientar la coordinación de ayuda.
+                </p>
+
+                <nav class="landing-actions" aria-label="Opciones para la ciudadanía">
+                    <a class="boton landing-primary" th:href="@{/familia/registro/consentimiento}">
+                        Registrar mi familia
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M5 12h14M13 6l6 6-6 6"></path>
+                        </svg>
+                    </a>
+                    <div class="landing-consult">
+                        <button type="button" class="boton landing-secondary" disabled
+                                aria-describedby="consulta-pendiente">
+                            Consultar mi estado
+                        </button>
+                        <p id="consulta-pendiente" class="landing-unavailable" role="status">
+                            La consulta aún no está disponible.
+                        </p>
+                    </div>
+                </nav>
+
+                <p class="landing-privacy">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 3 5 6v5c0 4.7 2.9 8.3 7 10 4.1-1.7 7-5.3 7-10V6l-7-3Z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                    Tus datos se usan para coordinar las necesidades que registres.
+                </p>
+            </div>
+
+            <div class="landing-hero-art landing-reveal" aria-label="Identidad de SIRAB">
+                <div class="landing-art-glow" aria-hidden="true"></div>
+                <div class="landing-logo-frame">
+                    <img src="/images/WhatsApp%20Image%202026-10-20%20at%2012.58.44.jpeg"
+                         alt="Logotipo de SIRAB, Sistema Integral de Respuesta y Ayuda para Buenaventura"
+                         width="1540" height="850" fetchpriority="high">
+                </div>
+                <div class="landing-art-caption">
+                    <span class="landing-art-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z"></path>
+                        </svg>
+                    </span>
+                    <span>
+                        <strong>Una respuesta que empieza escuchando</strong>
+                        <small>Registra las necesidades de tu familia</small>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section id="como-funciona" class="landing-section landing-how" aria-labelledby="how-title">
+            <div class="landing-section-heading">
+                <p class="landing-kicker">Un proceso claro</p>
+                <h2 id="how-title">¿Cómo funciona?</h2>
+                <p>Un registro sencillo permite compartir la información necesaria para organizar la atención.</p>
+            </div>
+            <ol class="landing-steps">
+                <li class="landing-step">
+                    <span class="landing-step-number" aria-hidden="true">01</span>
+                    <div>
+                        <h3>Cuéntanos sobre tu familia</h3>
+                        <p>Completa el registro con los datos básicos y la ubicación de referencia.</p>
+                    </div>
+                </li>
+                <li class="landing-step">
+                    <span class="landing-step-number" aria-hidden="true">02</span>
+                    <div>
+                        <h3>Indica qué necesitan</h3>
+                        <p>Selecciona las necesidades que correspondan a la situación de tu familia.</p>
+                    </div>
+                </li>
+                <li class="landing-step">
+                    <span class="landing-step-number" aria-hidden="true">03</span>
+                    <div>
+                        <h3>El equipo revisa la información</h3>
+                        <p>El personal de campo puede verificar los datos y registrar la atención de las necesidades.</p>
+                    </div>
+                </li>
+            </ol>
+        </section>
+
+        <section id="necesidades" class="landing-section landing-needs" aria-labelledby="needs-title">
+            <div class="landing-section-heading">
+                <p class="landing-kicker">Lo que tu familia necesita</p>
+                <h2 id="needs-title">¿Qué puedes registrar?</h2>
+                <p>Selecciona una o varias necesidades en el formulario ciudadano.</p>
+            </div>
+            <ul class="landing-needs-grid">
+                <li class="landing-need-card">
+                    <span class="landing-need-icon landing-need-food" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M4 10h16a8 8 0 0 1-16 0Z"></path>
+                            <path d="M3 10h18M7 5l1 2m4-3v3m4-2-1 2"></path>
+                        </svg>
+                    </span>
+                    <h3>Alimentos</h3>
+                </li>
+                <li class="landing-need-card">
+                    <span class="landing-need-icon landing-need-water" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11Z"></path>
+                            <path d="M9 15a3 3 0 0 0 3 3"></path>
+                        </svg>
+                    </span>
+                    <h3>Agua</h3>
+                </li>
+                <li class="landing-need-card">
+                    <span class="landing-need-icon landing-need-medicine" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M10 4h4v5h5v4h-5v7h-4v-7H5V9h5V4Z"></path>
+                        </svg>
+                    </span>
+                    <h3>Medicamentos</h3>
+                </li>
+                <li class="landing-need-card">
+                    <span class="landing-need-icon landing-need-shelter" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="m3 11 9-7 9 7v9h-6v-6H9v6H3v-9Z"></path>
+                            <path d="M10 20v-6h4v6"></path>
+                        </svg>
+                    </span>
+                    <h3>Alojamiento</h3>
+                </li>
+            </ul>
+        </section>
+
+        <section class="landing-citizen-cta" aria-labelledby="citizen-title">
+            <div>
+                <p class="landing-kicker">Tu información ayuda a coordinar</p>
+                <h2 id="citizen-title">Empieza el registro de tu familia</h2>
+                <p>El formulario te explicará el uso de los datos antes de continuar.</p>
+            </div>
+            <a class="boton landing-primary" th:href="@{/familia/registro/consentimiento}">
+                Registrar mi familia
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M5 12h14M13 6l6 6-6 6"></path>
+                </svg>
+            </a>
+        </section>
+
+        <section class="landing-staff" aria-labelledby="staff-title">
+            <span class="landing-staff-symbol" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0"></path>
+                    <path d="M19 8v6m-3-3h6"></path>
+                </svg>
+            </span>
+            <div>
+                <p class="landing-kicker">Acceso independiente</p>
+                <h2 id="staff-title">¿Eres personal de campo?</h2>
+                <p>El ingreso del personal autorizado está separado del registro ciudadano.</p>
+            </div>
+            <a class="landing-staff-button" th:href="@{/login}">
+                Acceso de personal
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M5 12h14M13 6l6 6-6 6"></path>
+                </svg>
+            </a>
+        </section>
     </main>
+
+    <footer class="landing-footer">
+        <a class="landing-footer-brand" th:href="@{/}" th:text="${nombre}">SIRAB</a>
+        <p>Sistema Integral de Respuesta y Ayuda para Buenaventura</p>
+        <a th:href="@{/login}">Acceso para personal autorizado</a>
+    </footer>
 </body>
 </html>
