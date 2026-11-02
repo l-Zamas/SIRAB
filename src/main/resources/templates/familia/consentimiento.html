@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Consentimiento - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
 </head>
-<body>
-<main>
-    <a th:href="@{/familia/registro}">‹ Atrás</a>
-    <h1>SIRAB</h1>
-    <h2>Antes de empezar</h2>
-    <p>Necesitamos tu permiso para usar los datos de tu familia.</p>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main">
+    <a class="registro-atras" th:href="@{/familia/registro}">‹ Atrás</a>
+    <p class="registro-etiqueta">Antes de empezar</p>
+    <h1>Tu familia cuenta</h1>
+    <p class="registro-introduccion">Necesitamos tu permiso para usar los datos de tu familia.</p>
     <section class="tarjeta">
         <h3>Cómo usamos tus datos</h3>
         <ul>
@@ -20,14 +22,14 @@
             <li>Puedes pedir que se corrijan o se eliminen.</li>
         </ul>
     </section>
-    <form th:action="@{/familia/registro/consentimiento}" th:object="${consentimientoForm}" method="post">
+    <form class="registro-formulario" th:action="@{/familia/registro/consentimiento}" th:object="${consentimientoForm}" method="post">
         <div class="consentimiento">
             <input id="aceptado" type="checkbox" th:field="*{aceptado}">
             <label for="aceptado">Acepto el uso de mis datos</label>
         </div>
         <p class="error" role="alert" th:if="${#fields.hasErrors('aceptado')}"
            th:errors="*{aceptado}"></p>
-        <button type="submit">Aceptar y continuar</button>
+        <button class="registro-primario" type="submit">Aceptar y continuar</button>
     </form>
 </main>
 </body>

@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Datos de tu familia - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
 </head>
-<body>
-<main>
-    <a th:href="@{/familia/registro/consentimiento}">‹ Atrás</a>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main">
+    <a class="registro-atras" th:href="@{/familia/registro/consentimiento}">‹ Atrás</a>
     <div th:replace="~{familia/fragmentos-registro :: progreso(1)}"></div>
+    <p class="registro-etiqueta">Información básica</p>
     <h1>Datos de tu familia</h1>
-    <p>Escribe quién registra y cómo contactarte.</p>
-    <form th:action="@{/familia/registro/datos}" th:object="${datosFamiliaForm}" method="post">
+    <p class="registro-introduccion">Escribe quién registra y cómo contactarte.</p>
+    <form class="registro-formulario registro-datos" th:action="@{/familia/registro/datos}" th:object="${datosFamiliaForm}" method="post">
         <div class="campo">
             <label for="nombreRegistrante">Nombre de quien registra</label>
             <input id="nombreRegistrante" type="text" th:field="*{nombreRegistrante}" maxlength="120"
-                   autocomplete="name" required
+                   autocomplete="name" placeholder="Ej. María Rivas" required
                    th:attr="aria-invalid=${#fields.hasErrors('nombreRegistrante')},
                             aria-describedby=${#fields.hasErrors('nombreRegistrante')} ? 'nombre-error' : null">
             <p class="error" id="nombre-error" role="alert"
@@ -24,7 +27,8 @@
         </div>
         <div class="campo">
             <label for="numeroIntegrantes">Número de integrantes</label>
-            <input id="numeroIntegrantes" type="number" th:field="*{numeroIntegrantes}" min="1" required
+            <input id="numeroIntegrantes" type="number" th:field="*{numeroIntegrantes}" min="1"
+                   placeholder="Ej. 5" required
                    th:attr="aria-invalid=${#fields.hasErrors('numeroIntegrantes')},
                             aria-describedby=${#fields.hasErrors('numeroIntegrantes')} ? 'integrantes-error' : null">
             <p class="error" id="integrantes-error" role="alert"
@@ -39,7 +43,7 @@
             <p class="error" id="telefono-error" role="alert"
                th:if="${#fields.hasErrors('telefonoContacto')}" th:errors="*{telefonoContacto}"></p>
         </div>
-        <button type="submit">Continuar</button>
+        <button class="registro-primario" type="submit">Continuar</button>
     </form>
 </main>
 </body>

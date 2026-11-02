@@ -1,0 +1,652 @@
+body.registro-ciudadano {
+    --registro-azul: #0759a6;
+    --registro-azul-oscuro: #164e83;
+    --registro-tinta: #202124;
+    --registro-texto-secundario: #48515d;
+    --registro-borde: #d9dee7;
+    --registro-fondo: #f7f8fa;
+    --registro-azul-claro: #eaf3fc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    color: var(--registro-tinta);
+    background:
+        radial-gradient(ellipse at 92% 9%, rgb(7 89 166 / 7%), transparent 29rem),
+        var(--registro-fondo);
+    font-family: Inter, system-ui, sans-serif;
+}
+
+.registro-ciudadano a {
+    text-underline-offset: 0.22em;
+}
+
+.registro-ciudadano a:focus-visible,
+.registro-ciudadano button:focus-visible,
+.registro-ciudadano input:focus-visible {
+    outline: 3px solid #d07800;
+    outline-offset: 3px;
+}
+
+.registro-salto {
+    position: fixed;
+    z-index: 20;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.7rem 1rem;
+    transform: translateY(-160%);
+    border-radius: 0.5rem;
+    color: #fff;
+    background: var(--registro-azul-oscuro);
+}
+
+.registro-salto:focus {
+    transform: translateY(0);
+}
+
+.registro-encabezado {
+    display: flex;
+    width: min(calc(100% - 2rem), 64rem);
+    min-height: 5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 auto;
+    border-bottom: 1px solid rgb(22 78 131 / 12%);
+}
+
+.registro-marca {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    color: #0b5cad;
+    font-size: 1.5rem;
+    font-weight: 850;
+    letter-spacing: -0.07em;
+    text-decoration: none;
+}
+
+.registro-marca span:last-child {
+    color: var(--registro-texto-secundario);
+    font-size: 0.8rem;
+    font-weight: 550;
+    letter-spacing: 0;
+}
+
+.registro-tipo {
+    color: var(--registro-texto-secundario);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+main.registro-main {
+    width: min(calc(100% - 2rem), 48rem);
+    max-width: none;
+    flex: 1;
+    margin: clamp(1.5rem, 5vh, 3rem) auto;
+    padding: clamp(1.5rem, 5vw, 3rem);
+    border: 1px solid var(--registro-borde);
+    border-radius: 1.25rem;
+    background: #fff;
+    box-shadow: 0 1.5rem 4rem rgb(24 43 67 / 6%);
+}
+
+.registro-atras {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    color: var(--registro-azul);
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.registro-atras:hover {
+    text-decoration: underline;
+}
+
+.registro-etiqueta {
+    margin: 0.5rem 0 0.3rem;
+    color: var(--registro-azul);
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.registro-main h1 {
+    margin: 0;
+    color: #172f50;
+    font-size: clamp(1.8rem, 4vw, 2.35rem);
+    font-weight: 750;
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+}
+
+.registro-introduccion {
+    max-width: 38rem;
+    margin: 0.65rem 0 0;
+    color: var(--registro-texto-secundario);
+    font-size: 1.05rem;
+    line-height: 1.55;
+}
+
+.progreso {
+    margin: 1.5rem 0 2rem;
+}
+
+.progreso p {
+    margin: 0 0 1rem;
+    color: var(--registro-texto-secundario);
+    font-size: 0.9rem;
+    font-weight: 650;
+}
+
+.progreso ol {
+    align-items: center;
+    gap: 0;
+    padding: 0 0.8rem;
+}
+
+.progreso li {
+    position: relative;
+    height: 0.25rem;
+    border-radius: 1rem;
+    background: #e6e9ee;
+}
+
+.progreso li.completado {
+    background: var(--registro-azul);
+}
+
+.progreso-numero {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    display: grid;
+    width: 1.65rem;
+    height: 1.65rem;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    border: 2px solid #e6e9ee;
+    border-radius: 50%;
+    color: var(--registro-texto-secundario);
+    background: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.progreso li.completado .progreso-numero {
+    border-color: var(--registro-azul);
+    color: #fff;
+    background: var(--registro-azul);
+}
+
+.registro-formulario {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.75rem;
+}
+
+.registro-campos,
+.registro-datos,
+.registro-ubicacion {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.registro-datos > .campo:first-child,
+.registro-datos > button,
+.registro-ubicacion > button {
+    grid-column: 1 / -1;
+}
+
+.campo {
+    display: grid;
+    min-width: 0;
+    gap: 0.45rem;
+}
+
+.registro-ciudadano .campo label {
+    color: #243b58;
+    font-size: 0.94rem;
+    font-weight: 650;
+}
+
+.registro-opcional {
+    margin-left: 0.25rem;
+    color: #687587;
+    font-size: 0.8rem;
+    font-weight: 450;
+}
+
+.registro-ciudadano input[type="text"],
+.registro-ciudadano input[type="number"],
+.registro-ciudadano input[type="tel"] {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #aeb8c6;
+    border-radius: 0.7rem;
+    color: var(--registro-tinta);
+    background: #fff;
+    font: inherit;
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.registro-ciudadano input::placeholder {
+    color: #788496;
+    opacity: 1;
+}
+
+.registro-ciudadano input[type="text"]:focus,
+.registro-ciudadano input[type="number"]:focus,
+.registro-ciudadano input[type="tel"]:focus {
+    border-color: var(--registro-azul);
+    box-shadow: 0 0 0 3px rgb(7 89 166 / 12%);
+}
+
+.registro-ciudadano input[aria-invalid="true"] {
+    border-color: #a32121;
+}
+
+.registro-ciudadano .error {
+    margin: 0;
+    color: #8b1e1e;
+    font-size: 0.9rem;
+}
+
+.registro-primario,
+.registro-secundario {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--registro-azul);
+    border-radius: 0.7rem;
+    font: inherit;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.registro-primario {
+    color: #fff;
+    background: var(--registro-azul);
+}
+
+.registro-primario:hover {
+    border-color: #064c8d;
+    background: #064c8d;
+}
+
+.registro-primario:active,
+.registro-secundario:active {
+    transform: translateY(1px);
+}
+
+.registro-secundario {
+    color: var(--registro-azul);
+    background: #fff;
+}
+
+.registro-secundario:hover {
+    background: var(--registro-azul-claro);
+}
+
+.registro-formulario > .registro-primario {
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+.registro-ciudadano .tarjeta,
+.registro-ciudadano .aviso {
+    padding: clamp(1.1rem, 3vw, 1.5rem);
+    border: 1px solid var(--registro-borde);
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.registro-ciudadano .tarjeta {
+    margin-top: 1.5rem;
+}
+
+.registro-ciudadano .tarjeta h2,
+.registro-ciudadano .tarjeta h3,
+.registro-ciudadano .aviso h2 {
+    margin: 0 0 0.85rem;
+    color: #172f50;
+    font-size: 1.15rem;
+}
+
+.registro-ciudadano .tarjeta ul {
+    display: grid;
+    gap: 0.65rem;
+    padding-left: 1.25rem;
+    margin: 0;
+    color: var(--registro-texto-secundario);
+}
+
+.registro-ciudadano .consentimiento {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--registro-borde);
+    border-radius: 0.8rem;
+    background: #fbfcfe;
+}
+
+.registro-ciudadano .consentimiento input,
+.registro-ciudadano .opcion input,
+.registro-ciudadano .opcion-necesidad input {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    margin: 0.1rem 0 0;
+    accent-color: var(--registro-azul);
+}
+
+.registro-ciudadano .consentimiento label {
+    font-weight: 600;
+}
+
+.registro-situaciones,
+.registro-necesidades {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    padding: 0;
+    border: 0;
+}
+
+.registro-situaciones legend,
+.registro-necesidades legend {
+    grid-column: 1 / -1;
+    padding: 0;
+    margin-bottom: 0.1rem;
+    color: var(--registro-texto-secundario);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.registro-situaciones .opcion {
+    display: flex;
+    min-height: 4.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--registro-borde);
+    border-radius: 0.85rem;
+    color: #243b58;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.registro-situaciones .opcion:has(input:checked) {
+    border-color: var(--registro-azul);
+    background: var(--registro-azul-claro);
+}
+
+.registro-situaciones .opcion:focus-within,
+.registro-necesidades .opcion-necesidad:focus-within {
+    outline: 3px solid rgb(7 89 166 / 25%);
+    outline-offset: 2px;
+}
+
+.registro-necesidades .opcion-necesidad {
+    display: grid;
+    min-height: 9rem;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    gap: 0.65rem;
+    padding: 1rem;
+    border: 1px solid var(--registro-borde);
+    border-radius: 0.95rem;
+    color: #243b58;
+    background: #fff;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.registro-necesidades .opcion-necesidad:hover {
+    border-color: #9db9d6;
+    transform: translateY(-1px);
+}
+
+.registro-necesidades .opcion-necesidad:has(input:checked) {
+    border: 2px solid var(--registro-azul);
+    padding: calc(1rem - 1px);
+    background: var(--registro-azul-claro);
+}
+
+.registro-necesidades .opcion-necesidad input {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.necesidad-icono {
+    display: grid;
+    width: 2.8rem;
+    height: 2.8rem;
+    grid-column: 1;
+    grid-row: 1;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--registro-azul);
+    background: #edf2f7;
+}
+
+.necesidad-icono svg {
+    width: 1.45rem;
+    height: 1.45rem;
+}
+
+.registro-necesidades .opcion-necesidad:has(input:checked) .necesidad-icono {
+    color: #fff;
+    background: var(--registro-azul);
+}
+
+.necesidad-etiqueta {
+    align-self: end;
+    grid-column: 1 / -1;
+    color: #172f50;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.registro-ciudadano .aviso {
+    margin: 1.5rem 0 0;
+    background: #f5f8fc;
+}
+
+.registro-ciudadano .aviso p {
+    margin: 0;
+    color: var(--registro-texto-secundario);
+}
+
+.registro-tarjeta-resumen h2 {
+    margin-bottom: 1.25rem;
+}
+
+.registro-ciudadano .resumen {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.8fr) minmax(0, 1.5fr);
+    gap: 0;
+}
+
+.registro-ciudadano .resumen dt,
+.registro-ciudadano .resumen dd {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.registro-ciudadano .resumen dt {
+    color: var(--registro-texto-secundario);
+}
+
+.registro-ciudadano .resumen dd {
+    margin: 0;
+    color: #172f50;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+.registro-ciudadano .registro-tarjeta-resumen h3 {
+    margin: 1.4rem 0 0.65rem;
+}
+
+.registro-ciudadano .registro-tarjeta-resumen ul {
+    margin: 0;
+}
+
+.registro-nota {
+    padding: 1rem 1.1rem;
+    border-left: 3px solid #9db9d6;
+    color: var(--registro-texto-secundario);
+    background: #f5f8fc;
+    font-size: 0.92rem;
+}
+
+.registro-acciones-finales {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.registro-acciones-finales .registro-formulario {
+    margin: 0;
+}
+
+.registro-acciones-finales .registro-secundario {
+    width: 100%;
+}
+
+.registro-enlace-primario {
+    width: 100%;
+    margin-top: 1.75rem;
+}
+
+.registro-confirmacion {
+    display: flex;
+    max-width: 42rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.confirmacion-icono {
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    place-items: center;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    color: #16734a;
+    background: #e7f5ed;
+}
+
+.confirmacion-icono svg {
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+@media (min-width: 48rem) {
+    .registro-acciones-finales {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+    }
+
+    .registro-acciones-finales .registro-secundario {
+        grid-row: 1;
+        grid-column: 2;
+    }
+}
+
+@media (max-width: 40rem) {
+    .registro-encabezado {
+        min-height: 4.25rem;
+    }
+
+    .registro-marca {
+        font-size: 1.35rem;
+    }
+
+    .registro-marca span:last-child {
+        display: none;
+    }
+
+    .registro-tipo {
+        font-size: 0.8rem;
+    }
+
+    main.registro-main {
+        width: min(calc(100% - 1rem), 34rem);
+        margin: 0.5rem auto 1rem;
+        padding: 1.25rem 1rem;
+        border-radius: 1rem;
+    }
+
+    .registro-datos,
+    .registro-ubicacion {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .registro-datos > .campo:first-child,
+    .registro-datos > button,
+    .registro-ubicacion > button {
+        grid-column: auto;
+    }
+
+    .registro-situaciones {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .registro-necesidades {
+        gap: 0.65rem;
+    }
+
+    .registro-necesidades .opcion-necesidad {
+        min-height: 7.5rem;
+        padding: 0.8rem;
+    }
+
+    .registro-necesidades .opcion-necesidad:has(input:checked) {
+        padding: calc(0.8rem - 1px);
+    }
+}
+
+@media (max-width: 22rem) {
+    .registro-tipo {
+        max-width: 8rem;
+        text-align: right;
+    }
+
+    main.registro-main {
+        padding: 1rem 0.8rem;
+    }
+
+    .registro-necesidades {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .registro-ciudadano *,
+    .registro-ciudadano *::before,
+    .registro-ciudadano *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

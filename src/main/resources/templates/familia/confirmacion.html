@@ -4,12 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registro recibido - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
 </head>
-<body>
-    <main>
-        <h1>Registro recibido</h1>
-        <p>El personal de campo verificará tu registro. No compartas datos personales en dispositivos públicos.</p>
-        <a th:href="@{/}">Volver al inicio</a>
-    </main>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main registro-confirmacion">
+    <span class="confirmacion-icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 7 10 17l-5-5"></path>
+        </svg>
+    </span>
+    <p class="registro-etiqueta">Registro completado</p>
+    <h1>Registro recibido</h1>
+    <p class="registro-introduccion">El personal de campo verificará tu registro. No compartas datos personales en dispositivos públicos.</p>
+    <a class="registro-primario registro-enlace-primario" th:href="@{/}">Volver al inicio</a>
+</main>
 </body>
 </html>

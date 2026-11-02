@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ubicación - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
 </head>
-<body>
-<main>
-    <a th:href="@{/familia/registro/datos}">‹ Atrás</a>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main">
+    <a class="registro-atras" th:href="@{/familia/registro/datos}">‹ Atrás</a>
     <div th:replace="~{familia/fragmentos-registro :: progreso(2)}"></div>
+    <p class="registro-etiqueta">Ubicación</p>
     <h1>¿Dónde están?</h1>
-    <p>Así sabremos a dónde llegar con la ayuda.</p>
-    <form th:action="@{/familia/registro/ubicacion}" th:object="${ubicacionForm}" method="post">
+    <p class="registro-introduccion">Así sabremos a dónde llegar con la ayuda.</p>
+    <form class="registro-formulario registro-ubicacion" th:action="@{/familia/registro/ubicacion}" th:object="${ubicacionForm}" method="post">
         <div class="campo">
             <label for="barrio">Barrio</label>
             <input id="barrio" type="text" th:field="*{barrio}" maxlength="120" autocomplete="address-level3"
@@ -30,7 +33,7 @@
             <p class="error" id="direccion-error" role="alert"
                th:if="${#fields.hasErrors('direccionReferencia')}" th:errors="*{direccionReferencia}"></p>
         </div>
-        <button type="submit">Continuar</button>
+        <button class="registro-primario" type="submit">Continuar</button>
     </form>
 </main>
 </body>

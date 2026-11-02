@@ -5,24 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Necesidades - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
 </head>
-<body>
-<main>
-    <a th:href="@{/familia/registro/situacion}">‹ Atrás</a>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main">
+    <a class="registro-atras" th:href="@{/familia/registro/situacion}">‹ Atrás</a>
     <div th:replace="~{familia/fragmentos-registro :: progreso(4)}"></div>
+    <p class="registro-etiqueta">Necesidades</p>
     <h1>¿Qué necesitan?</h1>
-    <p>Marca todo lo que aplique.</p>
-    <form th:action="@{/familia/registro/necesidades}" th:object="${necesidadesForm}" method="post">
-        <fieldset class="opciones necesidades">
-            <legend class="solo-lectores">Selecciona las necesidades de la familia</legend>
+    <p class="registro-introduccion">Marca todo lo que aplique.</p>
+    <form class="registro-formulario" th:action="@{/familia/registro/necesidades}" th:object="${necesidadesForm}" method="post">
+        <fieldset class="opciones necesidades registro-necesidades">
+            <legend>Selecciona una o varias necesidades</legend>
             <label class="opcion-necesidad" th:each="necesidad : ${necesidadesDisponibles}"
                    th:for="${'necesidad-' + necesidad.name()}">
                 <input type="checkbox" th:field="*{necesidades}" th:value="${necesidad}"
                        th:id="${'necesidad-' + necesidad.name()}">
-                <span th:text="${necesidad.etiqueta}">Alimentos</span>
+                <span class="necesidad-icono" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" th:if="${necesidad.name() == 'ALIMENTOS'}">
+                        <path d="M4 10h16v10H4z"></path><path d="M3 10 5 4h14l2 6M8 14h8"></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" th:if="${necesidad.name() == 'AGUA'}">
+                        <path d="M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11Z"></path>
+                        <path d="M9 15a3 3 0 0 0 3 3"></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" th:if="${necesidad.name() == 'MEDICAMENTOS'}">
+                        <path d="M10 3h4v6h6v4h-6v8h-4v-8H4V9h6z"></path>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" th:if="${necesidad.name() == 'ALOJAMIENTO'}">
+                        <path d="m3 11 9-7 9 7"></path><path d="M5 10v10h14V10M9 20v-6h6v6"></path>
+                    </svg>
+                </span>
+                <span class="necesidad-etiqueta" th:text="${necesidad.etiqueta}">Alimentos</span>
             </label>
         </fieldset>
-        <button type="submit">Continuar</button>
+        <button class="registro-primario" type="submit">Continuar</button>
     </form>
 </main>
 </body>

@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Revisa tu registro - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
 </head>
-<body>
-<main>
-    <a th:href="@{/familia/registro/necesidades}">‹ Atrás</a>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main">
+    <a class="registro-atras" th:href="@{/familia/registro/necesidades}">‹ Atrás</a>
+    <p class="registro-etiqueta">Revisión final</p>
     <h1>Revisa tu registro</h1>
-    <p>Confirma que todo esté correcto antes de enviar.</p>
-    <section class="tarjeta" aria-labelledby="resumen-titulo">
+    <p class="registro-introduccion">Confirma que todo esté correcto antes de enviar.</p>
+    <section class="tarjeta registro-tarjeta-resumen" aria-labelledby="resumen-titulo">
         <h2 id="resumen-titulo">Tu registro</h2>
         <dl class="resumen">
             <dt>Registra</dt><dd th:text="${registro.nombreRegistrante}"></dd>
@@ -33,14 +36,16 @@
             <li th:if="${#sets.isEmpty(registro.situaciones)}">Ninguna indicada</li>
         </ul>
     </section>
-    <p>
+    <p class="registro-nota">
         Al enviar confirmas el consentimiento. Solo el personal autorizado debe consultar los datos
         para coordinar la ayuda.
     </p>
-    <form th:action="@{/familia/registro/confirmar}" method="post">
-        <button type="submit">Enviar registro</button>
-    </form>
-    <a class="boton secundario" th:href="@{/familia/registro/datos}">Corregir datos</a>
+    <div class="registro-acciones-finales">
+        <form class="registro-formulario" th:action="@{/familia/registro/confirmar}" method="post">
+            <button class="registro-primario" type="submit">Enviar registro</button>
+        </form>
+        <a class="registro-secundario" th:href="@{/familia/registro/datos}">Corregir datos</a>
+    </div>
 </main>
 </body>
 </html>

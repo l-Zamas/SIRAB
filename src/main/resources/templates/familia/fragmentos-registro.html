@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <body>
+<th:block th:fragment="encabezado">
+    <a class="registro-salto" href="#contenido">Saltar al contenido principal</a>
+    <header class="registro-encabezado">
+        <a class="registro-marca" th:href="@{/}" aria-label="SIRAB, volver al inicio">
+            <span>SIRAB</span>
+            <span>Respuesta y ayuda</span>
+        </a>
+        <span class="registro-tipo">Registro ciudadano</span>
+    </header>
+</th:block>
 <nav th:fragment="progreso(paso)" class="progreso" aria-label="Progreso del registro">
     <p th:text="'Paso ' + ${paso} + ' de 5'">Paso 1 de 5</p>
     <ol>
         <li th:each="indice : ${#numbers.sequence(1, 5)}"
             th:classappend="${indice <= paso} ? ' completado' : ''"
             th:aria-current="${indice == paso} ? 'step' : null">
+            <span class="progreso-numero" aria-hidden="true" th:text="${indice}">1</span>
             <span class="solo-lectores" th:text="'Paso ' + ${indice}"></span>
         </li>
     </ol>
