@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Set;
 import java.time.Instant;
 import java.net.URI;
+import java.util.regex.Pattern;
 
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.ActorTipoSolicitud;
@@ -28,6 +29,7 @@ import com.sirab.registro.FamiliaRepository;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
 import com.sirab.registro.VerificacionSolicitudRepository;
+import com.sirab.registro.web.RegistroFamiliarDraft;
 import com.sirab.seguridad.CuentaUsuario;
 import com.sirab.seguridad.CuentaUsuarioRepository;
 import com.sirab.seguridad.InicializarCuentasDesarrollo;
@@ -278,6 +280,94 @@ class SirabApplicationTests {
                 .andExpect(content().string(containsString("REFERENCIA_SINTETICA")));
         assertEquals(familyCountBefore, familiaRepository.count());
 
+        Instant consentimientoOriginal = ((RegistroFamiliarDraft) session
+                .getAttribute("registroFamiliarDraft")).getConsentimientoAt();
+        String consentimientoHtml = mockMvc.perform(get("/familia/registro/consentimiento").session(session))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        assertCheckboxChecked(consentimientoHtml, "aceptado");
+
+        mockMvc.perform(post("/familia/registro/consentimiento")
+                        .session(session)
+                        .with(csrf())
+                        .param("aceptado", "true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/datos"));
+        assertEquals(consentimientoOriginal, ((RegistroFamiliarDraft) session
+                .getAttribute("registroFamiliarDraft")).getConsentimientoAt());
+
+        mockMvc.perform(get("/familia/registro/datos").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("value=\"REGISTRO_SINTETICO\"")))
+                .andExpect(content().string(containsString("value=\"TELEFONO_SINTETICO\"")));
+        mockMvc.perform(post("/familia/registro/datos")
+                        .session(session)
+                        .with(csrf())
+                        .param("nombreRegistrante", "REGISTRO_CORREGIDO")
+                        .param("numeroIntegrantes", "3")
+                        .param("telefonoContacto", "TELEFONO_CORREGIDO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/ubicacion"));
+
+        mockMvc.perform(get("/familia/registro/ubicacion").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("value=\"BARRIO_SINTETICO\"")))
+                .andExpect(content().string(containsString("value=\"REFERENCIA_SINTETICA\"")));
+        mockMvc.perform(post("/familia/registro/ubicacion")
+                        .session(session)
+                        .with(csrf())
+                        .param("barrio", "BARRIO_CORREGIDO")
+                        .param("direccionReferencia", "REFERENCIA_CORREGIDA"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/situacion"));
+
+        String situacionHtml = mockMvc.perform(get("/familia/registro/situacion").session(session))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        assertCheckboxChecked(situacionHtml, "menoresDeCinco");
+        assertCheckboxChecked(situacionHtml, "personasConDiscapacidad");
+        mockMvc.perform(post("/familia/registro/situacion")
+                        .session(session)
+                        .with(csrf())
+                        .param("adultosMayores", "true"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/necesidades"));
+
+        String necesidadesHtml = mockMvc.perform(get("/familia/registro/necesidades").session(session))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        assertCheckboxChecked(necesidadesHtml, "necesidad-AGUA");
+        assertCheckboxChecked(necesidadesHtml, "necesidad-ALIMENTOS");
+        mockMvc.perform(post("/familia/registro/necesidades")
+                        .session(session)
+                        .with(csrf())
+                        .param("necesidades", "MEDICAMENTOS", "ALOJAMIENTO"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/documento"));
+
+        mockMvc.perform(get("/familia/registro/documento").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("La carga digital aún no está habilitada")));
+        mockMvc.perform(post("/familia/registro/documento").session(session).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/familia/registro/resumen"));
+        mockMvc.perform(get("/familia/registro/resumen").session(session))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("REGISTRO_CORREGIDO")))
+                .andExpect(content().string(containsString("BARRIO_CORREGIDO")))
+                .andExpect(content().string(containsString("REFERENCIA_CORREGIDA")))
+                .andExpect(content().string(containsString("Adultos mayores")))
+                .andExpect(content().string(containsString("Medicamentos")))
+                .andExpect(content().string(containsString("Alojamiento")))
+                .andExpect(content().string(not(containsString("REGISTRO_SINTETICO"))));
+        assertEquals(familyCountBefore, familiaRepository.count());
+
         mockMvc.perform(post("/familia/registro/confirmar").session(session).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/confirmacion"));
@@ -286,24 +376,30 @@ class SirabApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("familia/confirmacion"))
                 .andExpect(content().string(containsString("Registro recibido")))
-                .andExpect(content().string(not(containsString("REGISTRO_SINTETICO"))));
+                .andExpect(content().string(not(containsString("REGISTRO_CORREGIDO"))));
 
-        Familia saved = familiaRepository.findFirstByNombreRegistrante("REGISTRO_SINTETICO").orElseThrow();
-        assertEquals(2, saved.getNumeroIntegrantes());
-        assertEquals("BARRIO_SINTETICO", saved.getBarrio());
-        assertEquals("REFERENCIA_SINTETICA", saved.getDireccionReferencia());
-        assertEquals("TELEFONO_SINTETICO", saved.getTelefonoContacto());
-        assertEquals(Set.of(SituacionFamiliar.MENORES_DE_CINCO,
-                SituacionFamiliar.PERSONAS_CON_DISCAPACIDAD), saved.getSituaciones());
-        assertEquals(Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS), saved.getNecesidades());
+        Familia saved = familiaRepository.findFirstByNombreRegistrante("REGISTRO_CORREGIDO").orElseThrow();
+        assertEquals(3, saved.getNumeroIntegrantes());
+        assertEquals("BARRIO_CORREGIDO", saved.getBarrio());
+
+        assertEquals("REFERENCIA_CORREGIDA", saved.getDireccionReferencia());
+        assertEquals("TELEFONO_CORREGIDO", saved.getTelefonoContacto());
+        assertEquals(Set.of(SituacionFamiliar.ADULTOS_MAYORES), saved.getSituaciones());
+        assertEquals(Set.of(Necesidad.MEDICAMENTOS, Necesidad.ALOJAMIENTO), saved.getNecesidades());
         assertEquals(EstadoRegistro.PENDIENTE, saved.getEstado());
-        assertTrue(saved.getConsentimientoAt() != null);
+        assertEquals(consentimientoOriginal, saved.getConsentimientoAt());
         assertTrue(saved.getConsentimientoVersion() != null);
         var historialInicial = historialRepository.findByFamilia_IdOrderByFechaHoraAsc(saved.getId());
         assertEquals(1, historialInicial.size());
         assertEquals(EstadoRegistro.PENDIENTE, historialInicial.get(0).getEstadoNuevo());
         assertEquals(ActorTipoSolicitud.SISTEMA, historialInicial.get(0).getActorTipo());
         assertTrue(session.getAttribute("registroFamiliarDraft") == null);
+    }
+
+    private void assertCheckboxChecked(String html, String id) {
+        String checkbox = "<input\\b(?=[^>]*\\bid=\"" + Pattern.quote(id)
+                + "\")(?=[^>]*\\bchecked(?:=\"checked\")?)[^>]*>";
+        assertTrue(Pattern.compile(checkbox).matcher(html).find(), "Expected checkbox " + id + " to be checked");
     }
 
     @Test

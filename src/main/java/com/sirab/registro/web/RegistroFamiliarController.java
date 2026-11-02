@@ -49,8 +49,10 @@ public class RegistroFamiliarController {
     @GetMapping("/familia/registro/consentimiento")
     public String consentimiento(HttpSession session, Model model, HttpServletResponse response) {
         noCache(response);
-        draft(session);
-        model.addAttribute("consentimientoForm", new ConsentimientoForm());
+        RegistroFamiliarDraft draft = draft(session);
+        ConsentimientoForm form = new ConsentimientoForm();
+        form.setAceptado(draft.getConsentimientoAt() != null);
+        model.addAttribute("consentimientoForm", form);
         return "familia/consentimiento";
     }
 
@@ -70,8 +72,10 @@ public class RegistroFamiliarController {
         }
 
         RegistroFamiliarDraft draft = draft(session);
-        draft.setConsentimientoAt(Instant.now());
-        draft.setEtapa(ETAPA_CONSENTIMIENTO);
+        if (draft.getConsentimientoAt() == null) {
+            draft.setConsentimientoAt(Instant.now());
+        }
+        avanzarEtapa(draft, ETAPA_CONSENTIMIENTO);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/datos";
     }
@@ -115,11 +119,7 @@ public class RegistroFamiliarController {
         draft.setNombreRegistrante(form.getNombreRegistrante().trim());
         draft.setNumeroIntegrantes(form.getNumeroIntegrantes());
         draft.setTelefonoContacto(normalizeOptional(form.getTelefonoContacto()));
-        draft.setBarrio(null);
-        draft.setDireccionReferencia(null);
-        draft.setSituaciones(Set.of());
-        draft.setNecesidades(Set.of());
-        draft.setEtapa(ETAPA_DATOS);
+        avanzarEtapa(draft, ETAPA_DATOS);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/ubicacion";
     }
@@ -161,9 +161,7 @@ public class RegistroFamiliarController {
 
         draft.setBarrio(normalizeOptional(form.getBarrio()));
         draft.setDireccionReferencia(normalizeOptional(form.getDireccionReferencia()));
-        draft.setSituaciones(Set.of());
-        draft.setNecesidades(Set.of());
-        draft.setEtapa(ETAPA_UBICACION);
+        avanzarEtapa(draft, ETAPA_UBICACION);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/situacion";
     }
@@ -203,8 +201,7 @@ public class RegistroFamiliarController {
         if (form.isPersonasConDiscapacidad()) situaciones.add(SituacionFamiliar.PERSONAS_CON_DISCAPACIDAD);
         if (form.isMujeresGestantes()) situaciones.add(SituacionFamiliar.MUJERES_GESTANTES);
         draft.setSituaciones(situaciones);
-        draft.setNecesidades(Set.of());
-        draft.setEtapa(ETAPA_SITUACION);
+        avanzarEtapa(draft, ETAPA_SITUACION);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/necesidades";
     }
@@ -246,7 +243,7 @@ public class RegistroFamiliarController {
         }
 
         draft.setNecesidades(form.getNecesidades());
-        draft.setEtapa(ETAPA_NECESIDADES);
+        avanzarEtapa(draft, ETAPA_NECESIDADES);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/documento";
     }
@@ -267,7 +264,7 @@ public class RegistroFamiliarController {
         if (draft.getEtapa() < ETAPA_NECESIDADES) {
             return "redirect:/familia/registro/necesidades";
         }
-        draft.setEtapa(ETAPA_DOCUMENTO);
+        avanzarEtapa(draft, ETAPA_DOCUMENTO);
         session.setAttribute(BORRADOR, draft);
         return "redirect:/familia/registro/resumen";
     }
@@ -320,6 +317,10 @@ public class RegistroFamiliarController {
         RegistroFamiliarDraft draft = new RegistroFamiliarDraft();
         session.setAttribute(BORRADOR, draft);
         return draft;
+    }
+
+    private void avanzarEtapa(RegistroFamiliarDraft draft, int etapa) {
+        draft.setEtapa(Math.max(draft.getEtapa(), etapa));
     }
 
     private String normalizeOptional(String value) {
