@@ -17,6 +17,7 @@
         <form th:action="@{/logout}" method="post">
             <button class="secundario" type="submit">Cerrar sesión</button>
         </form>
+        <a class="boton enlace-accion" th:href="@{/campo/duplicados}">Revisar posibles duplicados</a>
     </header>
 
     <p th:if="${#lists.isEmpty(registros)}" class="aviso">Aún no hay solicitudes familiares.</p>

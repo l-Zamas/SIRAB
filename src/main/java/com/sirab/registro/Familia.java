@@ -44,6 +44,15 @@ public class Familia {
     @Column(name = "telefono_contacto", length = 100)
     private String telefonoContacto;
 
+    @Column(name = "duplicado_nombre_normalizado", length = 255)
+    private String duplicadoNombreNormalizado;
+
+    @Column(name = "duplicado_telefono_normalizado", length = 15)
+    private String duplicadoTelefonoNormalizado;
+
+    @Column(name = "duplicado_ubicacion_normalizada", length = 512)
+    private String duplicadoUbicacionNormalizada;
+
     @Column(name = "consentimiento_at", nullable = false)
     private Instant consentimientoAt;
 
@@ -135,6 +144,30 @@ public class Familia {
 
     public void setTelefonoContacto(String telefonoContacto) {
         this.telefonoContacto = telefonoContacto;
+    }
+
+    public String getDuplicadoNombreNormalizado() {
+        return duplicadoNombreNormalizado;
+    }
+
+    public void setDuplicadoNombreNormalizado(String duplicadoNombreNormalizado) {
+        this.duplicadoNombreNormalizado = duplicadoNombreNormalizado;
+    }
+
+    public String getDuplicadoTelefonoNormalizado() {
+        return duplicadoTelefonoNormalizado;
+    }
+
+    public void setDuplicadoTelefonoNormalizado(String duplicadoTelefonoNormalizado) {
+        this.duplicadoTelefonoNormalizado = duplicadoTelefonoNormalizado;
+    }
+
+    public String getDuplicadoUbicacionNormalizada() {
+        return duplicadoUbicacionNormalizada;
+    }
+
+    public void setDuplicadoUbicacionNormalizada(String duplicadoUbicacionNormalizada) {
+        this.duplicadoUbicacionNormalizada = duplicadoUbicacionNormalizada;
     }
 
     public Instant getConsentimientoAt() {

@@ -25,6 +25,9 @@ import com.sirab.registro.ResultadoVerificacion;
 import com.sirab.registro.SituacionFamiliar;
 import com.sirab.registro.VerificacionSolicitud;
 import com.sirab.registro.VerificacionSolicitudRepository;
+import com.sirab.registro.duplicados.CoincidenciaFamilia;
+import com.sirab.registro.duplicados.DeteccionDuplicadosService;
+import com.sirab.registro.duplicados.IndiceDuplicadosInitializer;
 
 @Service
 public class RegistroFamiliarService {
@@ -35,16 +38,19 @@ public class RegistroFamiliarService {
     private final EstadoSolicitudHistorialRepository historialRepository;
     private final VerificacionSolicitudRepository verificacionRepository;
     private final EntregaAyudaRepository entregaRepository;
+    private final DeteccionDuplicadosService deteccionDuplicadosService;
 
     public RegistroFamiliarService(
             FamiliaRepository familiaRepository,
             EstadoSolicitudHistorialRepository historialRepository,
             VerificacionSolicitudRepository verificacionRepository,
-            EntregaAyudaRepository entregaRepository) {
+            EntregaAyudaRepository entregaRepository,
+            DeteccionDuplicadosService deteccionDuplicadosService) {
         this.familiaRepository = familiaRepository;
         this.historialRepository = historialRepository;
         this.verificacionRepository = verificacionRepository;
         this.entregaRepository = entregaRepository;
+        this.deteccionDuplicadosService = deteccionDuplicadosService;
     }
 
     @Transactional
@@ -52,6 +58,7 @@ public class RegistroFamiliarService {
         if (!command.consentimientoAceptado()) {
             throw new IllegalArgumentException("Se requiere consentimiento para registrar los datos.");
         }
+        deteccionDuplicadosService.iniciarOperacion();
 
         Familia familia = new Familia();
         familia.setNombreRegistrante(command.nombreRegistrante());
@@ -64,6 +71,7 @@ public class RegistroFamiliarService {
         familia.setNecesidades(command.necesidades() == null ? Set.of() : command.necesidades());
         familia.setConsentimientoAt(command.consentimientoAt() == null ? Instant.now() : command.consentimientoAt());
         familia.setConsentimientoVersion(CONSENTIMIENTO_VERSION);
+        IndiceDuplicadosInitializer.actualizarIndice(familia);
         Familia guardada = familiaRepository.save(familia);
         historialRepository.save(new EstadoSolicitudHistorial(
                 guardada,
@@ -73,6 +81,7 @@ public class RegistroFamiliarService {
                 null,
                 Instant.now(),
                 "Solicitud registrada por el flujo ciudadano."));
+        deteccionDuplicadosService.detectarPara(guardada, false);
     }
 
     @Transactional(readOnly = true)
@@ -118,6 +127,7 @@ public class RegistroFamiliarService {
 
     @Transactional
     public boolean verificar(Long familiaId, String usuarioCorreo, SolicitudVerificacionCommand command) {
+        deteccionDuplicadosService.iniciarOperacion();
         Familia familia = familiaRepository.findById(familiaId).orElse(null);
         if (familia == null) {
             return false;
@@ -130,6 +140,8 @@ public class RegistroFamiliarService {
         String barrio = normalizarOpcional(command.barrio());
         String direccion = normalizarOpcional(command.direccion());
         String direccionReferencia = normalizarOpcional(command.direccionReferencia());
+        boolean datosComparacionModificados = CoincidenciaFamilia.cambiaronDatosComparacion(
+                familia, nombreRegistrante, telefonoContacto, barrio, direccion);
         Set<SituacionFamiliar> situaciones = command.situaciones() == null ? Set.of() : command.situaciones();
         Set<Necesidad> necesidades = command.necesidades() == null ? Set.of() : command.necesidades();
         List<CambioDatoVerificacion> cambios = new ArrayList<>();
@@ -152,7 +164,9 @@ public class RegistroFamiliarService {
         familia.setSituaciones(situaciones);
         familia.setNecesidades(necesidades);
         familia.setEstado(EstadoRegistro.VERIFICADO);
+        IndiceDuplicadosInitializer.actualizarIndice(familia);
         familiaRepository.save(familia);
+        deteccionDuplicadosService.detectarPara(familia, datosComparacionModificados);
 
         Instant ahora = Instant.now();
         String observacion = normalizarObservacion(command.observacion());

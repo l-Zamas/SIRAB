@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Posibles duplicados - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main class="campo-app">
+    <nav class="campo-navegacion" aria-label="Navegación de personal">
+        <a th:href="@{/campo/registros}">Volver a solicitudes</a>
+        <form th:action="@{/logout}" method="post">
+            <button class="secundario" type="submit">Cerrar sesión</button>
+        </form>
+    </nav>
+    <header class="campo-encabezado">
+        <div>
+            <p class="sobrelinea">Personal de campo</p>
+            <h1>Posibles familias duplicadas</h1>
+            <p>Revisa las coincidencias sugeridas. Ningún registro se elimina ni se bloquea automáticamente.</p>
+        </div>
+    </header>
+
+    <p class="aviso aviso-exito" role="status" th:if="${mensaje}" th:text="${mensaje}"></p>
+    <p class="aviso aviso-error" role="alert" th:if="${aviso}" th:text="${aviso}"></p>
+    <p class="aviso" th:if="${pagina.totalElements == 0}">
+        Aún no se han detectado posibles duplicados.
+    </p>
+
+    <article class="campo-seccion" th:each="posible : ${posiblesDuplicados}">
+        <header class="campo-encabezado">
+            <div>
+                <p class="sobrelinea">Coincidencia <span th:text="${posible.id}"></span></p>
+                <h2>
+                    <span aria-hidden="true"
+                          th:text="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).DUPLICADO_CONFIRMADO
+                            ? '✓' : (posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).DESCARTADO
+                                ? '×' : '!')}"></span>
+                    <span th:text="${posible.estado.etiqueta}"></span>
+                </h2>
+            </div>
+            <p>Detectada:
+                <time th:datetime="${posible.detectadoAt}"
+                      th:text="${#temporals.format(posible.detectadoAt, 'dd/MM/yyyy HH:mm')}"></time>
+            </p>
+        </header>
+
+        <p><strong>Señales coincidentes al detectar:</strong>
+            <span th:each="senal, iter : ${posible.senales}">
+                <span th:text="${senal == T(com.sirab.registro.duplicados.CoincidenciaFamilia.SenalCoincidencia).NOMBRE
+                    ? 'Nombre de quien registra'
+                    : (senal == T(com.sirab.registro.duplicados.CoincidenciaFamilia.SenalCoincidencia).TELEFONO
+                        ? 'Teléfono' : 'Barrio y dirección')}"></span><span th:if="${!iter.last}">, </span>
+            </span>
+        </p>
+
+        <div class="tabla-contenedor"
+             th:if="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">Dato</th>
+                    <th scope="col">Registro <span th:text="${posible.familiaMenor.id}"></span></th>
+                    <th scope="col">Registro <span th:text="${posible.familiaMayor.id}"></span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">Nombre de quien registra</th>
+                    <td th:text="${posible.familiaMenor.nombreRegistrante}"></td>
+                    <td th:text="${posible.familiaMayor.nombreRegistrante}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Teléfono</th>
+                    <td th:text="${#strings.isEmpty(posible.familiaMenor.telefonoContacto)
+                        ? 'No indicado' : posible.familiaMenor.telefonoContacto}"></td>
+                    <td th:text="${#strings.isEmpty(posible.familiaMayor.telefonoContacto)
+                        ? 'No indicado' : posible.familiaMayor.telefonoContacto}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Barrio y dirección</th>
+                    <td th:text="${(posible.familiaMenor.barrio == null ? '' : posible.familiaMenor.barrio)
+                        + ' · ' + (posible.familiaMenor.direccion == null ? 'No indicada' : posible.familiaMenor.direccion)}"></td>
+                    <td th:text="${(posible.familiaMayor.barrio == null ? '' : posible.familiaMayor.barrio)
+                        + ' · ' + (posible.familiaMayor.direccion == null ? 'No indicada' : posible.familiaMayor.direccion)}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Estado de la solicitud</th>
+                    <td th:text="${posible.familiaMenor.estado}"></td>
+                    <td th:text="${posible.familiaMayor.estado}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="aviso" th:if="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+            Confirma únicamente después de revisar si ambos registros corresponden a la misma familia.
+            La decisión no elimina ni fusiona solicitudes.
+        </p>
+        <p class="nota"
+           th:unless="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+            Los datos actuales de los registros solo se muestran mientras la coincidencia está pendiente de revisión.
+        </p>
+        <div class="campo-navegacion"
+             th:if="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+            <form th:action="@{/campo/duplicados/{id}/confirmar(id=${posible.id})}" method="post">
+                <button type="submit">Confirmar que son duplicados</button>
+            </form>
+            <form th:action="@{/campo/duplicados/{id}/descartar(id=${posible.id})}" method="post">
+                <button class="secundario" type="submit">Descartar coincidencia</button>
+            </form>
+        </div>
+
+        <details th:if="${!#lists.isEmpty(posible.historial)}">
+            <summary>Historial de revisión</summary>
+            <ol>
+                <li th:each="revision : ${posible.historial}">
+                    <span th:text="${revision.evento == T(com.sirab.registro.duplicados.TipoEventoDuplicado).CONFIRMADO
+                        ? 'Duplicado confirmado'
+                        : (revision.evento == T(com.sirab.registro.duplicados.TipoEventoDuplicado).DESCARTADO
+                            ? 'Coincidencia descartada'
+                            : (revision.evento == T(com.sirab.registro.duplicados.TipoEventoDuplicado).REABIERTO_POR_CAMBIO_DE_DATOS
+                                ? 'Reabierta por cambios en los datos'
+                                : 'Retirada porque dejó de cumplir los criterios'))}"></span>
+                    · <span th:text="${revision.actorCorreo}"></span>
+                    · <time th:datetime="${revision.fechaHora}"
+                            th:text="${#temporals.format(revision.fechaHora, 'dd/MM/yyyy HH:mm')}"></time>
+                </li>
+            </ol>
+        </details>
+    </article>
+    <nav class="campo-navegacion" aria-label="Paginación de coincidencias"
+         th:if="${pagina.totalPages > 1}">
+        <a th:if="${pagina.hasPrevious()}"
+           th:href="@{/campo/duplicados(pagina=${pagina.number - 1})}">Anterior</a>
+        <span>Página <span th:text="${pagina.number + 1}"></span> de
+            <span th:text="${pagina.totalPages}"></span></span>
+        <a th:if="${pagina.hasNext()}"
+           th:href="@{/campo/duplicados(pagina=${pagina.number + 1})}">Siguiente</a>
+    </nav>
+</main>
+</body>
+</html>

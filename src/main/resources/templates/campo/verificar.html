@@ -10,6 +10,7 @@
 <main class="campo-app">
     <nav class="campo-navegacion" aria-label="Navegación de personal">
         <a th:href="@{/campo/registros}">Volver a solicitudes</a>
+        <a th:href="@{/campo/duplicados}">Revisar posibles duplicados</a>
         <form th:action="@{/logout}" method="post">
             <button class="secundario" type="submit">Cerrar sesión</button>
         </form>

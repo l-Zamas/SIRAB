@@ -95,7 +95,7 @@ SIRAB/
 | Registro | RF-02 | Registrar necesidades específicas por familia (alimentos, agua, medicamentos, alojamiento) | `registro` |
 | Verificación | RF-03 | Confirmar y actualizar la veracidad de los datos registrados | `verificacion` |
 | Verificación | RF-04 | Marcar el estado de un registro (pendiente, verificado, atendido) | `verificacion` |
-| Verificación | RF-05 | Evitar duplicados de una misma familia en el sistema | `duplicados` |
+| Verificación | RF-05 | Detectar posibles familias duplicadas para revisión manual, sin eliminarlas ni bloquear el registro | `duplicados` |
 | Priorización | RF-06 | Calcular un nivel de urgencia por familia según vulnerabilidad, tipo de necesidad y tiempo sin atención | `priorizacion` |
 | Priorización | RF-07 | Ordenar y filtrar familias por nivel de urgencia | `priorizacion` / `reportes` |
 | Seguimiento | RF-08 | Registrar las ayudas entregadas a cada familia (tipo, fecha, cantidad) | `seguimiento` |
@@ -104,7 +104,7 @@ SIRAB/
 
 ### Estado del registro familiar
 
-El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La consulta interna, el seguimiento de estado, la detección de duplicados, el modo sin conexión y el cálculo automático de urgencia continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
+El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La detección de posibles duplicados compara al menos dos señales exactas normalizadas (nombre de quien registra con soporte Unicode, teléfono completo de 7 a 15 dígitos y barrio junto con dirección; el prefijo colombiano solo se retira cuando se indica explícitamente con `+57` o `0057`, nunca de una entrada nacional ambigua). El personal de campo revisa y resuelve las coincidencias en el módulo protegido, sin bloquear ni eliminar registros. La consulta ciudadana de estado, el modo sin conexión y el cálculo automático de urgencia continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
 
 ## 6. Convenciones de trabajo
 

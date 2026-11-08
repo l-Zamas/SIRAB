@@ -6,11 +6,14 @@ import java.util.stream.Collectors;
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
+import com.sirab.registro.duplicados.DeteccionDuplicadosService;
+import com.sirab.registro.duplicados.EstadoPosibleDuplicado;
 import com.sirab.registro.service.RegistrarEntregaCommand;
 import com.sirab.registro.service.RegistroFamiliarService;
 import com.sirab.registro.service.SolicitudVerificacionCommand;
 import com.sirab.registro.service.RegistroFamiliarService.SolicitudDetalle;
 
+import org.springframework.data.domain.PageRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -30,9 +33,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class GestionEstadoRegistroController {
 
     private final RegistroFamiliarService registroFamiliarService;
+    private final DeteccionDuplicadosService deteccionDuplicadosService;
 
-    public GestionEstadoRegistroController(RegistroFamiliarService registroFamiliarService) {
+    public GestionEstadoRegistroController(
+            RegistroFamiliarService registroFamiliarService,
+            DeteccionDuplicadosService deteccionDuplicadosService) {
         this.registroFamiliarService = registroFamiliarService;
+        this.deteccionDuplicadosService = deteccionDuplicadosService;
     }
 
     @GetMapping("/campo/registros")
@@ -40,6 +47,39 @@ public class GestionEstadoRegistroController {
         noCache(response);
         model.addAttribute("registros", registroFamiliarService.listarSolicitudes());
         return "campo/registros";
+    }
+
+    @GetMapping("/campo/duplicados")
+    public String listarPosiblesDuplicados(
+            @RequestParam(defaultValue = "0") int pagina,
+            Model model,
+            HttpServletResponse response) {
+        noCache(response);
+        int paginaSegura = Math.max(0, pagina);
+        var posiblesDuplicados = deteccionDuplicadosService.listar(
+                PageRequest.of(paginaSegura, 20));
+        model.addAttribute("posiblesDuplicados", posiblesDuplicados.getContent());
+        model.addAttribute("pagina", posiblesDuplicados);
+        model.addAttribute("estadosDuplicado", EstadoPosibleDuplicado.values());
+        return "campo/duplicados";
+    }
+
+    @PostMapping("/campo/duplicados/{id}/confirmar")
+    public String confirmarDuplicado(
+            @PathVariable Long id,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+        return resolverDuplicado(
+                id, EstadoPosibleDuplicado.DUPLICADO_CONFIRMADO, authentication, redirectAttributes);
+    }
+
+    @PostMapping("/campo/duplicados/{id}/descartar")
+    public String descartarDuplicado(
+            @PathVariable Long id,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+        return resolverDuplicado(
+                id, EstadoPosibleDuplicado.DESCARTADO, authentication, redirectAttributes);
     }
 
     @GetMapping("/campo/registros/{familiaId}")
@@ -183,6 +223,27 @@ public class GestionEstadoRegistroController {
         if (!model.containsAttribute("entregaForm")) {
             model.addAttribute("entregaForm", new EntregaAyudaForm());
         }
+    }
+
+    private String resolverDuplicado(
+            Long id,
+            EstadoPosibleDuplicado resultado,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (!deteccionDuplicadosService.resolver(id, resultado, authentication.getName())) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        } catch (IllegalStateException exception) {
+            redirectAttributes.addFlashAttribute("aviso", exception.getMessage());
+            return "redirect:/campo/duplicados";
+        }
+        redirectAttributes.addFlashAttribute(
+                "mensaje",
+                resultado == EstadoPosibleDuplicado.DUPLICADO_CONFIRMADO
+                        ? "La relación se marcó como duplicado confirmado."
+                        : "La coincidencia se descartó.");
+        return "redirect:/campo/duplicados";
     }
 
     private void noCache(HttpServletResponse response) {
