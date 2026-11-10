@@ -102,6 +102,28 @@ SIRAB/
 | Seguimiento | RF-09 | Generar historial de atención por familia | `seguimiento` |
 | Seguimiento | RF-10 | Generar reportes y consolidados para entidades coordinadoras (Alcaldía, UNGRD) | `reportes` |
 
+
+
+## 6. Requerimientos no funcionales
+
+| Código | Requerimiento |
+|---|---|
+| RNF01 | El sistema debe proteger la información registrada de las familias. |
+| RNF02 | Solo los usuarios autorizados deben poder acceder a información administrativa o sensible. |
+| RNF03 | El sistema debe tener una interfaz sencilla y fácil de utilizar. |
+| RNF04 | El sistema debe responder rápidamente a las consultas y registros realizados. |
+| RNF05 | La información debe almacenarse de manera organizada y consistente. |
+| RNF06 | El sistema debe estar disponible durante una situación de emergencia. |
+| RNF07 | El sistema debe permitir realizar copias de seguridad de la información. |
+| RNF08 | El sistema debe poder ampliarse posteriormente para incluir nuevas funciones. |
+| RNF09 | El sistema debe ser compatible con los navegadores web más utilizados. |
+| RNF10 | El sistema debe evitar la pérdida o modificación no autorizada de la información. |
+
+
+
+
+
+
 ### Estado del registro familiar
 
 El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La detección de posibles duplicados compara al menos dos señales exactas normalizadas (nombre de quien registra con soporte Unicode, teléfono completo de 7 a 15 dígitos y barrio junto con dirección; el prefijo colombiano solo se retira cuando se indica explícitamente con `+57` o `0057`, nunca de una entrada nacional ambigua). El personal de campo revisa y resuelve las coincidencias en el módulo protegido, sin bloquear ni eliminar registros. La consulta ciudadana de estado, el modo sin conexión y el cálculo automático de urgencia continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
