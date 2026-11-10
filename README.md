@@ -10,8 +10,9 @@
 3. [Arquitectura](#3-arquitectura)
 4. [Estructura de carpetas](#4-estructura-de-carpetas)
 5. [Requisitos funcionales](#5-requisitos-funcionales)
-6. [Convenciones de trabajo](#6-convenciones-de-trabajo)
-7. [Seguridad y privacidad](#7-seguridad-y-privacidad)
+6.  [Requerimientos no funcionales](#6-requerimientos-no-funcionales)
+7. [Convenciones de trabajo](#7-convenciones-de-trabajo)
+8. [Seguridad y privacidad](#8-seguridad-y-privacidad)
 
 
 ## 1. Qué hace SIRAB
@@ -122,13 +123,11 @@ SIRAB/
 
 
 
-
-
 ### Estado del registro familiar
 
 El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La detección de posibles duplicados compara al menos dos señales exactas normalizadas (nombre de quien registra con soporte Unicode, teléfono completo de 7 a 15 dígitos y barrio junto con dirección; el prefijo colombiano solo se retira cuando se indica explícitamente con `+57` o `0057`, nunca de una entrada nacional ambigua). El personal de campo revisa y resuelve las coincidencias en el módulo protegido, sin bloquear ni eliminar registros. La consulta ciudadana de estado, el modo sin conexión y el cálculo automático de urgencia continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
 
-## 6. Convenciones de trabajo
+## 7. Convenciones de trabajo
 
 - **Ramas:** `main` (estable), `develop` (integración) y `feature/<modulo>-<descripcion>`.
 - **Commits:** mensajes en español, en imperativo y con prefijo (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`).
@@ -137,7 +136,7 @@ El flujo web actual recopila el nombre de quien registra, el total de integrante
 - **Estilos:** solo variables de `tokens.css`, sin colores ni medidas sueltas.
 - **Accesibilidad:** la urgencia y el estado se muestran siempre con **icono y texto**, nunca solo con color.
 
-## 7. Seguridad y privacidad
+## 8. Seguridad y privacidad
 
 SIRAB maneja datos personales sensibles de personas en situación de vulnerabilidad.
 
