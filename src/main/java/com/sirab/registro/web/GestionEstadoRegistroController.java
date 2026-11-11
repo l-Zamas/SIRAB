@@ -1,11 +1,14 @@
 package com.sirab.registro.web;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
+import com.sirab.priorizacion.NivelUrgencia;
+import com.sirab.priorizacion.PrioridadSolicitudesService;
 import com.sirab.registro.duplicados.DeteccionDuplicadosService;
 import com.sirab.registro.duplicados.EstadoPosibleDuplicado;
 import com.sirab.registro.service.RegistrarEntregaCommand;
@@ -34,18 +37,29 @@ public class GestionEstadoRegistroController {
 
     private final RegistroFamiliarService registroFamiliarService;
     private final DeteccionDuplicadosService deteccionDuplicadosService;
+    private final PrioridadSolicitudesService prioridadSolicitudesService;
 
     public GestionEstadoRegistroController(
             RegistroFamiliarService registroFamiliarService,
-            DeteccionDuplicadosService deteccionDuplicadosService) {
+            DeteccionDuplicadosService deteccionDuplicadosService,
+            PrioridadSolicitudesService prioridadSolicitudesService) {
         this.registroFamiliarService = registroFamiliarService;
         this.deteccionDuplicadosService = deteccionDuplicadosService;
+        this.prioridadSolicitudesService = prioridadSolicitudesService;
     }
 
     @GetMapping("/campo/registros")
-    public String listar(Model model, HttpServletResponse response) {
+    public String listar(
+            @RequestParam(name = "urgencia", defaultValue = "TODAS") String filtroUrgencia,
+            Model model,
+            HttpServletResponse response) {
         noCache(response);
-        model.addAttribute("registros", registroFamiliarService.listarSolicitudes());
+        Optional<NivelUrgencia> nivel = parsearFiltroUrgencia(filtroUrgencia);
+        var solicitudes = prioridadSolicitudesService.listar(nivel);
+        model.addAttribute("registros", solicitudes.activas());
+        model.addAttribute("atendidos", solicitudes.atendidas());
+        model.addAttribute("nivelesUrgencia", NivelUrgencia.values());
+        model.addAttribute("urgenciaSeleccionada", nivel.map(Enum::name).orElse("TODAS"));
         return "campo/registros";
     }
 
@@ -248,5 +262,17 @@ public class GestionEstadoRegistroController {
 
     private void noCache(HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-store");
+    }
+
+    private Optional<NivelUrgencia> parsearFiltroUrgencia(String filtroUrgencia) {
+        String filtro = filtroUrgencia.trim().toUpperCase(Locale.ROOT);
+        if ("TODAS".equals(filtro)) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(NivelUrgencia.valueOf(filtro));
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nivel de urgencia no es válido.");
+        }
     }
 }

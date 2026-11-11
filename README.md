@@ -98,7 +98,7 @@ SIRAB/
 | Verificación | RF-04 | Marcar el estado de un registro (pendiente, verificado, atendido) | `verificacion` |
 | Verificación | RF-05 | Detectar posibles familias duplicadas para revisión manual, sin eliminarlas ni bloquear el registro | `duplicados` |
 | Priorización | RF-06 | Calcular urgencia según necesidades, situación familiar y tiempo desde la solicitud | `priorizacion` |
-| Priorización | RF-07 | Ordenar y filtrar familias por nivel de urgencia | `priorizacion` / `reportes` |
+| Priorización | RF-07 | Ordenar y filtrar la cola activa de solicitudes por urgencia | `priorizacion` / `registro` |
 | Seguimiento | RF-08 | Registrar las ayudas entregadas a cada familia (tipo, fecha, cantidad) | `seguimiento` |
 | Seguimiento | RF-09 | Generar historial de atención por familia | `seguimiento` |
 | Seguimiento | RF-10 | Generar reportes y consolidados para entidades coordinadoras (Alcaldía, UNGRD) | `reportes` |
@@ -125,7 +125,9 @@ SIRAB/
 
 ### Estado del registro familiar
 
-El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La detección de posibles duplicados compara al menos dos señales exactas normalizadas (nombre de quien registra con soporte Unicode, teléfono completo de 7 a 15 dígitos y barrio junto con dirección; el prefijo colombiano solo se retira cuando se indica explícitamente con `+57` o `0057`, nunca de una entrada nacional ambigua). El personal de campo revisa y resuelve las coincidencias en el módulo protegido, sin bloquear ni eliminar registros. La consulta ciudadana de estado, el modo sin conexión y el cálculo automático de urgencia continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
+El flujo web actual recopila el nombre de quien registra, el total de integrantes, un teléfono de contacto, barrio y referencia de ubicación, situaciones familiares y necesidades; el consentimiento se registra antes de guardar. El número de integrantes no crea fichas individuales ni implica atributos por persona. El paso de documento informa que la carga no está disponible hasta contar con almacenamiento y acceso protegidos. La detección de posibles duplicados compara al menos dos señales exactas normalizadas (nombre de quien registra con soporte Unicode, teléfono completo de 7 a 15 dígitos y barrio junto con dirección; el prefijo colombiano solo se retira cuando se indica explícitamente con `+57` o `0057`, nunca de una entrada nacional ambigua). El personal de campo revisa y resuelve las coincidencias en el módulo protegido, sin bloquear ni eliminar registros.
+
+La urgencia se calcula al consultar la cola de campo, sin persistir una puntuación derivada: RF-06 define los pesos y rangos en [su documentación](docs/RF-06-urgencia.md), y RF-07 documenta el ordenamiento y los filtros de la [cola de priorización](docs/RF-07-priorizacion.md). Las solicitudes atendidas se conservan en su historial, fuera de la cola activa. La consulta ciudadana de estado y el modo sin conexión continúan fuera del alcance implementado. El texto del consentimiento requiere aprobación legal antes de operar con datos reales.
 
 ## 7. Convenciones de trabajo
 

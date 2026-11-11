@@ -348,6 +348,80 @@ td {
     min-width: 9rem;
 }
 
+.campo-app.campo-listado {
+    width: min(100%, 88rem);
+}
+
+.filtro-urgencia {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #d9dee7;
+    border-radius: 0.75rem;
+    background: #f7f8fa;
+}
+
+.filtro-urgencia h2 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+
+.filtro-urgencia form {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.filtro-urgencia label {
+    display: grid;
+    flex: 1;
+    gap: 0.375rem;
+    font-weight: 600;
+}
+
+.filtro-urgencia select {
+    max-width: 24rem;
+}
+
+.urgencia {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
+    margin-top: 0.375rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.urgencia-critica {
+    color: #8b1e1e;
+    background: #fff0f0;
+}
+
+.urgencia-alta {
+    color: #8a3b0a;
+    background: #fff2e8;
+}
+
+.urgencia-media {
+    color: #755b00;
+    background: #fff8d9;
+}
+
+.urgencia-baja {
+    color: #164e83;
+    background: #eaf3fc;
+}
+
+.campo-listado .tabla-contenedor table {
+    min-width: 68rem;
+}
+
 .campo-seccion {
     padding: clamp(1rem, 3vw, 1.5rem) 0;
     border-top: 1px solid #d9dee7;
@@ -454,8 +528,21 @@ td {
         align-items: flex-start;
     }
 
+    .filtro-urgencia form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .filtro-urgencia select {
+        max-width: none;
+    }
+
     .tabla-contenedor table {
         min-width: 42rem;
+    }
+
+    .campo-listado .tabla-contenedor table {
+        min-width: 68rem;
     }
 
     .necesidades {

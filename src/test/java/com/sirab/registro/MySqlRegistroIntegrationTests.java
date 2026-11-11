@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.sirab.registro.service.RegistroFamiliarCommand;
 import com.sirab.registro.service.RegistroFamiliarService;
+import com.sirab.priorizacion.PrioridadSolicitudesService;
 import com.sirab.SirabApplication;
 import com.sirab.registro.duplicados.DeteccionDuplicadosService;
 import com.sirab.registro.duplicados.EstadoPosibleDuplicado;
@@ -33,10 +35,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+import org.hibernate.SessionFactory;
 
 import jakarta.persistence.EntityManager;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 @ActiveProfiles("dev")
 @EnabledIfSystemProperty(named = "sirab.mysql.integration", matches = "true")
 class MySqlRegistroIntegrationTests {
@@ -61,6 +64,12 @@ class MySqlRegistroIntegrationTests {
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    @Autowired
+    private PrioridadSolicitudesService prioridadSolicitudesService;
 
     @Test
     @Transactional
@@ -118,6 +127,40 @@ class MySqlRegistroIntegrationTests {
             jdbcTemplate.execute("SET time_zone = '+00:00'");
             TimeZone.setDefault(zonaOriginal);
         }
+    }
+
+    @Test
+    @Transactional
+    void mideElCrecimientoDeConsultasDeLaColaConHibernateStatistics() {
+        long familiasExistentes = familiaRepository.count();
+        String prefijo = "COLA_QUERY_COUNT_TEST_" + UUID.randomUUID();
+        familiaRepository.saveAndFlush(familiaConFecha(prefijo + "_1", Instant.now()));
+        entityManager.clear();
+
+        var estadisticas = sessionFactory.getStatistics();
+        estadisticas.setStatisticsEnabled(true);
+        estadisticas.clear();
+        prioridadSolicitudesService.listar(Optional.empty());
+        long consultasConUnaFamiliaNueva = estadisticas.getPrepareStatementCount();
+
+        for (int indice = 2; indice <= 10; indice++) {
+            familiaRepository.save(familiaConFecha(prefijo + "_" + indice, Instant.now()));
+        }
+        familiaRepository.flush();
+        entityManager.clear();
+        estadisticas.clear();
+        prioridadSolicitudesService.listar(Optional.empty());
+        long consultasConDiezFamiliasNuevas = estadisticas.getPrepareStatementCount();
+
+        long diferencia = consultasConDiezFamiliasNuevas - consultasConUnaFamiliaNueva;
+        System.out.printf(
+                "Cola MySQL/Hibernate: familias existentes=%d, nuevas=1 consultas=%d, "
+                        + "nuevas=10 consultas=%d, incremento=%d%n",
+                familiasExistentes,
+                consultasConUnaFamiliaNueva,
+                consultasConDiezFamiliasNuevas,
+                diferencia);
+        assertEquals(18, diferencia);
     }
 
     @Test

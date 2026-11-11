@@ -7,12 +7,12 @@
     <link rel="stylesheet" th:href="@{/css/registro.css}">
 </head>
 <body>
-<main class="campo-app">
+<main class="campo-app campo-listado">
     <header class="campo-encabezado">
         <div>
             <p class="sobrelinea">Personal de campo</p>
             <h1>Solicitudes familiares</h1>
-            <p>Consulta los registros y abre una solicitud para verificarla o revisar su atención.</p>
+            <p>Cola activa ordenada por urgencia. Las solicitudes atendidas se conservan en el historial.</p>
         </div>
         <form th:action="@{/logout}" method="post">
             <button class="secundario" type="submit">Cerrar sesión</button>
@@ -20,7 +20,24 @@
         <a class="boton enlace-accion" th:href="@{/campo/duplicados}">Revisar posibles duplicados</a>
     </header>
 
-    <p th:if="${#lists.isEmpty(registros)}" class="aviso">Aún no hay solicitudes familiares.</p>
+    <section class="filtro-urgencia" aria-labelledby="filtro-urgencia-titulo">
+        <h2 id="filtro-urgencia-titulo">Filtrar cola activa</h2>
+        <form th:action="@{/campo/registros}" method="get">
+            <label for="urgencia">Nivel de urgencia</label>
+            <select id="urgencia" name="urgencia">
+                <option value="TODAS" th:selected="${urgenciaSeleccionada == 'TODAS'}">Todas</option>
+                <option th:each="nivel : ${nivelesUrgencia}"
+                        th:value="${nivel.name()}"
+                        th:text="${nivel.etiqueta}"
+                        th:selected="${urgenciaSeleccionada == nivel.name()}">Nivel</option>
+            </select>
+            <button type="submit">Aplicar filtro</button>
+        </form>
+    </section>
+
+    <p th:if="${#lists.isEmpty(registros)}" class="aviso">
+        No hay solicitudes activas para el nivel de urgencia seleccionado.
+    </p>
     <div class="tabla-contenedor" th:unless="${#lists.isEmpty(registros)}">
         <table>
             <thead>
@@ -28,35 +45,82 @@
                 <th scope="col">Registro</th>
                 <th scope="col">Familia</th>
                 <th scope="col">Barrio</th>
-                <th scope="col">Integrantes</th>
+                <th scope="col">Urgencia</th>
                 <th scope="col">Necesidades</th>
+                <th scope="col">Situación familiar</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Acción</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="registro : ${registros}">
-                <td th:text="${registro.id}"></td>
-                <td th:text="${registro.nombreRegistrante}"></td>
-                <td th:text="${#strings.isEmpty(registro.barrio) ? 'No indicado' : registro.barrio}"></td>
-                <td th:text="${registro.numeroIntegrantes}"></td>
+                <td th:text="${registro.solicitud.id}"></td>
+                <td th:text="${registro.solicitud.nombreRegistrante}"></td>
+                <td th:text="${#strings.isEmpty(registro.solicitud.barrio)
+                    ? 'No indicado' : registro.solicitud.barrio}"></td>
                 <td>
-                    <span th:if="${#sets.isEmpty(registro.necesidades)}">No indicadas</span>
-                    <span th:each="necesidad, iter : ${registro.necesidades}">
+                    <strong th:text="${registro.urgencia.puntuacionTotal + ' puntos'}"></strong>
+                    <span class="urgencia"
+                          th:classappend="| urgencia-${registro.urgencia.nivel.claseCss}|">
+                        <span aria-hidden="true">●</span>
+                        <span th:text="${registro.urgencia.nivel.etiqueta}"></span>
+                    </span>
+                </td>
+                <td>
+                    <span th:if="${#sets.isEmpty(registro.solicitud.necesidades)}">No indicadas</span>
+                    <span th:each="necesidad, iter : ${registro.solicitud.necesidades}">
                         <span th:text="${necesidad.etiqueta}"></span><span th:if="${!iter.last}">, </span>
                     </span>
                 </td>
-                <td><span class="estado" th:text="${registro.estado.etiqueta}"></span></td>
+                <td>
+                    <span th:if="${#sets.isEmpty(registro.solicitud.situaciones)}">Sin condiciones indicadas</span>
+                    <span th:each="situacion, iter : ${registro.solicitud.situaciones}">
+                        <span th:text="${situacion.etiqueta}"></span><span th:if="${!iter.last}">, </span>
+                    </span>
+                </td>
+                <td><span class="estado" th:text="${registro.solicitud.estado.etiqueta}"></span></td>
                 <td>
                     <a class="boton enlace-accion"
-                       th:href="@{/campo/registros/{id}(id=${registro.id})}"
-                       th:text="${registro.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE
+                       th:href="@{/campo/registros/{id}(id=${registro.solicitud.id})}"
+                       th:text="${registro.solicitud.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE
                             ? 'Verificar solicitud' : 'Ver detalle'}">Ver detalle</a>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
+
+    <section class="campo-seccion" aria-labelledby="atendidas-titulo">
+        <h2 id="atendidas-titulo">Solicitudes atendidas</h2>
+        <p class="nota">Se conservan para consulta y no participan en la cola activa de priorización.</p>
+        <p th:if="${#lists.isEmpty(atendidos)}" class="aviso">Aún no hay solicitudes atendidas.</p>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(atendidos)}">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">Registro</th>
+                    <th scope="col">Familia</th>
+                    <th scope="col">Barrio</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="registro : ${atendidos}">
+                    <td th:text="${registro.solicitud.id}"></td>
+                    <td th:text="${registro.solicitud.nombreRegistrante}"></td>
+                    <td th:text="${#strings.isEmpty(registro.solicitud.barrio)
+                        ? 'No indicado' : registro.solicitud.barrio}"></td>
+                    <td><span class="estado" th:text="${registro.solicitud.estado.etiqueta}"></span></td>
+                    <td>
+                        <a class="boton enlace-accion"
+                           th:href="@{/campo/registros/{id}(id=${registro.solicitud.id})}">Ver historial</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </main>
 </body>
 </html>
