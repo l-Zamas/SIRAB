@@ -97,7 +97,7 @@ SIRAB/
 | Verificación | RF-03 | Confirmar y actualizar la veracidad de los datos registrados | `verificacion` |
 | Verificación | RF-04 | Marcar el estado de un registro (pendiente, verificado, atendido) | `verificacion` |
 | Verificación | RF-05 | Detectar posibles familias duplicadas para revisión manual, sin eliminarlas ni bloquear el registro | `duplicados` |
-| Priorización | RF-06 | Calcular un nivel de urgencia por familia según vulnerabilidad, tipo de necesidad y tiempo sin atención | `priorizacion` |
+| Priorización | RF-06 | Calcular urgencia según necesidades, situación familiar y tiempo desde la solicitud | `priorizacion` |
 | Priorización | RF-07 | Ordenar y filtrar familias por nivel de urgencia | `priorizacion` / `reportes` |
 | Seguimiento | RF-08 | Registrar las ayudas entregadas a cada familia (tipo, fecha, cantidad) | `seguimiento` |
 | Seguimiento | RF-09 | Generar historial de atención por familia | `seguimiento` |

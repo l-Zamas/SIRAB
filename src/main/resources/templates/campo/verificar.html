@@ -31,7 +31,7 @@
         <h2>Datos registrados</h2>
         <dl class="resumen">
             <dt>Fecha de registro</dt>
-            <dd th:text="${#temporals.format(solicitud.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></dd>
+            <dd th:text="${#temporals.format(@fechaHoraBogota.convertir(solicitud.fechaCreacion), 'dd/MM/yyyy HH:mm')}"></dd>
             <dt>Nombre de quien registra</dt>
             <dd th:text="${solicitud.nombreRegistrante}"></dd>
             <dt>Integrantes</dt>
@@ -45,7 +45,7 @@
             <dt>Punto de referencia</dt>
             <dd th:text="${#strings.isEmpty(solicitud.direccionReferencia) ? 'No indicado' : solicitud.direccionReferencia}"></dd>
             <dt>Consentimiento registrado</dt>
-            <dd th:text="${#temporals.format(solicitud.consentimientoAt, 'dd/MM/yyyy HH:mm')}"></dd>
+            <dd th:text="${#temporals.format(@fechaHoraBogota.convertir(solicitud.consentimientoAt), 'dd/MM/yyyy HH:mm')}"></dd>
             <dt>Situaciones familiares</dt>
             <dd>
                 <span th:if="${#sets.isEmpty(solicitud.situaciones)}">Ninguna indicada</span>
@@ -135,7 +135,7 @@
             <h3 th:text="${verificacion.resultado == T(com.sirab.registro.ResultadoVerificacion).CORREGIDA
                 ? 'Datos corregidos' : 'Datos confirmados'}"></h3>
             <p>
-                <span th:text="${#temporals.format(verificacion.verificadaAt, 'dd/MM/yyyy HH:mm')}"></span>
+                <span th:text="${#temporals.format(@fechaHoraBogota.convertir(verificacion.verificadaAt), 'dd/MM/yyyy HH:mm')}"></span>
                 · <span th:text="${verificacion.usuarioCorreo}"></span>
             </p>
             <p th:if="${verificacion.observacion}" th:text="${verificacion.observacion}"></p>
@@ -254,7 +254,7 @@
                 <strong th:text="${evento.estadoNuevo.etiqueta}"></strong>
                 <span th:if="${evento.estadoAnterior != null}"
                       th:text="${' desde ' + evento.estadoAnterior.etiqueta}"></span>
-                <span th:text="${#temporals.format(evento.fechaHora, 'dd/MM/yyyy HH:mm')}"></span>
+                <span th:text="${#temporals.format(@fechaHoraBogota.convertir(evento.fechaHora), 'dd/MM/yyyy HH:mm')}"></span>
                 <span th:if="${evento.usuarioCorreo}" th:text="${' · ' + evento.usuarioCorreo}"></span>
                 <span th:if="${evento.actorTipo == T(com.sirab.registro.ActorTipoSolicitud).SISTEMA}">
                     · Sistema

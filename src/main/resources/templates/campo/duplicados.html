@@ -41,8 +41,8 @@
                 </h2>
             </div>
             <p>Detectada:
-                <time th:datetime="${posible.detectadoAt}"
-                      th:text="${#temporals.format(posible.detectadoAt, 'dd/MM/yyyy HH:mm')}"></time>
+                <time th:datetime="${@fechaHoraBogota.convertir(posible.detectadoAt)}"
+                      th:text="${#temporals.format(@fechaHoraBogota.convertir(posible.detectadoAt), 'dd/MM/yyyy HH:mm')}"></time>
             </p>
         </header>
 
@@ -124,8 +124,8 @@
                                 ? 'Reabierta por cambios en los datos'
                                 : 'Retirada porque dejó de cumplir los criterios'))}"></span>
                     · <span th:text="${revision.actorCorreo}"></span>
-                    · <time th:datetime="${revision.fechaHora}"
-                            th:text="${#temporals.format(revision.fechaHora, 'dd/MM/yyyy HH:mm')}"></time>
+                    · <time th:datetime="${@fechaHoraBogota.convertir(revision.fechaHora)}"
+                            th:text="${#temporals.format(@fechaHoraBogota.convertir(revision.fechaHora), 'dd/MM/yyyy HH:mm')}"></time>
                 </li>
             </ol>
         </details>

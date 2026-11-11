@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -30,7 +31,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -54,6 +58,9 @@ class MySqlRegistroIntegrationTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @Transactional
@@ -84,6 +91,33 @@ class MySqlRegistroIntegrationTests {
         assertEquals(Set.of(Necesidad.AGUA), saved.getNecesidades());
         assertTrue(saved.getConsentimientoAt() != null);
         assertTrue(saved.getConsentimientoVersion() != null);
+    }
+
+    @Test
+    @Transactional
+    void persisteElMismoInstanteConJvmYSesionMysqlEnZonasNoUtc() {
+        TimeZone zonaOriginal = TimeZone.getDefault();
+        Instant instanteEsperado = Instant.parse("2026-03-08T04:30:15Z");
+        try {
+            assertEquals("+00:00", jdbcTemplate.queryForObject("SELECT @@session.time_zone", String.class));
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tokyo"));
+            jdbcTemplate.execute("SET time_zone = '+05:30'");
+            assertEquals("+05:30", jdbcTemplate.queryForObject("SELECT @@session.time_zone", String.class));
+
+            Familia familia = familiaConFecha("TIMEZONE_INTEGRATION_TEST_" + UUID.randomUUID(), instanteEsperado);
+            familiaRepository.saveAndFlush(familia);
+            Long familiaId = familia.getId();
+            entityManager.clear();
+
+            Instant instanteRecuperado = familiaRepository.findById(familiaId)
+                    .orElseThrow()
+                    .getFechaCreacion();
+
+            assertEquals(instanteEsperado, instanteRecuperado);
+        } finally {
+            jdbcTemplate.execute("SET time_zone = '+00:00'");
+            TimeZone.setDefault(zonaOriginal);
+        }
     }
 
     @Test
@@ -193,5 +227,21 @@ class MySqlRegistroIntegrationTests {
                 Set.of(Necesidad.AGUA),
                 true,
                 Instant.now()));
+    }
+
+    private Familia familiaConFecha(String nombre, Instant instante) {
+        Familia familia = new Familia();
+        familia.setNombreRegistrante(nombre);
+        familia.setBarrio("TEST_BARRIO");
+        familia.setDireccion("TEST_DIRECCION");
+        familia.setDireccionReferencia("TEST_REFERENCE");
+        familia.setNumeroIntegrantes(1);
+        familia.setConsentimientoAt(instante);
+        familia.setConsentimientoVersion("test");
+        familia.setEstado(EstadoRegistro.PENDIENTE);
+        familia.setNecesidades(Set.of());
+        familia.setSituaciones(Set.of());
+        ReflectionTestUtils.setField(familia, "fechaCreacion", instante);
+        return familia;
     }
 }

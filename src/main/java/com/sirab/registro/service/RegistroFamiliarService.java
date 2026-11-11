@@ -268,6 +268,7 @@ public class RegistroFamiliarService {
                 familia.getBarrio(),
                 familia.getNumeroIntegrantes(),
                 familia.getNecesidades(),
+                familia.getSituaciones(),
                 familia.getEstado());
     }
 
@@ -353,9 +354,11 @@ public class RegistroFamiliarService {
             String barrio,
             Integer numeroIntegrantes,
             Set<Necesidad> necesidades,
+            Set<SituacionFamiliar> situaciones,
             EstadoRegistro estado) {
         public SolicitudResumen {
             necesidades = Set.copyOf(necesidades);
+            situaciones = Set.copyOf(situaciones);
         }
     }
 
