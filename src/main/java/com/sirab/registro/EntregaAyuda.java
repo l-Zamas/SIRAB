@@ -2,6 +2,9 @@ package com.sirab.registro;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.math.BigDecimal;
+
+import org.hibernate.annotations.Immutable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,9 +17,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "entrega_ayuda")
+@Table(
+        name = "entrega_ayuda",
+        uniqueConstraints = {
+            @UniqueConstraint(name = "uk_entrega_id_tipo", columnNames = {"id", "tipo_ayuda"}),
+            @UniqueConstraint(
+                    name = "uk_entrega_id_articulo_tipo",
+                    columnNames = {"id", "articulo_ayuda_id", "tipo_ayuda"})
+        })
+@Immutable
 public class EntregaAyuda {
 
     @Id
@@ -31,11 +43,27 @@ public class EntregaAyuda {
     @Column(name = "tipo_ayuda", nullable = false, length = 30)
     private Necesidad tipoAyuda;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String cantidad;
 
-    @Column(name = "fecha_entrega", nullable = false)
+    @Column(name = "fecha_entrega")
     private LocalDate fechaEntrega;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "asignacion_ayuda_id")
+    private AsignacionAyuda asignacion;
+
+    @Column(name = "articulo_ayuda_id")
+    private Long articuloAyudaId;
+
+    @Column(name = "cantidad_valor", precision = 18, scale = 6)
+    private BigDecimal cantidadValor;
+
+    @Column(length = 40)
+    private String unidad;
+
+    @Column(name = "fecha_hora_entrega")
+    private Instant fechaHoraEntrega;
 
     @Column(name = "registrada_at", nullable = false)
     private Instant registradaAt;
@@ -71,6 +99,29 @@ public class EntregaAyuda {
         this.observacion = observacion;
     }
 
+    public EntregaAyuda(
+            Familia familia,
+            Necesidad tipoAyuda,
+            AsignacionAyuda asignacion,
+            BigDecimal cantidadValor,
+            String unidad,
+            Instant fechaHoraEntrega,
+            Instant registradaAt,
+            String usuarioCorreo,
+            String observacion) {
+        this.familia = familia;
+        this.tipoAyuda = tipoAyuda;
+        this.asignacion = asignacion;
+        this.articuloAyudaId = asignacion.getArticulo().getId();
+        this.cantidadValor = cantidadValor;
+        this.unidad = unidad;
+        this.fechaHoraEntrega = fechaHoraEntrega;
+        this.registradaAt = registradaAt;
+        this.usuarioCorreo = usuarioCorreo;
+        this.satisfaceNecesidadCompleta = false;
+        this.observacion = observacion;
+    }
+
     public Long getId() {
         return id;
     }
@@ -83,8 +134,20 @@ public class EntregaAyuda {
         return cantidad;
     }
 
+    public BigDecimal getCantidadValor() {
+        return cantidadValor;
+    }
+
+    public String getUnidad() {
+        return unidad;
+    }
+
     public LocalDate getFechaEntrega() {
         return fechaEntrega;
+    }
+
+    public Instant getFechaHoraEntrega() {
+        return fechaHoraEntrega;
     }
 
     public Instant getRegistradaAt() {
@@ -101,5 +164,9 @@ public class EntregaAyuda {
 
     public String getObservacion() {
         return observacion;
+    }
+
+    public AsignacionAyuda getAsignacion() {
+        return asignacion;
     }
 }
