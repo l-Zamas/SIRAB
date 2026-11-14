@@ -149,4 +149,3 @@ SIRAB maneja datos personales sensibles de personas en situación de vulnerabili
 - **Auditoría:** se registra quién consulta o modifica cada registro.
 - **Protección de datos:** en Colombia aplica la Ley 1581 de 2012. Debe confirmarse el cumplimiento con asesoría antes de operar con datos reales.
 - **Nunca** subir al repositorio contraseñas, llaves ni datos reales.
-

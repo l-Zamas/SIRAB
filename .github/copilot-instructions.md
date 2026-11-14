@@ -130,3 +130,15 @@ Al finalizar una tarea, resume:
 Sé preciso, directo y transparente. Si no conoces un dato, no lo inventes. Si una decisión necesita aprobación, pregunta antes de comprometer la arquitectura o el comportamiento del sistema.
 
 **Principio fundamental:** el código debe cumplir los requerimientos de SIRAB, respetar el prototipo de Penpot y mantener la coherencia con la arquitectura existente. Ninguna de estas fuentes debe darse por verificada cuando no se haya podido consultar.
+
+## REGLA ADICIONAL: IDENTIDAD Y AUTORÍA DE GIT
+
+La autoría de todos los commits del proyecto debe permanecer asociada exclusivamente a la identidad Git que ya tiene configurada el usuario.
+
+- No cambies `user.name` ni `user.email`.
+- No configures tu propia identidad como autor o coautor.
+- No agregues `Co-authored-by`, `Signed-off-by` ni trailers que te identifiquen.
+- No utilices opciones como `--author` para sustituir la identidad configurada.
+- No crees commits durante esta tarea.
+
+En las siguientes tareas de preparación de commits, antes de confirmar cualquier operación, verifica que el autor y el committer correspondan a la identidad Git configurada por el usuario. Si no coinciden, detente.
