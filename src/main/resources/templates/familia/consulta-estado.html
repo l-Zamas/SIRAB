@@ -18,7 +18,7 @@
         <span class="consulta-guia-icono" aria-hidden="true">✓</span>
         <div><strong>Tu información está protegida</strong><p>Usamos este código únicamente para mostrarte el avance de tu solicitud.</p></div>
     </div>
-    <p class="aviso" th:if="${errorConsulta}" th:text="${errorConsulta}" role="alert"></p>
+    <p class="consulta-error" th:if="${errorConsulta}" th:text="${errorConsulta}" role="alert"></p>
     <section class="consulta-resultado" th:if="${estadoPublico}" aria-live="polite">
         <h2>Estado de la solicitud</h2>
         <p class="estado" th:text="${estadoPublico.estado.etiqueta}"></p>
@@ -32,15 +32,17 @@
             <p th:if="${estadoPublico.necesidades.contains(T(com.sirab.registro.Necesidad).MEDICAMENTOS)}">Para medicamentos se requiere adjuntar la fórmula médica.</p>
         </div>
     </section>
-    <form class="registro-formulario consulta-formulario" th:action="@{/familia/consulta}" th:object="${consultaEstadoForm}" method="post">
+    <form class="registro-formulario consulta-formulario" th:if="${estadoPublico == null}" th:action="@{/familia/consulta}" th:object="${consultaEstadoForm}" method="post">
         <div class="campo">
             <label for="codigo">Código de consulta</label>
-            <input id="codigo" type="text" th:field="*{codigo}" autocomplete="off" required maxlength="32" placeholder="Ej. SIRAB-2026-AB12">
+            <input id="codigo" type="text" th:field="*{codigo}" autocomplete="off" required maxlength="32">
             <small>Lo encuentras en la confirmación de tu registro.</small>
         </div>
         <button class="registro-primario" type="submit">Consultar estado <span aria-hidden="true">→</span></button>
     </form>
-    <div class="consulta-volver"><a class="registro-secundario" th:href="@{/}">← Volver al inicio</a></div>
+    <div class="consulta-volver" th:classappend="${estadoPublico != null} ? ' consulta-volver-resultado' : ''">
+        <a class="registro-secundario" th:href="@{/}">← Volver al inicio</a>
+    </div>
 </main>
 </body>
 </html>
