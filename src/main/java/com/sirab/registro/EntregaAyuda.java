@@ -109,21 +109,53 @@ public class EntregaAyuda {
             Instant registradaAt,
             String usuarioCorreo,
             String observacion) {
+        this(
+                familia,
+                tipoAyuda,
+                asignacion,
+                cantidadValor,
+                unidad,
+                fechaHoraEntrega,
+                registradaAt,
+                usuarioCorreo,
+                false,
+                observacion);
+    }
+
+    public EntregaAyuda(
+            Familia familia,
+            Necesidad tipoAyuda,
+            AsignacionAyuda asignacion,
+            BigDecimal cantidadValor,
+            String unidad,
+            Instant fechaHoraEntrega,
+            Instant registradaAt,
+            String usuarioCorreo,
+            boolean satisfaceNecesidadCompleta,
+            String observacion) {
         this.familia = familia;
         this.tipoAyuda = tipoAyuda;
         this.asignacion = asignacion;
-        this.articuloAyudaId = asignacion.getArticulo().getId();
+        this.articuloAyudaId = asignacion != null && asignacion.getArticulo() != null ? asignacion.getArticulo().getId() : null;
         this.cantidadValor = cantidadValor;
         this.unidad = unidad;
         this.fechaHoraEntrega = fechaHoraEntrega;
         this.registradaAt = registradaAt;
         this.usuarioCorreo = usuarioCorreo;
-        this.satisfaceNecesidadCompleta = false;
+        this.satisfaceNecesidadCompleta = satisfaceNecesidadCompleta;
         this.observacion = observacion;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public Familia getFamilia() {
+        return familia;
+    }
+
+    public Long getArticuloAyudaId() {
+        return articuloAyudaId;
     }
 
     public Necesidad getTipoAyuda() {

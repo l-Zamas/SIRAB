@@ -154,52 +154,6 @@
                  or solicitud.estado == T(com.sirab.registro.EstadoRegistro).ATENDIDO}">
         <h2>Entregas de ayuda</h2>
         <p>Registra cada entrega vinculada a una necesidad. Las atenciones parciales no cierran la solicitud.</p>
-        <form th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}"
-              th:action="@{/campo/registros/{id}/entregas(id=${solicitud.id})}"
-              th:object="${entregaForm}" method="post">
-            <div class="campo">
-                <label for="tipoAyuda">Necesidad atendida</label>
-                <select id="tipoAyuda" th:field="*{tipoAyuda}"
-                        th:attr="aria-invalid=${#fields.hasErrors('tipoAyuda')}">
-                    <option value="">Selecciona una necesidad</option>
-                    <option th:each="necesidad : ${solicitud.necesidades}"
-                            th:value="${necesidad}" th:text="${necesidad.etiqueta}"></option>
-                </select>
-                <p class="error" th:errors="*{tipoAyuda}"></p>
-            </div>
-            <div class="campo">
-                <label for="cantidad">Cantidad entregada (por ejemplo, 40 L)</label>
-                <input id="cantidad" type="text" th:field="*{cantidad}"
-                       th:attr="aria-invalid=${#fields.hasErrors('cantidad')}">
-                <p class="error" th:errors="*{cantidad}"></p>
-            </div>
-            <div class="campo">
-                <label for="fechaEntrega">Fecha de entrega</label>
-                <input id="fechaEntrega" type="date" th:field="*{fechaEntrega}"
-                       th:attr="aria-invalid=${#fields.hasErrors('fechaEntrega')}">
-                <p class="error" th:errors="*{fechaEntrega}"></p>
-            </div>
-            <div class="consentimiento">
-                <input id="satisfaceNecesidadCompleta" type="checkbox" th:field="*{satisfaceNecesidadCompleta}">
-                <label for="satisfaceNecesidadCompleta">
-                    Con esta entrega queda satisfecha completamente la necesidad seleccionada.
-                </label>
-            </div>
-            <div class="campo">
-                <label for="observacion-entrega">Observación de la entrega</label>
-                <textarea id="observacion-entrega" rows="3" th:field="*{observacion}"
-                          th:attr="aria-invalid=${#fields.hasErrors('observacion')}"></textarea>
-                <p class="error" th:errors="*{observacion}"></p>
-            </div>
-            <p class="aviso" th:if="${solicitud.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">
-                Registra alojamiento únicamente cuando haya sido proporcionado efectivamente.
-                Este registro no autoriza cupos ni asignaciones de albergue.
-            </p>
-            <p class="error" th:if="${#fields.hasGlobalErrors()}" th:each="error : ${#fields.globalErrors()}"
-               th:text="${error}"></p>
-            <button type="submit">Registrar entrega</button>
-        </form>
-
         <p th:if="${#lists.isEmpty(solicitud.entregas)}">Aún no hay entregas registradas.</p>
         <div class="tabla-contenedor" th:unless="${#lists.isEmpty(solicitud.entregas)}">
             <table>
@@ -224,6 +178,85 @@
                 </tr>
                 </tbody>
             </table>
+        </div>`r`n        <div class="asignaciones-ayuda" th:if="${asignaciones != null and !#lists.isEmpty(asignaciones)}">
+            <h3>Asignaciones de ayuda programadas</h3>
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                    <tr>
+                        <th scope="col">Artículo</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Cantidad Asignada</th>
+                        <th scope="col">Origen</th>
+                        <th scope="col">Fecha Asignación</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="asig : ${asignaciones}">
+                        <td th:text="${asig.articulo.nombre}"></td>
+                        <td th:text="${asig.tipoAyuda.etiqueta}"></td>
+                        <td th:text="${asig.cantidad + ' ' + asig.unidad}"></td>
+                        <td th:text="${asig.origen}"></td>
+                        <td th:text="${#temporals.format(@fechaHoraBogota.convertir(asig.asignadaAt), 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:each="asig : ${asignaciones}" class="entrega-asignacion">
+                <h4 th:text="${asig.articulo.nombre + ' � ' + asig.cantidad + ' ' + asig.unidad}"></h4>
+                <form th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}"
+                      th:action="@{/campo/registros/{familiaId}/asignaciones/{asignacionId}/entrega(familiaId=${solicitud.id}, asignacionId=${asig.id})}"
+                      method="post">
+                    <label th:for="${'cantidad-' + asig.id}">Cantidad entregada</label>
+                    <input type="number" min="0.000001" step="0.000001" th:id="${'cantidad-' + asig.id}" name="cantidad" required>
+                    <label th:for="${'lote-' + asig.id}">Lote</label>
+                    <select th:id="${'lote-' + asig.id}" name="loteId">
+                        <option value="">Selecciona el lote (autom�tico si se omite)</option>
+                        <option th:each="lote : ${lotesPorArticulo[asig.articulo.id]}"
+                                th:value="${lote.id}"
+                                th:text="${lote.codigoLote + ' � ' + lote.saldoDisponible + ' ' + lote.unidad}"></option>
+                    </select>
+                    <label th:for="${'observacion-' + asig.id}">Observaci�n</label>
+                    <textarea th:id="${'observacion-' + asig.id}" name="observacion" rows="2"></textarea>
+                    <button type="submit">Registrar entrega efectiva</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="tabla-contenedor" th:if="${entregasRealizadas != null and !#lists.isEmpty(entregasRealizadas)}">
+            <h3>Historial de entregas efectivas</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">Tipo de Ayuda</th>
+                    <th scope="col">Cantidad Despachada</th>
+                    <th scope="col">Fecha/Hora</th>
+                    <th scope="col">Asignación</th>
+                    <th scope="col">Despachado por</th>
+                    <th scope="col">Observación</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="ent : ${entregasRealizadas}">
+                    <td th:text="${ent.tipoAyuda.etiqueta}"></td>
+                    <td th:text="${ent.cantidadValor + ' ' + ent.unidad}"></td>
+                    <td th:text="${#temporals.format(@fechaHoraBogota.convertir(ent.fechaHoraEntrega), 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${ent.asignacion != null ? '#' + ent.asignacion.id : 'Directa'}"></td>
+                    <td th:text="${ent.usuarioCorreo}"></td>
+                    <td th:text="${#strings.isEmpty(ent.observacion) ? '—' : ent.observacion}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alojamiento-estado" th:if="${solicitud.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">
+            <h3>Estado del flujo de Alojamiento</h3>
+            <p th:if="${alojamientoSatisfecho}">
+                <strong>Estado:</strong> Alojamiento efectivamente prestado y confirmado documentalmente.
+            </p>
+            <p th:unless="${alojamientoSatisfecho}">
+                <strong>Estado:</strong> En trámite de fases (requiere confirmación de prestación de alojamiento para habilitar el cierre).
+            </p>
         </div>
 
         <div class="cierre-solicitud" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}">

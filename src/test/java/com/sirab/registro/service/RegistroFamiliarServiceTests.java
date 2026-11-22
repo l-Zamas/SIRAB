@@ -3,6 +3,7 @@ package com.sirab.registro.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -144,19 +145,12 @@ class RegistroFamiliarServiceTests {
     }
 
     @Test
-    void registraEntregaParcialSinMarcarLaNecesidadComoCompleta() {
-        Familia familia = new Familia();
-        familia.setEstado(EstadoRegistro.VERIFICADO);
-        familia.setNecesidades(Set.of(Necesidad.AGUA));
-        when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
-
-        service.registrarEntrega(1L, "campo@sirab.local", new RegistrarEntregaCommand(
-                Necesidad.AGUA, "20 L", LocalDate.of(2026, 2, 1), false, "Entrega parcial"));
-
-        ArgumentCaptor<EntregaAyuda> entregaCaptor = ArgumentCaptor.forClass(EntregaAyuda.class);
-        verify(entregaRepository).save(entregaCaptor.capture());
-        assertEquals(false, entregaCaptor.getValue().isSatisfaceNecesidadCompleta());
-        assertEquals("campo@sirab.local", entregaCaptor.getValue().getUsuarioCorreo());
+    void rechazaEntregaLegacySinAsignacionNiInventario() {
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> service.registrarEntrega(1L, "campo@sirab.local", new RegistrarEntregaCommand(
+                        Necesidad.AGUA, "20 L", LocalDate.of(2026, 2, 1), true, "Entrega legacy")));
+        assertTrue(ex.getMessage().contains("asignación y un lote"));
+        verifyNoInteractions(entregaRepository);
     }
 
     @Test

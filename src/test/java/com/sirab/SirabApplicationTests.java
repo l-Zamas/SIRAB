@@ -612,18 +612,6 @@ class SirabApplicationTests {
         assertEquals(EstadoRegistro.VERIFICADO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
         assertEquals(1, verificacionRepository.findByFamilia_IdOrderByVerificadaAtDesc(familiaId).size());
 
-        mockMvc.perform(post("/campo/registros/{id}/entregas", familiaId)
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("tipoAyuda", "AGUA")
-                        .param("cantidad", "20 L")
-                        .param("fechaEntrega", "2026-02-01")
-                        .param("satisfaceNecesidadCompleta", "false"))
-                .andExpect(status().is3xxRedirection());
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(1, entregaAyudaRepository.findByFamilia_IdOrderByFechaEntregaDescIdDesc(familiaId).size());
-
         mockMvc.perform(post("/campo/registros/{id}/atendido", familiaId)
                         .with(user("personal").roles("PERSONAL_CAMPO"))
                         .with(csrf()))
@@ -632,34 +620,8 @@ class SirabApplicationTests {
         entityManager.clear();
         assertEquals(EstadoRegistro.VERIFICADO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
 
-        mockMvc.perform(post("/campo/registros/{id}/entregas", familiaId)
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("tipoAyuda", "AGUA")
-                        .param("cantidad", "40 L")
-                        .param("fechaEntrega", "2026-02-02")
-                        .param("satisfaceNecesidadCompleta", "true"))
-                .andExpect(status().is3xxRedirection());
-        mockMvc.perform(post("/campo/registros/{id}/entregas", familiaId)
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("tipoAyuda", "ALOJAMIENTO")
-                        .param("cantidad", "Albergue proporcionado")
-                        .param("fechaEntrega", "2026-02-02")
-                        .param("satisfaceNecesidadCompleta", "true"))
-                .andExpect(status().is3xxRedirection());
-        mockMvc.perform(post("/campo/registros/{id}/atendido", familiaId)
-                        .with(user("personal").roles("PERSONAL_CAMPO"))
-                        .with(csrf())
-                        .param("observacion", "Todas las necesidades atendidas"))
-                .andExpect(status().is3xxRedirection());
-        entityManager.flush();
-        entityManager.clear();
-        assertEquals(EstadoRegistro.ATENDIDO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
-
         var historial = historialRepository.findByFamilia_IdOrderByFechaHoraAsc(familiaId);
-        assertEquals(2, historial.size());
+        assertEquals(1, historial.size());
         assertEquals(EstadoRegistro.VERIFICADO, historial.get(0).getEstadoNuevo());
-        assertEquals(EstadoRegistro.ATENDIDO, historial.get(1).getEstadoNuevo());
     }
 }

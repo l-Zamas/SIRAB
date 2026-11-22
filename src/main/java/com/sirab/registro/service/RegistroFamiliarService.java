@@ -1,5 +1,6 @@
 package com.sirab.registro.service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,11 +9,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sirab.registro.ActorTipoSolicitud;
+import com.sirab.registro.AsignacionAyuda;
+import com.sirab.registro.AsignacionAyudaRepository;
 import com.sirab.registro.CambioDatoVerificacion;
+import com.sirab.registro.ConfirmacionPrestacionAlojamientoRepository;
 import com.sirab.registro.EntregaAyuda;
 import com.sirab.registro.EntregaAyudaRepository;
 import com.sirab.registro.EstadoRegistro;
@@ -40,6 +45,12 @@ public class RegistroFamiliarService {
     private final EntregaAyudaRepository entregaRepository;
     private final DeteccionDuplicadosService deteccionDuplicadosService;
 
+    @Autowired(required = false)
+    private ConfirmacionPrestacionAlojamientoRepository confirmacionPrestacionAlojamientoRepository;
+
+    @Autowired(required = false)
+    private AsignacionAyudaRepository asignacionAyudaRepository;
+
     public RegistroFamiliarService(
             FamiliaRepository familiaRepository,
             EstadoSolicitudHistorialRepository historialRepository,
@@ -51,6 +62,15 @@ public class RegistroFamiliarService {
         this.verificacionRepository = verificacionRepository;
         this.entregaRepository = entregaRepository;
         this.deteccionDuplicadosService = deteccionDuplicadosService;
+    }
+
+    void setConfirmacionPrestacionAlojamientoRepository(
+            ConfirmacionPrestacionAlojamientoRepository confirmacionPrestacionAlojamientoRepository) {
+        this.confirmacionPrestacionAlojamientoRepository = confirmacionPrestacionAlojamientoRepository;
+    }
+
+    void setAsignacionAyudaRepository(AsignacionAyudaRepository asignacionAyudaRepository) {
+        this.asignacionAyudaRepository = asignacionAyudaRepository;
     }
 
     @Transactional
@@ -186,34 +206,14 @@ public class RegistroFamiliarService {
         return true;
     }
 
-    @Transactional
+    /**
+     * Legacy free-text deliveries are retained only for source compatibility with
+     * historical callers; new effective deliveries must use EntregaAyudaService.
+     */
+    @Deprecated
     public boolean registrarEntrega(Long familiaId, String usuarioCorreo, RegistrarEntregaCommand command) {
-        Familia familia = familiaRepository.findById(familiaId).orElse(null);
-        if (familia == null) {
-            return false;
-        }
-        exigirEstado(familia, EstadoRegistro.VERIFICADO);
-        exigirActor(usuarioCorreo);
-        if (command.tipoAyuda() == null || !familia.getNecesidades().contains(command.tipoAyuda())) {
-            throw new IllegalStateException("La necesidad seleccionada no está registrada en esta solicitud.");
-        }
-        if (command.cantidad() == null || command.cantidad().isBlank()) {
-            throw new IllegalArgumentException("La cantidad entregada es obligatoria.");
-        }
-        if (command.fechaEntrega() == null) {
-            throw new IllegalArgumentException("La fecha de entrega es obligatoria.");
-        }
-
-        entregaRepository.save(new EntregaAyuda(
-                familia,
-                command.tipoAyuda(),
-                command.cantidad().trim(),
-                command.fechaEntrega(),
-                Instant.now(),
-                usuarioCorreo,
-                command.satisfaceNecesidadCompleta(),
-                normalizarObservacion(command.observacion())));
-        return true;
+        throw new IllegalStateException(
+                "Las entregas efectivas deben registrarse mediante una asignación y un lote de inventario.");
     }
 
     @Transactional(readOnly = true)
@@ -254,10 +254,37 @@ public class RegistroFamiliarService {
 
     private boolean necesidadesSatisfechas(Familia familia, Long familiaId) {
         Set<Necesidad> necesidades = familia.getNecesidades();
-        return !necesidades.isEmpty()
-                && necesidades.stream().allMatch(necesidad ->
-                        entregaRepository.existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(
-                                familiaId, necesidad));
+        if (necesidades.isEmpty()) {
+            return false;
+        }
+        return necesidades.stream().allMatch(necesidad -> esNecesidadSatisfecha(familiaId, necesidad));
+    }
+
+    private boolean esNecesidadSatisfecha(Long familiaId, Necesidad necesidad) {
+        if (entregaRepository.existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(familiaId, necesidad)) {
+            return true;
+        }
+
+        if (necesidad == Necesidad.ALOJAMIENTO) {
+            return confirmacionPrestacionAlojamientoRepository != null
+                    && confirmacionPrestacionAlojamientoRepository.existsBySolicitud_Familia_Id(familiaId);
+        }
+
+        if (asignacionAyudaRepository != null) {
+            List<AsignacionAyuda> asignaciones = asignacionAyudaRepository
+                    .findByFamiliaIdOrderByAsignadaAtDescIdAsc(familiaId)
+                    .stream()
+                    .filter(a -> a.getTipoAyuda() == necesidad)
+                    .toList();
+            if (!asignaciones.isEmpty()) {
+                return asignaciones.stream().allMatch(a -> {
+                    BigDecimal entregado = entregaRepository.sumarCantidadEntregadaPorAsignacion(a.getId());
+                    return entregado != null && entregado.compareTo(a.getCantidad()) >= 0;
+                });
+            }
+        }
+
+        return false;
     }
 
     private SolicitudResumen resumen(Familia familia) {

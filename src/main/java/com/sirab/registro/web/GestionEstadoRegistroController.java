@@ -1,9 +1,15 @@
 package com.sirab.registro.web;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import com.sirab.registro.AsignacionAyudaRepository;
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
@@ -11,7 +17,10 @@ import com.sirab.priorizacion.NivelUrgencia;
 import com.sirab.priorizacion.PrioridadSolicitudesService;
 import com.sirab.registro.duplicados.DeteccionDuplicadosService;
 import com.sirab.registro.duplicados.EstadoPosibleDuplicado;
-import com.sirab.registro.service.RegistrarEntregaCommand;
+import com.sirab.registro.service.AlojamientoService;
+import com.sirab.registro.service.EntregaAyudaService;
+import com.sirab.registro.service.InventarioService;
+import com.sirab.registro.service.RegistrarEntregaAsignacionCommand;
 import com.sirab.registro.service.RegistroFamiliarService;
 import com.sirab.registro.service.SolicitudVerificacionCommand;
 import com.sirab.registro.service.RegistroFamiliarService.SolicitudDetalle;
@@ -38,6 +47,18 @@ public class GestionEstadoRegistroController {
     private final RegistroFamiliarService registroFamiliarService;
     private final DeteccionDuplicadosService deteccionDuplicadosService;
     private final PrioridadSolicitudesService prioridadSolicitudesService;
+
+    @Autowired(required = false)
+    private AsignacionAyudaRepository asignacionAyudaRepository;
+
+    @Autowired(required = false)
+    private EntregaAyudaService entregaAyudaService;
+
+    @Autowired(required = false)
+    private AlojamientoService alojamientoService;
+
+    @Autowired(required = false)
+    private InventarioService inventarioService;
 
     public GestionEstadoRegistroController(
             RegistroFamiliarService registroFamiliarService,
@@ -148,43 +169,42 @@ public class GestionEstadoRegistroController {
     }
 
     @PostMapping("/campo/registros/{familiaId}/entregas")
-    public String registrarEntrega(
+    public String rechazarEntregaLegacy(
             @PathVariable Long familiaId,
-            @Valid @ModelAttribute("entregaForm") EntregaAyudaForm form,
-            BindingResult bindingResult,
-            Authentication authentication,
-            Model model,
-            HttpServletResponse response,
             RedirectAttributes redirectAttributes) {
-        noCache(response);
-        if (bindingResult.hasErrors()) {
-            cargarDetalle(familiaId, model);
-            return "campo/verificar";
-        }
+        redirectAttributes.addFlashAttribute("aviso",
+                "Las entregas efectivas deben registrarse mediante una asignación y un lote de inventario.");
+        return "redirect:/campo/registros/" + familiaId;
+    }
 
+    @PostMapping("/campo/registros/{familiaId}/asignaciones/{asignacionId}/entrega")
+    public String registrarEntregaAsignacion(
+            @PathVariable Long familiaId,
+            @PathVariable Long asignacionId,
+            @RequestParam BigDecimal cantidad,
+            @RequestParam(required = false) Long loteId,
+            @RequestParam(required = false) String observacion,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+        if (entregaAyudaService == null || asignacionAyudaRepository == null
+                || asignacionAyudaRepository.findById(asignacionId)
+                        .map(asignacion -> !java.util.Objects.equals(asignacion.getFamilia().getId(), familiaId))
+                        .orElse(true)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         try {
-            boolean encontrada = registroFamiliarService.registrarEntrega(
-                    familiaId,
-                    authentication.getName(),
-                    new RegistrarEntregaCommand(
-                            form.getTipoAyuda(),
-                            form.getCantidad(),
-                            form.getFechaEntrega(),
-                            form.isSatisfaceNecesidadCompleta(),
-                            form.getObservacion()));
-            if (!encontrada) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-            }
-        } catch (IllegalStateException exception) {
+            entregaAyudaService.registrarEntrega(
+                    new RegistrarEntregaAsignacionCommand(
+                            asignacionId,
+                            cantidad,
+                            loteId,
+                            Instant.now(),
+                            observacion),
+                    authentication.getName());
+            redirectAttributes.addFlashAttribute("mensaje", "Entrega por asignación registrada correctamente.");
+        } catch (IllegalArgumentException | IllegalStateException exception) {
             redirectAttributes.addFlashAttribute("aviso", exception.getMessage());
-            return "redirect:/campo/registros/" + familiaId;
-        } catch (IllegalArgumentException exception) {
-            bindingResult.reject("entrega.invalida", exception.getMessage());
-            cargarDetalle(familiaId, model);
-            return "campo/verificar";
         }
-
-        redirectAttributes.addFlashAttribute("mensaje", "Entrega registrada.");
         return "redirect:/campo/registros/" + familiaId;
     }
 
@@ -234,8 +254,26 @@ public class GestionEstadoRegistroController {
             form.setNecesidades(solicitud.necesidades());
             model.addAttribute("verificacionForm", form);
         }
-        if (!model.containsAttribute("entregaForm")) {
-            model.addAttribute("entregaForm", new EntregaAyudaForm());
+        if (asignacionAyudaRepository != null) {
+            var asignaciones = asignacionAyudaRepository.findByFamiliaIdOrderByAsignadaAtDescIdAsc(familiaId);
+            model.addAttribute("asignaciones", asignaciones);
+            Map<Long, java.util.List<com.sirab.registro.LoteInventario>> lotesPorArticulo = new HashMap<>();
+            if (inventarioService != null) {
+                asignaciones.forEach(asignacion -> lotesPorArticulo.put(
+                        asignacion.getArticulo().getId(),
+                        inventarioService.obtenerLotesDisponiblesParaEntrega(asignacion.getArticulo().getId())));
+            }
+            model.addAttribute("lotesPorArticulo", lotesPorArticulo);
+        }
+        if (entregaAyudaService != null) {
+            model.addAttribute("entregasRealizadas",
+                    entregaAyudaService.listarEntregasPorFamilia(familiaId));
+        }
+        if (alojamientoService != null) {
+            model.addAttribute("alojamientoSatisfecho",
+                    alojamientoService.estaAlojamientoSatisfecho(familiaId));
+            model.addAttribute("solicitudesAlojamiento",
+                    alojamientoService.listarSolicitudesPorFamilia(familiaId));
         }
     }
 
