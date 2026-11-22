@@ -45,6 +45,7 @@ public class RegistroFamiliarService {
     private final EntregaAyudaRepository entregaRepository;
     private final DeteccionDuplicadosService deteccionDuplicadosService;
     private final CodigoConsultaService codigoConsultaService;
+    private final EvidenciaFamiliaService evidenciaFamiliaService;
 
     @Autowired(required = false)
     private ConfirmacionPrestacionAlojamientoRepository confirmacionPrestacionAlojamientoRepository;
@@ -58,13 +59,15 @@ public class RegistroFamiliarService {
             VerificacionSolicitudRepository verificacionRepository,
             EntregaAyudaRepository entregaRepository,
             DeteccionDuplicadosService deteccionDuplicadosService,
-            CodigoConsultaService codigoConsultaService) {
+            CodigoConsultaService codigoConsultaService,
+            EvidenciaFamiliaService evidenciaFamiliaService) {
         this.familiaRepository = familiaRepository;
         this.historialRepository = historialRepository;
         this.verificacionRepository = verificacionRepository;
         this.entregaRepository = entregaRepository;
         this.deteccionDuplicadosService = deteccionDuplicadosService;
         this.codigoConsultaService = codigoConsultaService;
+        this.evidenciaFamiliaService = evidenciaFamiliaService;
     }
 
     void setConfirmacionPrestacionAlojamientoRepository(
@@ -81,6 +84,15 @@ public class RegistroFamiliarService {
         if (!command.consentimientoAceptado()) {
             throw new IllegalArgumentException("Se requiere consentimiento para registrar los datos.");
         }
+        Set<Necesidad> necesidades = command.necesidades() == null ? Set.of() : command.necesidades();
+        if (necesidades.contains(Necesidad.ALOJAMIENTO)
+                && (command.evidenciaAlojamiento() == null || command.evidenciaAlojamiento().isBlank())) {
+            throw new IllegalArgumentException("La evidencia de alojamiento es obligatoria.");
+        }
+        if (necesidades.contains(Necesidad.MEDICAMENTOS)
+                && (command.evidenciaMedicamentos() == null || command.evidenciaMedicamentos().isBlank())) {
+            throw new IllegalArgumentException("La evidencia de medicamentos es obligatoria.");
+        }
         deteccionDuplicadosService.iniciarOperacion();
 
         Familia familia = new Familia();
@@ -91,7 +103,7 @@ public class RegistroFamiliarService {
         familia.setNumeroIntegrantes(command.numeroIntegrantes());
         familia.setTelefonoContacto(command.telefonoContacto());
         familia.setSituaciones(command.situaciones() == null ? Set.of() : command.situaciones());
-        familia.setNecesidades(command.necesidades() == null ? Set.of() : command.necesidades());
+        familia.setNecesidades(necesidades);
         familia.setConsentimientoAt(command.consentimientoAt() == null ? Instant.now() : command.consentimientoAt());
         familia.setConsentimientoVersion(CONSENTIMIENTO_VERSION);
         String codigoConsulta = codigoConsultaService.generarCodigoUnico();
@@ -107,6 +119,12 @@ public class RegistroFamiliarService {
                 Instant.now(),
                 "Solicitud registrada por el flujo ciudadano."));
         deteccionDuplicadosService.detectarPara(guardada, false);
+        if (command.evidenciaAlojamiento() != null) {
+            evidenciaFamiliaService.asociar(guardada, command.evidenciaAlojamiento(), command.nombreEvidenciaAlojamiento(), command.tipoEvidenciaAlojamiento(), com.sirab.registro.TipoDocumentoPrivado.EVIDENCIA_ALOJAMIENTO);
+        }
+        if (command.evidenciaMedicamentos() != null) {
+            evidenciaFamiliaService.asociar(guardada, command.evidenciaMedicamentos(), command.nombreEvidenciaMedicamentos(), command.tipoEvidenciaMedicamentos(), com.sirab.registro.TipoDocumentoPrivado.SOPORTE_MEDICO);
+        }
         return codigoConsulta;
     }
 

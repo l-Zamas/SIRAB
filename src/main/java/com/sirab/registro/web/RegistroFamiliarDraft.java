@@ -24,6 +24,12 @@ public final class RegistroFamiliarDraft implements Serializable {
     private Set<SituacionFamiliar> situaciones = EnumSet.noneOf(SituacionFamiliar.class);
     private Set<Necesidad> necesidades = EnumSet.noneOf(Necesidad.class);
     private Instant consentimientoAt;
+    private String evidenciaAlojamiento;
+    private String nombreEvidenciaAlojamiento;
+    private String tipoEvidenciaAlojamiento;
+    private String evidenciaMedicamentos;
+    private String nombreEvidenciaMedicamentos;
+    private String tipoEvidenciaMedicamentos;
     private int etapa;
 
     public String getNombreRegistrante() {
@@ -102,6 +108,19 @@ public final class RegistroFamiliarDraft implements Serializable {
         this.consentimientoAt = consentimientoAt;
     }
 
+    public String getEvidenciaAlojamiento() { return evidenciaAlojamiento; }
+    public void setEvidenciaAlojamiento(String value) { this.evidenciaAlojamiento = value; }
+    public String getNombreEvidenciaAlojamiento() { return nombreEvidenciaAlojamiento; }
+    public void setNombreEvidenciaAlojamiento(String value) { this.nombreEvidenciaAlojamiento = value; }
+    public String getTipoEvidenciaAlojamiento() { return tipoEvidenciaAlojamiento; }
+    public void setTipoEvidenciaAlojamiento(String value) { this.tipoEvidenciaAlojamiento = value; }
+    public String getEvidenciaMedicamentos() { return evidenciaMedicamentos; }
+    public void setEvidenciaMedicamentos(String value) { this.evidenciaMedicamentos = value; }
+    public String getNombreEvidenciaMedicamentos() { return nombreEvidenciaMedicamentos; }
+    public void setNombreEvidenciaMedicamentos(String value) { this.nombreEvidenciaMedicamentos = value; }
+    public String getTipoEvidenciaMedicamentos() { return tipoEvidenciaMedicamentos; }
+    public void setTipoEvidenciaMedicamentos(String value) { this.tipoEvidenciaMedicamentos = value; }
+
     public int getEtapa() {
         return etapa;
     }
@@ -121,6 +140,12 @@ public final class RegistroFamiliarDraft implements Serializable {
                 situaciones,
                 necesidades,
                 consentimientoAt != null,
-                consentimientoAt);
+                consentimientoAt,
+                evidenciaAlojamiento,
+                nombreEvidenciaAlojamiento,
+                tipoEvidenciaAlojamiento,
+                evidenciaMedicamentos,
+                nombreEvidenciaMedicamentos,
+                tipoEvidenciaMedicamentos);
     }
 }

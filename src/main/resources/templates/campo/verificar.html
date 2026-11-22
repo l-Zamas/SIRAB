@@ -61,7 +61,13 @@
                 </span>
             </dd>
         </dl>
-        <p class="nota">No hay documentos adjuntos disponibles para esta solicitud.</p>
+        <div th:if="${#lists.isEmpty(evidencias)}" class="nota">No hay evidencias adjuntas disponibles para esta solicitud.</div>
+        <ul th:unless="${#lists.isEmpty(evidencias)}">
+            <li th:each="evidencia : ${evidencias}">
+                <span th:text="${evidencia.tipo}"></span> — <span th:text="${evidencia.nombre}"></span>
+                <a th:href="@{/campo/registros/{familiaId}/evidencias/{evidenciaId}(familiaId=${solicitud.id},evidenciaId=${evidencia.id})}">Consultar evidencia</a>
+            </li>
+        </ul>
     </section>
 
     <section class="campo-seccion" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE}">

@@ -11,6 +11,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,6 +45,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.context.ApplicationContext;
@@ -227,7 +229,7 @@ class SirabApplicationTests {
                         .with(csrf())
                         .param("nombreRegistrante", "REGISTRO_SINTETICO")
                         .param("numeroIntegrantes", "2")
-                        .param("telefonoContacto", "TELEFONO_SINTETICO"))
+                        .param("telefonoContacto", "3000000000"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/ubicacion"));
         mockMvc.perform(get("/familia/registro/ubicacion").session(session))
@@ -274,7 +276,7 @@ class SirabApplicationTests {
         mockMvc.perform(get("/familia/registro/documento").session(session))
                 .andExpect(status().isOk())
                 .andExpect(view().name("familia/documento-diferido"))
-                .andExpect(content().string(containsString("no está habilitada")));
+                .andExpect(content().string(containsString("No solicitamos documentos de identidad")));
 
         mockMvc.perform(post("/familia/registro/documento").session(session).with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -308,13 +310,13 @@ class SirabApplicationTests {
         mockMvc.perform(get("/familia/registro/datos").session(session))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("value=\"REGISTRO_SINTETICO\"")))
-                .andExpect(content().string(containsString("value=\"TELEFONO_SINTETICO\"")));
+                .andExpect(content().string(containsString("value=\"3000000000\"")));
         mockMvc.perform(post("/familia/registro/datos")
                         .session(session)
                         .with(csrf())
                         .param("nombreRegistrante", "REGISTRO_CORREGIDO")
                         .param("numeroIntegrantes", "3")
-                        .param("telefonoContacto", "TELEFONO_CORREGIDO"))
+                        .param("telefonoContacto", "3000000001"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/ubicacion"));
 
@@ -362,8 +364,11 @@ class SirabApplicationTests {
 
         mockMvc.perform(get("/familia/registro/documento").session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("La carga digital aún no está habilitada")));
-        mockMvc.perform(post("/familia/registro/documento").session(session).with(csrf()))
+                .andExpect(content().string(containsString("Cuéntanos un poco más")));
+        mockMvc.perform(multipart("/familia/registro/documento")
+                        .file(new MockMultipartFile("evidenciaAlojamiento", "vivienda.png", "image/png", new byte[] {1, 2, 3}))
+                        .file(new MockMultipartFile("evidenciaMedicamentos", "formula.pdf", "application/pdf", new byte[] {4, 5, 6}))
+                        .session(session).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/resumen"));
         mockMvc.perform(get("/familia/registro/resumen").session(session))
@@ -393,7 +398,7 @@ class SirabApplicationTests {
         assertEquals("BARRIO_CORREGIDO", saved.getBarrio());
         assertEquals("DIRECCION_CORREGIDA", saved.getDireccion());
         assertEquals("REFERENCIA_CORREGIDA", saved.getDireccionReferencia());
-        assertEquals("TELEFONO_CORREGIDO", saved.getTelefonoContacto());
+        assertEquals("3000000001", saved.getTelefonoContacto());
         assertEquals(Set.of(SituacionFamiliar.ADULTOS_MAYORES), saved.getSituaciones());
         assertEquals(Set.of(Necesidad.MEDICAMENTOS, Necesidad.ALOJAMIENTO), saved.getNecesidades());
         assertEquals(EstadoRegistro.PENDIENTE, saved.getEstado());
@@ -475,7 +480,7 @@ class SirabApplicationTests {
                         .with(csrf())
                         .param("nombreRegistrante", "REGISTRO_VALIDACION")
                         .param("numeroIntegrantes", "2")
-                        .param("telefonoContacto", "TELEFONO_VALIDACION"))
+                        .param("telefonoContacto", "3000000002"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/familia/registro/ubicacion"));
 

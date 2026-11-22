@@ -22,6 +22,8 @@ import com.sirab.registro.service.EntregaAyudaService;
 import com.sirab.registro.service.InventarioService;
 import com.sirab.registro.service.RegistrarEntregaAsignacionCommand;
 import com.sirab.registro.service.RegistroFamiliarService;
+import com.sirab.registro.service.EvidenciaFamiliaService;
+import com.sirab.registro.DocumentoPrivado;
 import com.sirab.registro.service.SolicitudVerificacionCommand;
 import com.sirab.registro.service.RegistroFamiliarService.SolicitudDetalle;
 
@@ -47,6 +49,7 @@ public class GestionEstadoRegistroController {
     private final RegistroFamiliarService registroFamiliarService;
     private final DeteccionDuplicadosService deteccionDuplicadosService;
     private final PrioridadSolicitudesService prioridadSolicitudesService;
+    private final EvidenciaFamiliaService evidenciaFamiliaService;
 
     @Autowired(required = false)
     private AsignacionAyudaRepository asignacionAyudaRepository;
@@ -63,10 +66,12 @@ public class GestionEstadoRegistroController {
     public GestionEstadoRegistroController(
             RegistroFamiliarService registroFamiliarService,
             DeteccionDuplicadosService deteccionDuplicadosService,
-            PrioridadSolicitudesService prioridadSolicitudesService) {
+            PrioridadSolicitudesService prioridadSolicitudesService,
+            EvidenciaFamiliaService evidenciaFamiliaService) {
         this.registroFamiliarService = registroFamiliarService;
         this.deteccionDuplicadosService = deteccionDuplicadosService;
         this.prioridadSolicitudesService = prioridadSolicitudesService;
+        this.evidenciaFamiliaService = evidenciaFamiliaService;
     }
 
     @GetMapping("/campo/registros")
@@ -125,6 +130,20 @@ public class GestionEstadoRegistroController {
         noCache(response);
         cargarDetalle(familiaId, model);
         return "campo/verificar";
+    }
+
+    @GetMapping("/campo/registros/{familiaId}/evidencias/{evidenciaId}")
+    public org.springframework.http.ResponseEntity<byte[]> evidencia(
+            @PathVariable Long familiaId, @PathVariable Long evidenciaId) {
+        try {
+            DocumentoPrivado documento = evidenciaFamiliaService.obtenerDocumento(familiaId, evidenciaId);
+            return org.springframework.http.ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType(documento.getTipoContenido()))
+                    .header("Content-Disposition", "inline; filename=\"" + documento.getNombreOriginal() + "\"")
+                    .body(evidenciaFamiliaService.leer(familiaId, evidenciaId));
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La evidencia no está disponible.", exception);
+        }
     }
 
     @PostMapping("/campo/registros/{familiaId}/verificacion")
@@ -265,6 +284,7 @@ public class GestionEstadoRegistroController {
             }
             model.addAttribute("lotesPorArticulo", lotesPorArticulo);
         }
+        model.addAttribute("evidencias", evidenciaFamiliaService.listar(familiaId));
         if (entregaAyudaService != null) {
             model.addAttribute("entregasRealizadas",
                     entregaAyudaService.listarEntregasPorFamilia(familiaId));

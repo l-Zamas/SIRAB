@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
@@ -36,9 +40,12 @@ public class RegistroFamiliarController {
     private static final int ETAPA_DOCUMENTO = 7;
 
     private final RegistroFamiliarService registroFamiliarService;
+    private final com.sirab.registro.service.EvidenciaFamiliaService evidenciaFamiliaService;
 
-    public RegistroFamiliarController(RegistroFamiliarService registroFamiliarService) {
+    public RegistroFamiliarController(RegistroFamiliarService registroFamiliarService,
+            com.sirab.registro.service.EvidenciaFamiliaService evidenciaFamiliaService) {
         this.registroFamiliarService = registroFamiliarService;
+        this.evidenciaFamiliaService = evidenciaFamiliaService;
     }
 
     @GetMapping("/familia/registro")
@@ -272,20 +279,52 @@ public class RegistroFamiliarController {
     }
 
     @GetMapping("/familia/registro/documento")
-    public String documento(HttpSession session, HttpServletResponse response) {
-        noCache(response);
-        if (draft(session).getEtapa() < ETAPA_NECESIDADES) {
-            return "redirect:/familia/registro/necesidades";
-        }
-        return "familia/documento-diferido";
-    }
-
-    @PostMapping("/familia/registro/documento")
-    public String continuarSinDocumento(HttpSession session, HttpServletResponse response) {
+    public String documento(HttpSession session, Model model, HttpServletResponse response) {
         noCache(response);
         RegistroFamiliarDraft draft = draft(session);
         if (draft.getEtapa() < ETAPA_NECESIDADES) {
             return "redirect:/familia/registro/necesidades";
+        }
+        model.addAttribute("registroFamiliarDraft", draft);
+        return "familia/documento-diferido";
+    }
+
+    @PostMapping("/familia/registro/documento")
+    public String continuarSinDocumento(
+            @RequestParam(name = "evidenciaAlojamiento", required = false) org.springframework.web.multipart.MultipartFile evidenciaAlojamiento,
+            @RequestParam(name = "evidenciaMedicamentos", required = false) MultipartFile evidenciaMedicamentos,
+            HttpSession session, Model model, HttpServletResponse response) {
+        noCache(response);
+        RegistroFamiliarDraft draft = draft(session);
+        if (draft.getEtapa() < ETAPA_NECESIDADES) {
+            return "redirect:/familia/registro/necesidades";
+        }
+        String error = null;
+        if (draft.getNecesidades().contains(Necesidad.ALOJAMIENTO)
+                && (evidenciaAlojamiento == null || evidenciaAlojamiento.isEmpty())) {
+            error = "La evidencia de alojamiento es obligatoria.";
+        } else if (draft.getNecesidades().contains(Necesidad.MEDICAMENTOS)
+                && (evidenciaMedicamentos == null || evidenciaMedicamentos.isEmpty())) {
+            error = "La evidencia de medicamentos es obligatoria.";
+        }
+        try {
+        if (error == null && draft.getNecesidades().contains(Necesidad.ALOJAMIENTO)) {
+            draft.setEvidenciaAlojamiento(evidenciaFamiliaService.guardarTemporal(evidenciaAlojamiento, com.sirab.registro.TipoDocumentoPrivado.EVIDENCIA_ALOJAMIENTO));
+            draft.setNombreEvidenciaAlojamiento(evidenciaAlojamiento.getOriginalFilename());
+            draft.setTipoEvidenciaAlojamiento(evidenciaAlojamiento.getContentType());
+        }
+        if (error == null && draft.getNecesidades().contains(Necesidad.MEDICAMENTOS)) {
+            draft.setEvidenciaMedicamentos(evidenciaFamiliaService.guardarTemporal(evidenciaMedicamentos, com.sirab.registro.TipoDocumentoPrivado.SOPORTE_MEDICO));
+            draft.setNombreEvidenciaMedicamentos(evidenciaMedicamentos.getOriginalFilename());
+            draft.setTipoEvidenciaMedicamentos(evidenciaMedicamentos.getContentType());
+        }
+        } catch (IllegalArgumentException exception) {
+            error = exception.getMessage();
+        }
+        if (error != null) {
+            model.addAttribute("registroFamiliarDraft", draft);
+            model.addAttribute("errorEvidencia", error);
+            return "familia/documento-diferido";
         }
         avanzarEtapa(draft, ETAPA_DOCUMENTO);
         session.setAttribute(BORRADOR, draft);
@@ -311,7 +350,15 @@ public class RegistroFamiliarController {
         noCache(response);
         RegistroFamiliarDraft draft = draft(session);
         if (draft.getEtapa() < ETAPA_DOCUMENTO) {
-            return "redirect:/familia/registro/resumen";
+            return "redirect:/familia/registro/documento";
+        }
+        if (draft.getNecesidades().contains(Necesidad.ALOJAMIENTO)
+                && (draft.getEvidenciaAlojamiento() == null || draft.getEvidenciaAlojamiento().isBlank())) {
+            return "redirect:/familia/registro/documento";
+        }
+        if (draft.getNecesidades().contains(Necesidad.MEDICAMENTOS)
+                && (draft.getEvidenciaMedicamentos() == null || draft.getEvidenciaMedicamentos().isBlank())) {
+            return "redirect:/familia/registro/documento";
         }
         String codigoConsulta = registroFamiliarService.registrar(draft.toCommand());
         session.setAttribute(CODIGO_CONSULTA, codigoConsulta);
@@ -325,6 +372,22 @@ public class RegistroFamiliarController {
         model.addAttribute("codigoConsulta", session.getAttribute(CODIGO_CONSULTA));
         session.removeAttribute(CODIGO_CONSULTA);
         return "familia/confirmacion";
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String errorCargaGrande(HttpSession session, Model model, HttpServletResponse response) {
+        noCache(response);
+        model.addAttribute("registroFamiliarDraft", draft(session));
+        model.addAttribute("errorEvidencia", "El archivo supera el límite permitido de 5 MB.");
+        return "familia/documento-diferido";
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String errorEvidencia(IllegalArgumentException exception, HttpSession session, Model model, HttpServletResponse response) {
+        noCache(response);
+        model.addAttribute("registroFamiliarDraft", draft(session));
+        model.addAttribute("errorEvidencia", exception.getMessage());
+        return "familia/documento-diferido";
     }
 
     @ExceptionHandler(DataAccessException.class)

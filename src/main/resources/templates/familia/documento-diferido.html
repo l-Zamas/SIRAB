@@ -12,19 +12,22 @@
 <main id="contenido" class="registro-main">
     <a class="registro-atras" th:href="@{/familia/registro/necesidades}">‹ Atrás</a>
     <div th:replace="~{familia/fragmentos-registro :: progreso(5)}"></div>
-    <p class="registro-etiqueta">Último paso</p>
-    <h1>Documento de identidad</h1>
-    <p class="registro-introduccion">El prototipo propone subir una foto para que el personal de campo verifique el registro.</p>
-    <section class="aviso" role="note">
-        <h2>La carga digital aún no está habilitada</h2>
-        <p>
-            El documento contiene información sensible. No lo envíes ni almacenes aquí hasta que
-            SIRAB tenga almacenamiento protegido y acceso restringido para personal autorizado.
-            Puedes continuar sin adjuntarlo.
-        </p>
-    </section>
-    <form class="registro-formulario" th:action="@{/familia/registro/documento}" method="post">
-        <button class="registro-primario" type="submit">Continuar sin adjuntar</button>
+    <p class="registro-etiqueta">Evidencias</p>
+    <h1>Cuéntanos un poco más</h1>
+    <p class="registro-introduccion">Adjunta solo las evidencias que correspondan a las necesidades seleccionadas. No solicitamos documentos de identidad.</p>
+    <p class="aviso aviso-error" role="alert" th:if="${errorEvidencia}" th:text="${errorEvidencia}"></p>
+    <form class="registro-formulario" th:action="@{/familia/registro/documento}" method="post" enctype="multipart/form-data">
+        <div class="campo" th:if="${registroFamiliarDraft.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">
+            <label for="evidenciaAlojamiento">Fotografía de la vivienda</label>
+            <p>Adjunta una imagen que permita conocer las condiciones de la vivienda.</p>
+            <input id="evidenciaAlojamiento" name="evidenciaAlojamiento" type="file" accept="image/jpeg,image/png,image/webp" th:required="${registroFamiliarDraft.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">
+        </div>
+        <div class="campo" th:if="${registroFamiliarDraft.necesidades.contains(T(com.sirab.registro.Necesidad).MEDICAMENTOS)}">
+            <label for="evidenciaMedicamentos">Fórmula médica</label>
+            <p>Adjunta una fotografía o documento PDF legible de la fórmula médica.</p>
+            <input id="evidenciaMedicamentos" name="evidenciaMedicamentos" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required>
+        </div>
+        <button class="registro-primario" type="submit">Continuar</button>
     </form>
 </main>
 </body>
