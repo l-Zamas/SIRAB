@@ -1,0 +1,89 @@
+/* Capa visual compartida para la renovación ciudadana de SIRAB. */
+body.registro-ciudadano {
+    --sirab-azul-profundo: #164e83;
+    --sirab-coral: #d07800;
+    --sirab-superficie: #ffffff;
+    background: radial-gradient(circle at 8% 0%, rgb(7 89 166 / 9%), transparent 22rem),
+        radial-gradient(circle at 100% 55%, rgb(208 120 0 / 7%), transparent 20rem), var(--registro-fondo);
+}
+
+body.registro-ciudadano::before {
+    position: fixed;
+    z-index: -1;
+    inset: 0;
+    background-image: linear-gradient(135deg, rgb(255 255 255 / 30%) 25%, transparent 25%);
+    background-size: 2.5rem 2.5rem;
+    content: "";
+    opacity: .22;
+    pointer-events: none;
+}
+
+.registro-encabezado {
+    width: min(calc(100% - 2rem), 70rem);
+    min-height: 5.5rem;
+    border-bottom-color: rgb(22 78 131 / 16%);
+}
+
+.registro-marca {
+    padding: .5rem .75rem;
+    border-radius: .85rem;
+    transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.registro-marca:hover { background: rgb(7 89 166 / 8%); transform: translateY(-1px); }
+
+main.registro-main {
+    position: relative;
+    width: min(calc(100% - 2rem), 52rem);
+    border: 0;
+    border-radius: 1.5rem;
+    box-shadow: 0 1.75rem 4rem rgb(24 43 67 / 10%), 0 0 0 1px rgb(22 78 131 / 7%);
+}
+
+main.registro-main::after {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: .5rem;
+    height: 3rem;
+    border-radius: 1rem;
+    background: linear-gradient(var(--sirab-coral), #efb04d);
+    content: "";
+    opacity: .9;
+}
+
+.progreso { padding: .95rem 1rem 1.1rem; border: 1px solid #e4eaf1; border-radius: 1rem; background: #fbfdff; }
+.progreso-cabecera { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.progreso-cabecera p { margin-bottom: .25rem; color: var(--registro-azul); }
+.progreso-cabecera span { color: #687587; font-size: .83rem; font-weight: 650; }
+.progreso ol { margin: .65rem 0 0; }
+
+.consulta-guia { display: flex; gap: .8rem; align-items: flex-start; margin-top: 1.4rem; padding: 1rem; border: 1px solid #d9e7f4; border-radius: 1rem; background: #f5f9fd; }
+.consulta-guia-icono { display: grid; flex: 0 0 1.8rem; height: 1.8rem; place-items: center; border-radius: 50%; color: #fff; background: var(--registro-azul); font-weight: 800; }
+.consulta-guia strong { color: #172f50; }
+.consulta-guia p { margin: .2rem 0 0; color: var(--registro-texto-secundario); font-size: .9rem; }
+.consulta-formulario { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #edf0f4; }
+.consulta-formulario small { color: #687587; }
+.consulta-formulario .registro-primario { min-height: 3.5rem; box-shadow: 0 .5rem 1rem rgb(7 89 166 / 16%); }
+.consulta-formulario .registro-primario span { margin-left: .4rem; font-size: 1.2rem; }
+.consulta-volver { margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid #edf0f4; text-align: center; }
+.consulta-resultado { margin-top: 1.5rem; padding: 1.25rem; border: 1px solid #dce8f2; border-radius: 1.1rem; background: #fbfdff; }
+.consulta-resultado h2 { margin-top: 0; color: #172f50; }
+.consulta-tarjeta { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid #e8eef4; }
+.consulta-tarjeta span { color: #48515d; text-align: right; }
+
+.registro-necesidades .opcion-necesidad { min-height: 10rem; border-width: 1px; box-shadow: 0 .35rem 1rem rgb(24 43 67 / 4%); }
+.registro-necesidades .opcion-necesidad:hover { box-shadow: 0 .65rem 1.4rem rgb(7 89 166 / 12%); }
+.registro-primario { box-shadow: 0 .45rem .9rem rgb(7 89 166 / 13%); }
+
+@media (max-width: 40rem) {
+    main.registro-main { width: min(calc(100% - 1rem), 34rem); margin-top: .5rem; }
+    main.registro-main::after { top: .9rem; right: .9rem; height: 2.3rem; }
+    .progreso-cabecera { align-items: flex-start; flex-direction: column; gap: .1rem; }
+    .consulta-tarjeta { align-items: flex-start; flex-direction: column; gap: .2rem; }
+    .consulta-tarjeta span { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .registro-ciudadano::before { display: none; }
+}

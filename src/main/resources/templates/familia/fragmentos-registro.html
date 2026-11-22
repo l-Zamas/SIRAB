@@ -12,7 +12,7 @@
     </header>
 </th:block>
 <nav th:fragment="progreso(paso)" class="progreso" aria-label="Progreso del registro">
-    <p th:text="'Paso ' + ${paso} + ' de 5'">Paso 1 de 5</p>
+    <div class="progreso-cabecera"><p th:text="'Paso ' + ${paso} + ' de 5'">Paso 1 de 5</p><span th:text="${paso == 1 ? 'Información básica' : paso == 2 ? 'Ubicación' : paso == 3 ? 'Situación familiar' : paso == 4 ? 'Necesidades' : 'Evidencias'}">Información básica</span></div>
     <ol>
         <li th:each="indice : ${#numbers.sequence(1, 5)}"
             th:classappend="${indice <= paso} ? ' completado' : ''"

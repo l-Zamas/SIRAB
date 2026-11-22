@@ -1410,3 +1410,14 @@ td {
         scroll-behavior: auto;
     }
 }
+
+/* Ajustes de cierre para conservar la identidad y reforzar la lectura del hero. */
+.landing-page .landing-primary,
+.landing-page .landing-secondary { min-height: 3.4rem; border-radius: 0.9rem; }
+.landing-page .landing-secondary { box-shadow: 0 0.4rem 1rem rgb(22 78 131 / 8%); }
+.landing-page .landing-need-card { border-radius: 1.1rem; box-shadow: 0 0.7rem 1.6rem rgb(24 43 67 / 5%); }
+.landing-page .landing-citizen-cta { border-radius: 1.35rem; box-shadow: 0 1rem 2.5rem rgb(7 89 166 / 12%); }
+@media (max-width: 44rem) {
+    .landing-page .landing-actions { gap: 0.85rem; }
+    .landing-page .landing-actions > * { min-height: 3.5rem; }
+}
