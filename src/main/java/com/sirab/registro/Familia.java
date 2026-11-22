@@ -32,10 +32,10 @@ public class Familia {
     @Column(length = 120)
     private String barrio;
 
-    @Column(name = "direccion", length = 255)
+    @Column(name = "direccion", nullable = false, length = 255)
     private String direccion;
 
-    @Column(name = "direccion_referencia", length = 255)
+    @Column(name = "direccion_referencia", nullable = true, length = 255)
     private String direccionReferencia;
 
     @Column(name = "numero_integrantes", nullable = false)
