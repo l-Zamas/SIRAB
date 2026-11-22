@@ -560,6 +560,24 @@ class SirabApplicationTests {
     }
 
     @Test
+    void coordinationReportsRequireCoordinatorOrAdminRole() throws Exception {
+        mockMvc.perform(get("/coordinacion/reportes"))
+                .andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/coordinacion/reportes")
+                        .with(user("personal").roles("PERSONAL_CAMPO")))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(get("/coordinacion/reportes")
+                        .with(user("coordinacion").roles("COORDINACION")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("coordinacion/reportes"))
+                .andExpect(content().string(containsString("Reportes y consolidados")));
+        mockMvc.perform(get("/coordinacion/reportes")
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("coordinacion/reportes"));
+    }
+
+    @Test
     @Transactional
     void verificationAndDeliveryRequireFieldRoleAndEnforceStateRules() throws Exception {
         Familia familia = new Familia();

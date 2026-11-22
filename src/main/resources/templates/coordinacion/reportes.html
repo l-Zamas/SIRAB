@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reportes de coordinación - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+</head>
+<body>
+<main class="campo-app">
+    <header class="campo-encabezado">
+        <div>
+            <p class="sobrelinea">Coordinación institucional</p>
+            <h1>Reportes y consolidados</h1>
+            <p>Resumen operativo de familias, necesidades, territorio y ayudas registradas.</p>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button class="secundario" type="submit">Cerrar sesión</button>
+        </form>
+    </header>
+
+    <section class="campo-seccion">
+        <h2>Resumen general</h2>
+        <p class="resumen"><strong th:text="${reporte.totalFamilias}">0</strong> familias registradas</p>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Familias por estado</h2>
+        <table>
+            <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+            <tbody>
+            <tr th:each="estado : ${estados}">
+                <td th:text="${estado.etiqueta}"></td>
+                <td th:text="${reporte.familiasPorEstado.get(estado)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Familias por necesidad</h2>
+        <table>
+            <thead><tr><th>Necesidad</th><th>Familias</th></tr></thead>
+            <tbody>
+            <tr th:each="necesidad : ${necesidades}">
+                <td th:text="${necesidad.etiqueta}"></td>
+                <td th:text="${reporte.familiasPorNecesidad.get(necesidad)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Familias por barrio</h2>
+        <table>
+            <thead><tr><th>Barrio</th><th>Familias</th></tr></thead>
+            <tbody>
+            <tr th:each="entrada : ${reporte.familiasPorBarrio.entrySet()}">
+                <td th:text="${entrada.key}"></td>
+                <td th:text="${entrada.value}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Ayudas entregadas</h2>
+        <table>
+            <thead><tr><th>Tipo</th><th>Unidad</th><th>Número de entregas</th><th>Cantidad total</th></tr></thead>
+            <tbody>
+            <tr th:each="entrega : ${reporte.entregasEfectivas}">
+                <td th:text="${entrega.tipoAyuda.etiqueta}"></td>
+                <td th:text="${entrega.unidad}"></td>
+                <td th:text="${entrega.numeroEntregas}"></td>
+                <td th:text="${entrega.cantidadTotal}"></td>
+            </tr>
+            <tr th:each="historica : ${reporte.entregasHistoricas.entrySet()}">
+                <td th:text="${historica.key.etiqueta + ' (históricas)'}"></td>
+                <td>No comparable</td>
+                <td th:text="${historica.value}"></td>
+                <td>No sumada</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
