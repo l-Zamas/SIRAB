@@ -102,4 +102,19 @@ public class ArticuloAyuda {
     public String getCreadoPor() {
         return creadoPor;
     }
+
+    public void desactivar() {
+        this.activo = false;
+    }
+
+    public void activar() {
+        this.activo = true;
+    }
+
+    public void actualizarNombre(String nombre) {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre del artículo es obligatorio.");
+        }
+        this.nombre = nombre.trim();
+    }
 }
