@@ -67,7 +67,7 @@ class RegistroFamiliarServiceTests {
                 "DIRECCION_SINTETICA",
                 "REFERENCIA_SINTETICA",
                 3,
-                "TELEFONO_SINTETICO",
+                "3000000003",
                 Set.of(SituacionFamiliar.MENORES_DE_CINCO, SituacionFamiliar.ADULTOS_MAYORES),
                 Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS),
                 true,

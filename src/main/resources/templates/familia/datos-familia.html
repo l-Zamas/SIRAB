@@ -14,10 +14,11 @@
     <div th:replace="~{familia/fragmentos-registro :: progreso(1)}"></div>
     <p class="registro-etiqueta">Información básica</p>
     <h1>Datos de tu familia</h1>
-    <p class="registro-introduccion">Escribe quién registra y cómo contactarte.</p>
+    <p class="registro-introduccion">Escribe tus nombres y apellidos y cómo contactarte.</p>
+    <p class="campo-obligatorio">Los campos marcados con <strong>*</strong> son obligatorios.</p>
     <form class="registro-formulario registro-datos" th:action="@{/familia/registro/datos}" th:object="${datosFamiliaForm}" method="post">
         <div class="campo">
-            <label for="nombreRegistrante">Nombre de quien registra</label>
+            <label for="nombreRegistrante">Nombres y apellidos *</label>
             <input id="nombreRegistrante" type="text" th:field="*{nombreRegistrante}" maxlength="120"
                    autocomplete="name" placeholder="Ej. María Rivas" required
                    th:attr="aria-invalid=${#fields.hasErrors('nombreRegistrante')},
@@ -26,7 +27,7 @@
                th:if="${#fields.hasErrors('nombreRegistrante')}" th:errors="*{nombreRegistrante}"></p>
         </div>
         <div class="campo">
-            <label for="numeroIntegrantes">Número de integrantes</label>
+            <label for="numeroIntegrantes">Número de integrantes *</label>
             <input id="numeroIntegrantes" type="number" th:field="*{numeroIntegrantes}" min="1"
                    placeholder="Ej. 5" required
                    th:attr="aria-invalid=${#fields.hasErrors('numeroIntegrantes')},
@@ -35,16 +36,29 @@
                th:if="${#fields.hasErrors('numeroIntegrantes')}" th:errors="*{numeroIntegrantes}"></p>
         </div>
         <div class="campo">
-            <label for="telefonoContacto">Teléfono de contacto (obligatorio)</label>
-            <input id="telefonoContacto" type="tel" th:field="*{telefonoContacto}" maxlength="100"
-                   autocomplete="tel" placeholder="Ej. 300 000 0000" required
+            <label for="telefonoContacto">Teléfono de contacto *</label>
+            <input id="telefonoContacto" type="tel" th:field="*{telefonoContacto}" maxlength="10"
+                   inputmode="numeric" pattern="[0-9]{10}" autocomplete="tel" placeholder="Ej. 3000000000" required
                    th:attr="aria-invalid=${#fields.hasErrors('telefonoContacto')},
                             aria-describedby=${#fields.hasErrors('telefonoContacto')} ? 'telefono-error' : null">
             <p class="error" id="telefono-error" role="alert"
                th:if="${#fields.hasErrors('telefonoContacto')}" th:errors="*{telefonoContacto}"></p>
+            <p class="error" id="telefono-client-error" role="alert" hidden></p>
         </div>
         <button class="registro-primario" type="submit">Continuar</button>
     </form>
 </main>
+<script>
+const telefono = document.getElementById('telefonoContacto');
+const telefonoError = document.getElementById('telefono-client-error');
+const validarTelefono = () => {
+    const valido = /^[0-9]{10}$/.test(telefono.value);
+    telefonoError.hidden = valido || telefono.value.length === 0;
+    telefonoError.textContent = valido || telefono.value.length === 0 ? '' : 'El teléfono debe contener exactamente 10 dígitos.';
+    telefono.setCustomValidity(valido || telefono.value.length === 0 ? '' : 'El teléfono debe contener exactamente 10 dígitos.');
+};
+telefono.addEventListener('input', validarTelefono);
+validarTelefono();
+</script>
 </body>
 </html>

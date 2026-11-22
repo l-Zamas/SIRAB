@@ -2,6 +2,7 @@ package com.sirab.registro.web;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
 
 public class UbicacionForm {
 
@@ -12,6 +13,11 @@ public class UbicacionForm {
     @NotBlank(message = "Ingresa la dirección.")
     @Size(max = 255, message = "La dirección no puede superar 255 caracteres.")
     private String direccion;
+
+    @AssertTrue(message = "Ingresa una dirección con letras y contenido significativo.")
+    public boolean isDireccionSignificativa() {
+        return direccion != null && direccion.trim().matches(".*[A-Za-zÁÉÍÓÚáéíóúÑñ].*");
+    }
 
     @Size(max = 255, message = "El punto de referencia no puede superar 255 caracteres.")
     private String direccionReferencia;

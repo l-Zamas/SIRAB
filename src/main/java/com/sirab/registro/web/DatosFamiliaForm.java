@@ -4,10 +4,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 
 public class DatosFamiliaForm {
 
-    @NotBlank(message = "Ingresa el nombre de quien registra.")
+    @NotBlank(message = "Ingresa tus nombres y apellidos.")
     @Size(max = 120, message = "El nombre no puede superar 120 caracteres.")
     private String nombreRegistrante;
 
@@ -16,7 +17,8 @@ public class DatosFamiliaForm {
     private Integer numeroIntegrantes;
 
     @NotBlank(message = "Ingresa un teléfono de contacto.")
-    @Size(max = 100, message = "El teléfono no puede superar 100 caracteres.")
+    @Pattern(regexp = "\\d{10}", message = "El teléfono debe contener exactamente 10 dígitos.")
+    @Size(max = 10, message = "El teléfono debe contener exactamente 10 dígitos.")
     private String telefonoContacto;
 
     public String getNombreRegistrante() {
