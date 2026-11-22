@@ -172,7 +172,7 @@
                     <td th:text="${entrega.tipoAyuda.etiqueta}"></td>
                     <td th:text="${entrega.efectiva ? entrega.cantidadValor + ' ' + entrega.unidad : entrega.cantidad}"></td>
                     <td th:text="${entrega.efectiva ? #temporals.format(@fechaHoraBogota.convertir(entrega.fechaHoraEntrega), 'dd/MM/yyyy HH:mm') : #temporals.format(entrega.fechaEntrega, 'dd/MM/yyyy')}"></td>
-                    <td th:text="${entrega.efectiva ? (entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atenci?n parcial') : 'Registro hist?rico'}"></td>
+                    <td th:text="${entrega.efectiva ? (entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atención parcial') : 'Registro histórico'}"></td>
                     <td th:text="${entrega.usuarioCorreo}"></td>
                     <td th:text="${#strings.isEmpty(entrega.observacion) ? '?' : entrega.observacion}"></td>
                 </tr>
