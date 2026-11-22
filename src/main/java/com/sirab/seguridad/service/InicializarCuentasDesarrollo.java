@@ -1,4 +1,8 @@
-package com.sirab.seguridad;
+package com.sirab.seguridad.service;
+
+import com.sirab.seguridad.entity.CuentaUsuario;
+import com.sirab.seguridad.entity.RolUsuario;
+import com.sirab.seguridad.repository.CuentaUsuarioRepository;
 
 import java.util.ArrayList;
 import java.util.List;

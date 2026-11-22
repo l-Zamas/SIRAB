@@ -1,4 +1,6 @@
-package com.sirab.seguridad;
+package com.sirab.seguridad.repository;
+
+import com.sirab.seguridad.entity.CuentaUsuario;
 
 import java.util.Optional;
 

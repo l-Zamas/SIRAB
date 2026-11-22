@@ -32,10 +32,10 @@ import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
 import com.sirab.registro.VerificacionSolicitudRepository;
 import com.sirab.registro.web.RegistroFamiliarDraft;
-import com.sirab.seguridad.CuentaUsuario;
-import com.sirab.seguridad.CuentaUsuarioRepository;
-import com.sirab.seguridad.InicializarCuentasDesarrollo;
-import com.sirab.seguridad.RolUsuario;
+import com.sirab.seguridad.entity.CuentaUsuario;
+import com.sirab.seguridad.repository.CuentaUsuarioRepository;
+import com.sirab.seguridad.service.InicializarCuentasDesarrollo;
+import com.sirab.seguridad.entity.RolUsuario;
 
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;

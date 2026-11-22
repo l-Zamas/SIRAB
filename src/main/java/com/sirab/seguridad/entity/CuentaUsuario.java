@@ -1,4 +1,4 @@
-package com.sirab.seguridad;
+package com.sirab.seguridad.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
