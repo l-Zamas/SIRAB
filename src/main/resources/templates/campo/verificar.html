@@ -8,18 +8,18 @@
 </head>
 <body>
 <main class="campo-app">
-    <nav class="campo-navegacion" aria-label="Navegación de personal">
+    <nav class="campo-navegacion" aria-label="NavegaciÃ³n de personal">
         <a th:href="@{/campo/registros}">Volver a solicitudes</a>
         <a th:href="@{/campo/duplicados}">Revisar posibles duplicados</a>
         <form th:action="@{/logout}" method="post">
-            <button class="secundario" type="submit">Cerrar sesión</button>
+            <button class="secundario" type="submit">Cerrar sesiÃ³n</button>
         </form>
     </nav>
     <header class="campo-encabezado">
         <div>
             <p class="sobrelinea">Solicitud <span th:text="${solicitud.id}"></span></p>
-            <h1>Verificación y atención</h1>
-            <p>Revisa la información registrada con la familia y documenta cada resultado.</p>
+            <h1>VerificaciÃ³n y atenciÃ³n</h1>
+            <p>Revisa la informaciÃ³n registrada con la familia y documenta cada resultado.</p>
         </div>
         <span class="estado" th:text="${solicitud.estado.etiqueta}"></span>
     </header>
@@ -36,11 +36,11 @@
             <dd th:text="${solicitud.nombreRegistrante}"></dd>
             <dt>Integrantes</dt>
             <dd th:text="${solicitud.numeroIntegrantes}"></dd>
-            <dt>Teléfono</dt>
+            <dt>TelÃ©fono</dt>
             <dd th:text="${#strings.isEmpty(solicitud.telefonoContacto) ? 'No indicado' : solicitud.telefonoContacto}"></dd>
             <dt>Barrio</dt>
             <dd th:text="${#strings.isEmpty(solicitud.barrio) ? 'No indicado' : solicitud.barrio}"></dd>
-            <dt>Dirección</dt>
+            <dt>DirecciÃ³n</dt>
             <dd th:text="${#strings.isEmpty(solicitud.direccion) ? 'No indicada' : solicitud.direccion}"></dd>
             <dt>Punto de referencia</dt>
             <dd th:text="${#strings.isEmpty(solicitud.direccionReferencia) ? 'No indicado' : solicitud.direccionReferencia}"></dd>
@@ -66,7 +66,7 @@
 
     <section class="campo-seccion" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE}">
         <h2>Verificar información</h2>
-        <p>Confirma o corrige los datos durante la revisión con la familia. Los cambios quedan registrados.</p>
+        <p>Confirma o corrige los datos durante la revisiÃ³n con la familia. Los cambios quedan registrados.</p>
         <form th:action="@{/campo/registros/{id}/verificacion(id=${solicitud.id})}"
               th:object="${verificacionForm}" method="post">
             <div class="campo">
@@ -76,13 +76,13 @@
                 <p class="error" th:errors="*{nombreRegistrante}"></p>
             </div>
             <div class="campo">
-                <label for="numeroIntegrantes">Número de integrantes</label>
+                <label for="numeroIntegrantes">NÃºmero de integrantes</label>
                 <input id="numeroIntegrantes" type="number" min="1" th:field="*{numeroIntegrantes}"
                        th:attr="aria-invalid=${#fields.hasErrors('numeroIntegrantes')}">
                 <p class="error" th:errors="*{numeroIntegrantes}"></p>
             </div>
             <div class="campo">
-                <label for="telefonoContacto">Teléfono de contacto</label>
+                <label for="telefonoContacto">TelÃ©fono de contacto</label>
                 <input id="telefonoContacto" type="tel" th:field="*{telefonoContacto}"
                        th:attr="aria-invalid=${#fields.hasErrors('telefonoContacto')}">
                 <p class="error" th:errors="*{telefonoContacto}"></p>
@@ -94,7 +94,7 @@
                 <p class="error" th:errors="*{barrio}"></p>
             </div>
             <div class="campo">
-                <label for="direccion">Dirección</label>
+                <label for="direccion">DirecciÃ³n</label>
                 <input id="direccion" type="text" th:field="*{direccion}"
                        th:attr="aria-invalid=${#fields.hasErrors('direccion')}">
                 <p class="error" th:errors="*{direccion}"></p>
@@ -120,30 +120,30 @@
                 </div>
             </fieldset>
             <div class="campo">
-                <label for="observacion-verificacion">Observación de verificación</label>
+                <label for="observacion-verificacion">ObservaciÃ³n de verificaciÃ³n</label>
                 <textarea id="observacion-verificacion" rows="4" th:field="*{observacion}"
                           th:attr="aria-invalid=${#fields.hasErrors('observacion')}"></textarea>
                 <p class="error" th:errors="*{observacion}"></p>
             </div>
-            <button type="submit">Confirmar verificación</button>
+            <button type="submit">Confirmar verificaciÃ³n</button>
         </form>
     </section>
 
     <section class="campo-seccion" th:if="${!#lists.isEmpty(solicitud.verificaciones)}">
-        <h2>Historial de verificaciones</h2>
+        <h2>Verificar información — Historial de verificaciones</h2>
         <article class="registro-historial" th:each="verificacion : ${solicitud.verificaciones}">
             <h3 th:text="${verificacion.resultado == T(com.sirab.registro.ResultadoVerificacion).CORREGIDA
                 ? 'Datos corregidos' : 'Datos confirmados'}"></h3>
             <p>
                 <span th:text="${#temporals.format(@fechaHoraBogota.convertir(verificacion.verificadaAt), 'dd/MM/yyyy HH:mm')}"></span>
-                · <span th:text="${verificacion.usuarioCorreo}"></span>
+                Â· <span th:text="${verificacion.usuarioCorreo}"></span>
             </p>
             <p th:if="${verificacion.observacion}" th:text="${verificacion.observacion}"></p>
             <ul th:if="${!#lists.isEmpty(verificacion.cambios)}">
                 <li th:each="cambio : ${verificacion.cambios}">
                     <strong th:text="${cambio.campo}"></strong>:
                     <span th:text="${cambio.valorAnterior == null ? 'Sin dato' : cambio.valorAnterior}"></span>
-                    → <span th:text="${cambio.valorNuevo == null ? 'Sin dato' : cambio.valorNuevo}"></span>
+                    â†’ <span th:text="${cambio.valorNuevo == null ? 'Sin dato' : cambio.valorNuevo}"></span>
                 </li>
             </ul>
         </article>
@@ -154,7 +154,7 @@
                  or solicitud.estado == T(com.sirab.registro.EstadoRegistro).ATENDIDO}">
         <h2>Entregas de ayuda</h2>
         <p>Registra cada entrega vinculada a una necesidad. Las atenciones parciales no cierran la solicitud.</p>
-        <p th:if="${#lists.isEmpty(solicitud.entregas)}">Aún no hay entregas registradas.</p>
+        <p th:if="${#lists.isEmpty(solicitud.entregas)}">AÃºn no hay entregas registradas.</p>
         <div class="tabla-contenedor" th:unless="${#lists.isEmpty(solicitud.entregas)}">
             <table>
                 <thead>
@@ -162,33 +162,34 @@
                     <th scope="col">Necesidad</th>
                     <th scope="col">Cantidad</th>
                     <th scope="col">Fecha</th>
-                    <th scope="col">Satisfacción</th>
+                    <th scope="col">SatisfacciÃ³n</th>
                     <th scope="col">Registrada por</th>
-                    <th scope="col">Observación</th>
+                    <th scope="col">ObservaciÃ³n</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="entrega : ${solicitud.entregas}">
                     <td th:text="${entrega.tipoAyuda.etiqueta}"></td>
-                    <td th:text="${entrega.cantidad}"></td>
-                    <td th:text="${#temporals.format(entrega.fechaEntrega, 'dd/MM/yyyy')}"></td>
-                    <td th:text="${entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atención parcial'}"></td>
+                    <td th:text="${entrega.efectiva ? entrega.cantidadValor + ' ' + entrega.unidad : entrega.cantidad}"></td>
+                    <td th:text="${entrega.efectiva ? #temporals.format(@fechaHoraBogota.convertir(entrega.fechaHoraEntrega), 'dd/MM/yyyy HH:mm') : #temporals.format(entrega.fechaEntrega, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${entrega.efectiva ? (entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atenci?n parcial') : 'Registro hist?rico'}"></td>
                     <td th:text="${entrega.usuarioCorreo}"></td>
-                    <td th:text="${#strings.isEmpty(entrega.observacion) ? '—' : entrega.observacion}"></td>
+                    <td th:text="${#strings.isEmpty(entrega.observacion) ? '?' : entrega.observacion}"></td>
                 </tr>
                 </tbody>
             </table>
-        </div>`r`n        <div class="asignaciones-ayuda" th:if="${asignaciones != null and !#lists.isEmpty(asignaciones)}">
+        </div>
+        <div class="asignaciones-ayuda" th:if="${asignaciones != null and !#lists.isEmpty(asignaciones)}">
             <h3>Asignaciones de ayuda programadas</h3>
             <div class="tabla-contenedor">
                 <table>
                     <thead>
                     <tr>
-                        <th scope="col">Artículo</th>
+                        <th scope="col">ArtÃ­culo</th>
                         <th scope="col">Tipo</th>
                         <th scope="col">Cantidad Asignada</th>
                         <th scope="col">Origen</th>
-                        <th scope="col">Fecha Asignación</th>
+                        <th scope="col">Fecha AsignaciÃ³n</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -203,7 +204,7 @@
                 </table>
             </div>
             <div th:each="asig : ${asignaciones}" class="entrega-asignacion">
-                <h4 th:text="${asig.articulo.nombre + ' � ' + asig.cantidad + ' ' + asig.unidad}"></h4>
+                <h4 th:text="${asig.articulo.nombre + ' — ' + asig.cantidad + ' ' + asig.unidad}"></h4>
                 <form th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}"
                       th:action="@{/campo/registros/{familiaId}/asignaciones/{asignacionId}/entrega(familiaId=${solicitud.id}, asignacionId=${asig.id})}"
                       method="post">
@@ -211,12 +212,12 @@
                     <input type="number" min="0.000001" step="0.000001" th:id="${'cantidad-' + asig.id}" name="cantidad" required>
                     <label th:for="${'lote-' + asig.id}">Lote</label>
                     <select th:id="${'lote-' + asig.id}" name="loteId">
-                        <option value="">Selecciona el lote (autom�tico si se omite)</option>
+                        <option value="">Selecciona el lote (automático si se omite)</option>
                         <option th:each="lote : ${lotesPorArticulo[asig.articulo.id]}"
                                 th:value="${lote.id}"
-                                th:text="${lote.codigoLote + ' � ' + lote.saldoDisponible + ' ' + lote.unidad}"></option>
+                                th:text="${lote.codigoLote + ' — ' + lote.saldoDisponible + ' ' + lote.unidad}"></option>
                     </select>
-                    <label th:for="${'observacion-' + asig.id}">Observaci�n</label>
+                    <label th:for="${'observacion-' + asig.id}">Observación</label>
                     <textarea th:id="${'observacion-' + asig.id}" name="observacion" rows="2"></textarea>
                     <button type="submit">Registrar entrega efectiva</button>
                 </form>
@@ -231,9 +232,9 @@
                     <th scope="col">Tipo de Ayuda</th>
                     <th scope="col">Cantidad Despachada</th>
                     <th scope="col">Fecha/Hora</th>
-                    <th scope="col">Asignación</th>
+                    <th scope="col">AsignaciÃ³n</th>
                     <th scope="col">Despachado por</th>
-                    <th scope="col">Observación</th>
+                    <th scope="col">ObservaciÃ³n</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -243,7 +244,7 @@
                     <td th:text="${#temporals.format(@fechaHoraBogota.convertir(ent.fechaHoraEntrega), 'dd/MM/yyyy HH:mm')}"></td>
                     <td th:text="${ent.asignacion != null ? '#' + ent.asignacion.id : 'Directa'}"></td>
                     <td th:text="${ent.usuarioCorreo}"></td>
-                    <td th:text="${#strings.isEmpty(ent.observacion) ? '—' : ent.observacion}"></td>
+                    <td th:text="${#strings.isEmpty(ent.observacion) ? 'â€”' : ent.observacion}"></td>
                 </tr>
                 </tbody>
             </table>
@@ -255,14 +256,14 @@
                 <strong>Estado:</strong> Alojamiento efectivamente prestado y confirmado documentalmente.
             </p>
             <p th:unless="${alojamientoSatisfecho}">
-                <strong>Estado:</strong> En trámite de fases (requiere confirmación de prestación de alojamiento para habilitar el cierre).
+                <strong>Estado:</strong> En trÃ¡mite de fases (requiere confirmaciÃ³n de prestaciÃ³n de alojamiento para habilitar el cierre).
             </p>
         </div>
 
         <div class="cierre-solicitud" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}">
             <form th:if="${puedeMarcarAtendido}"
                   th:action="@{/campo/registros/{id}/atendido(id=${solicitud.id})}" method="post">
-                <label for="observacion-cierre">Observación de cierre (opcional)</label>
+                <label for="observacion-cierre">ObservaciÃ³n de cierre (opcional)</label>
                 <textarea id="observacion-cierre" name="observacion" rows="2"></textarea>
                 <button type="submit">Marcar solicitud como atendida</button>
             </form>
@@ -271,7 +272,7 @@
                 <ul th:if="${!#sets.isEmpty(solicitud.necesidades)}">
                     <li th:each="necesidad : ${solicitud.necesidades}"
                         th:unless="${necesidadesSatisfechas.contains(necesidad)}"
-                        th:text="${necesidad.etiqueta + ' pendiente de satisfacción completa'}"></li>
+                        th:text="${necesidad.etiqueta + ' pendiente de satisfacciÃ³n completa'}"></li>
                 </ul>
                 <p th:if="${#sets.isEmpty(solicitud.necesidades)}">
                     No hay necesidades registradas ni entregas que respalden el cierre.
@@ -288,9 +289,9 @@
                 <span th:if="${evento.estadoAnterior != null}"
                       th:text="${' desde ' + evento.estadoAnterior.etiqueta}"></span>
                 <span th:text="${#temporals.format(@fechaHoraBogota.convertir(evento.fechaHora), 'dd/MM/yyyy HH:mm')}"></span>
-                <span th:if="${evento.usuarioCorreo}" th:text="${' · ' + evento.usuarioCorreo}"></span>
+                <span th:if="${evento.usuarioCorreo}" th:text="${' Â· ' + evento.usuarioCorreo}"></span>
                 <span th:if="${evento.actorTipo == T(com.sirab.registro.ActorTipoSolicitud).SISTEMA}">
-                    · Sistema
+                    Â· Sistema
                 </span>
                 <p th:if="${evento.observacion}" th:text="${evento.observacion}"></p>
             </li>

@@ -13,6 +13,8 @@ public interface EntregaAyudaRepository extends JpaRepository<EntregaAyuda, Long
 
     List<EntregaAyuda> findByFamilia_IdOrderByIdDesc(Long familiaId);
 
+    List<EntregaAyuda> findByFamilia_IdAndFechaHoraEntregaIsNotNullOrderByFechaHoraEntregaDescIdDesc(Long familiaId);
+
     boolean existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(
             Long familiaId,
             Necesidad tipoAyuda);

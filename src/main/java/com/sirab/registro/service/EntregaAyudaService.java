@@ -173,6 +173,6 @@ public class EntregaAyudaService {
 
     @Transactional(readOnly = true)
     public List<EntregaAyuda> listarEntregasPorFamilia(Long familiaId) {
-        return entregaRepository.findByFamilia_IdOrderByIdDesc(familiaId);
+        return entregaRepository.findByFamilia_IdAndFechaHoraEntregaIsNotNullOrderByFechaHoraEntregaDescIdDesc(familiaId);
     }
 }

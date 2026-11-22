@@ -322,11 +322,15 @@ public class RegistroFamiliarService {
         return new EntregaVista(
                 entrega.getTipoAyuda(),
                 entrega.getCantidad(),
+                entrega.getCantidadValor(),
+                entrega.getUnidad(),
                 entrega.getFechaEntrega(),
+                entrega.getFechaHoraEntrega(),
                 entrega.getRegistradaAt(),
                 entrega.getUsuarioCorreo(),
                 entrega.isSatisfaceNecesidadCompleta(),
-                entrega.getObservacion());
+                entrega.getObservacion(),
+                entrega.getFechaHoraEntrega() != null);
     }
 
     private void exigirEstado(Familia familia, EstadoRegistro esperado) {
@@ -437,10 +441,14 @@ public class RegistroFamiliarService {
     public record EntregaVista(
             Necesidad tipoAyuda,
             String cantidad,
+            BigDecimal cantidadValor,
+            String unidad,
             java.time.LocalDate fechaEntrega,
+            Instant fechaHoraEntrega,
             Instant registradaAt,
             String usuarioCorreo,
             boolean satisfaceNecesidadCompleta,
-            String observacion) {
+            String observacion,
+            boolean efectiva) {
     }
 }
