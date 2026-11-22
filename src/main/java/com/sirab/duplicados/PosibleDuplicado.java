@@ -1,4 +1,4 @@
-package com.sirab.registro.duplicados;
+package com.sirab.duplicados;
 
 import java.time.Instant;
 import java.util.Objects;

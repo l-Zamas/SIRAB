@@ -1,4 +1,4 @@
-package com.sirab.registro.duplicados;
+package com.sirab.duplicados;
 
 public enum EstadoPosibleDuplicado {
     PENDIENTE_REVISION("Pendiente de revisión"),

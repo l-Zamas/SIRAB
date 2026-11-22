@@ -1,4 +1,4 @@
-package com.sirab.registro.duplicados;
+package com.sirab.duplicados;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

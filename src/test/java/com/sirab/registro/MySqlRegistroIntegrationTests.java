@@ -18,11 +18,11 @@ import com.sirab.registro.service.RegistroFamiliarCommand;
 import com.sirab.registro.service.RegistroFamiliarService;
 import com.sirab.priorizacion.PrioridadSolicitudesService;
 import com.sirab.SirabApplication;
-import com.sirab.registro.duplicados.DeteccionDuplicadosService;
-import com.sirab.registro.duplicados.EstadoPosibleDuplicado;
-import com.sirab.registro.duplicados.PosibleDuplicadoRepository;
-import com.sirab.registro.duplicados.RevisionPosibleDuplicadoRepository;
-import com.sirab.registro.duplicados.TipoEventoDuplicado;
+import com.sirab.duplicados.DeteccionDuplicadosService;
+import com.sirab.duplicados.EstadoPosibleDuplicado;
+import com.sirab.duplicados.PosibleDuplicadoRepository;
+import com.sirab.duplicados.RevisionPosibleDuplicadoRepository;
+import com.sirab.duplicados.TipoEventoDuplicado;
 import com.sirab.registro.SituacionFamiliar;
 
 import org.junit.jupiter.api.Test;

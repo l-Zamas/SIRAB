@@ -25,7 +25,7 @@ import com.sirab.registro.SituacionFamiliar;
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.VerificacionSolicitud;
 import com.sirab.registro.VerificacionSolicitudRepository;
-import com.sirab.registro.duplicados.DeteccionDuplicadosService;
+import com.sirab.duplicados.DeteccionDuplicadosService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

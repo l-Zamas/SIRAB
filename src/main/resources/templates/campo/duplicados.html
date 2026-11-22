@@ -34,8 +34,8 @@
                 <p class="sobrelinea">Coincidencia <span th:text="${posible.id}"></span></p>
                 <h2>
                     <span aria-hidden="true"
-                          th:text="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).DUPLICADO_CONFIRMADO
-                            ? '✓' : (posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).DESCARTADO
+                          th:text="${posible.estado == T(com.sirab.duplicados.EstadoPosibleDuplicado).DUPLICADO_CONFIRMADO
+                            ? '✓' : (posible.estado == T(com.sirab.duplicados.EstadoPosibleDuplicado).DESCARTADO
                                 ? '×' : '!')}"></span>
                     <span th:text="${posible.estado.etiqueta}"></span>
                 </h2>
@@ -48,15 +48,15 @@
 
         <p><strong>Señales coincidentes al detectar:</strong>
             <span th:each="senal, iter : ${posible.senales}">
-                <span th:text="${senal == T(com.sirab.registro.duplicados.CoincidenciaFamilia.SenalCoincidencia).NOMBRE
+                <span th:text="${senal == T(com.sirab.duplicados.CoincidenciaFamilia.SenalCoincidencia).NOMBRE
                     ? 'Nombre de quien registra'
-                    : (senal == T(com.sirab.registro.duplicados.CoincidenciaFamilia.SenalCoincidencia).TELEFONO
+                    : (senal == T(com.sirab.duplicados.CoincidenciaFamilia.SenalCoincidencia).TELEFONO
                         ? 'Teléfono' : 'Barrio y dirección')}"></span><span th:if="${!iter.last}">, </span>
             </span>
         </p>
 
         <div class="tabla-contenedor"
-             th:if="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+             th:if="${posible.estado == T(com.sirab.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
             <table>
                 <thead>
                 <tr>
@@ -94,16 +94,16 @@
             </table>
         </div>
 
-        <p class="aviso" th:if="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+        <p class="aviso" th:if="${posible.estado == T(com.sirab.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
             Confirma únicamente después de revisar si ambos registros corresponden a la misma familia.
             La decisión no elimina ni fusiona solicitudes.
         </p>
         <p class="nota"
-           th:unless="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+           th:unless="${posible.estado == T(com.sirab.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
             Los datos actuales de los registros solo se muestran mientras la coincidencia está pendiente de revisión.
         </p>
         <div class="campo-navegacion"
-             th:if="${posible.estado == T(com.sirab.registro.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
+             th:if="${posible.estado == T(com.sirab.duplicados.EstadoPosibleDuplicado).PENDIENTE_REVISION}">
             <form th:action="@{/campo/duplicados/{id}/confirmar(id=${posible.id})}" method="post">
                 <button type="submit">Confirmar que son duplicados</button>
             </form>
@@ -116,11 +116,11 @@
             <summary>Historial de revisión</summary>
             <ol>
                 <li th:each="revision : ${posible.historial}">
-                    <span th:text="${revision.evento == T(com.sirab.registro.duplicados.TipoEventoDuplicado).CONFIRMADO
+                    <span th:text="${revision.evento == T(com.sirab.duplicados.TipoEventoDuplicado).CONFIRMADO
                         ? 'Duplicado confirmado'
-                        : (revision.evento == T(com.sirab.registro.duplicados.TipoEventoDuplicado).DESCARTADO
+                        : (revision.evento == T(com.sirab.duplicados.TipoEventoDuplicado).DESCARTADO
                             ? 'Coincidencia descartada'
-                            : (revision.evento == T(com.sirab.registro.duplicados.TipoEventoDuplicado).REABIERTO_POR_CAMBIO_DE_DATOS
+                            : (revision.evento == T(com.sirab.duplicados.TipoEventoDuplicado).REABIERTO_POR_CAMBIO_DE_DATOS
                                 ? 'Reabierta por cambios en los datos'
                                 : 'Retirada porque dejó de cumplir los criterios'))}"></span>
                     · <span th:text="${revision.actorCorreo}"></span>

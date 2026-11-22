@@ -30,9 +30,9 @@ import com.sirab.registro.ResultadoVerificacion;
 import com.sirab.registro.SituacionFamiliar;
 import com.sirab.registro.VerificacionSolicitud;
 import com.sirab.registro.VerificacionSolicitudRepository;
-import com.sirab.registro.duplicados.CoincidenciaFamilia;
-import com.sirab.registro.duplicados.DeteccionDuplicadosService;
-import com.sirab.registro.duplicados.IndiceDuplicadosInitializer;
+import com.sirab.duplicados.CoincidenciaFamilia;
+import com.sirab.duplicados.DeteccionDuplicadosService;
+import com.sirab.duplicados.IndiceDuplicadosInitializer;
 
 @Service
 public class RegistroFamiliarService {
