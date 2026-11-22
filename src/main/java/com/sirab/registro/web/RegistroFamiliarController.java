@@ -27,6 +27,7 @@ import com.sirab.registro.service.RegistroFamiliarService;
 public class RegistroFamiliarController {
 
     private static final String BORRADOR = "registroFamiliarDraft";
+    private static final String CODIGO_CONSULTA = "codigoConsulta";
     private static final int ETAPA_CONSENTIMIENTO = 2;
     private static final int ETAPA_DATOS = 3;
     private static final int ETAPA_UBICACION = 4;
@@ -312,14 +313,17 @@ public class RegistroFamiliarController {
         if (draft.getEtapa() < ETAPA_DOCUMENTO) {
             return "redirect:/familia/registro/resumen";
         }
-        registroFamiliarService.registrar(draft.toCommand());
+        String codigoConsulta = registroFamiliarService.registrar(draft.toCommand());
+        session.setAttribute(CODIGO_CONSULTA, codigoConsulta);
         session.removeAttribute(BORRADOR);
         return "redirect:/familia/registro/confirmacion";
     }
 
     @GetMapping("/familia/registro/confirmacion")
-    public String confirmacion(HttpServletResponse response) {
+    public String confirmacion(HttpSession session, Model model, HttpServletResponse response) {
         noCache(response);
+        model.addAttribute("codigoConsulta", session.getAttribute(CODIGO_CONSULTA));
+        session.removeAttribute(CODIGO_CONSULTA);
         return "familia/confirmacion";
     }
 

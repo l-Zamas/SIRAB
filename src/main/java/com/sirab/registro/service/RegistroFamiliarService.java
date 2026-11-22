@@ -44,6 +44,7 @@ public class RegistroFamiliarService {
     private final VerificacionSolicitudRepository verificacionRepository;
     private final EntregaAyudaRepository entregaRepository;
     private final DeteccionDuplicadosService deteccionDuplicadosService;
+    private final CodigoConsultaService codigoConsultaService;
 
     @Autowired(required = false)
     private ConfirmacionPrestacionAlojamientoRepository confirmacionPrestacionAlojamientoRepository;
@@ -56,12 +57,14 @@ public class RegistroFamiliarService {
             EstadoSolicitudHistorialRepository historialRepository,
             VerificacionSolicitudRepository verificacionRepository,
             EntregaAyudaRepository entregaRepository,
-            DeteccionDuplicadosService deteccionDuplicadosService) {
+            DeteccionDuplicadosService deteccionDuplicadosService,
+            CodigoConsultaService codigoConsultaService) {
         this.familiaRepository = familiaRepository;
         this.historialRepository = historialRepository;
         this.verificacionRepository = verificacionRepository;
         this.entregaRepository = entregaRepository;
         this.deteccionDuplicadosService = deteccionDuplicadosService;
+        this.codigoConsultaService = codigoConsultaService;
     }
 
     void setConfirmacionPrestacionAlojamientoRepository(
@@ -74,7 +77,7 @@ public class RegistroFamiliarService {
     }
 
     @Transactional
-    public void registrar(RegistroFamiliarCommand command) {
+    public String registrar(RegistroFamiliarCommand command) {
         if (!command.consentimientoAceptado()) {
             throw new IllegalArgumentException("Se requiere consentimiento para registrar los datos.");
         }
@@ -91,6 +94,8 @@ public class RegistroFamiliarService {
         familia.setNecesidades(command.necesidades() == null ? Set.of() : command.necesidades());
         familia.setConsentimientoAt(command.consentimientoAt() == null ? Instant.now() : command.consentimientoAt());
         familia.setConsentimientoVersion(CONSENTIMIENTO_VERSION);
+        String codigoConsulta = codigoConsultaService.generarCodigoUnico();
+        familia.setCodigoConsultaHash(codigoConsultaService.hash(codigoConsulta));
         IndiceDuplicadosInitializer.actualizarIndice(familia);
         Familia guardada = familiaRepository.save(familia);
         historialRepository.save(new EstadoSolicitudHistorial(
@@ -102,6 +107,7 @@ public class RegistroFamiliarService {
                 Instant.now(),
                 "Solicitud registrada por el flujo ciudadano."));
         deteccionDuplicadosService.detectarPara(guardada, false);
+        return codigoConsulta;
     }
 
     @Transactional(readOnly = true)

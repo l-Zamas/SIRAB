@@ -13,6 +13,8 @@ import org.springframework.data.repository.query.Param;
 public interface FamiliaRepository extends JpaRepository<Familia, Long> {
     Optional<Familia> findFirstByNombreRegistrante(String nombreRegistrante);
 
+    Optional<Familia> findByCodigoConsultaHash(String codigoConsultaHash);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select f from Familia f where f.id = :id")
     Optional<Familia> findByIdConBloqueo(@Param("id") Long id);

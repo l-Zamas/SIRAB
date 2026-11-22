@@ -66,6 +66,9 @@ public class Familia {
     @Enumerated(EnumType.STRING)
     private EstadoRegistro estado = EstadoRegistro.PENDIENTE;
 
+    @Column(name = "codigo_consulta_hash", length = 64, unique = true)
+    private String codigoConsultaHash;
+
     @ElementCollection
     @CollectionTable(
             name = "familia_necesidad",
@@ -196,6 +199,14 @@ public class Familia {
 
     public void setEstado(EstadoRegistro estado) {
         this.estado = estado;
+    }
+
+    public String getCodigoConsultaHash() {
+        return codigoConsultaHash;
+    }
+
+    public void setCodigoConsultaHash(String codigoConsultaHash) {
+        this.codigoConsultaHash = codigoConsultaHash;
     }
 
     public Set<Necesidad> getNecesidades() {

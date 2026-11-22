@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Consultar mi estado - SIRAB</title>
+    <link rel="stylesheet" th:href="@{/css/registro.css}">
+    <link rel="stylesheet" th:href="@{/css/registro-ciudadano.css}">
+</head>
+<body class="registro-ciudadano">
+<th:block th:replace="~{familia/fragmentos-registro :: encabezado}"></th:block>
+<main id="contenido" class="registro-main">
+    <p class="registro-etiqueta">Consulta ciudadana</p>
+    <h1>Consultar mi estado</h1>
+    <p class="registro-introduccion">Ingresa el código de consulta que recibiste al registrar tu familia.</p>
+    <p class="aviso" th:if="${errorConsulta}" th:text="${errorConsulta}" role="alert"></p>
+    <section th:if="${estadoPublico}" aria-live="polite">
+        <h2>Estado de la solicitud</h2>
+        <p class="estado" th:text="${estadoPublico.estado.etiqueta}"></p>
+        <p>Fecha de registro: <span th:text="${#temporals.format(estadoPublico.fechaActualizacion, 'dd/MM/yyyy')}"></span></p>
+    </section>
+    <form class="registro-formulario" th:action="@{/familia/consulta}" th:object="${consultaEstadoForm}" method="post">
+        <label for="codigo">Código de consulta</label>
+        <input id="codigo" type="text" th:field="*{codigo}" autocomplete="off" required maxlength="32">
+        <button class="registro-primario" type="submit">Consultar estado</button>
+    </form>
+    <a class="registro-secundario" th:href="@{/}">Volver al inicio</a>
+</main>
+</body>
+</html>

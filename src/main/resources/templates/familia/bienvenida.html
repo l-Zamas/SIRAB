@@ -41,15 +41,9 @@
                             <path d="M5 12h14M13 6l6 6-6 6"></path>
                         </svg>
                     </a>
-                    <div class="landing-consult">
-                        <button type="button" class="boton landing-secondary" disabled
-                                aria-describedby="consulta-pendiente">
-                            Consultar mi estado
-                        </button>
-                        <p id="consulta-pendiente" class="landing-unavailable" role="status">
-                            La consulta aún no está disponible.
-                        </p>
-                    </div>
+                    <a class="boton landing-secondary" th:href="@{/familia/consulta}">
+                        Consultar mi estado
+                    </a>
                 </nav>
 
                 <p class="landing-privacy">

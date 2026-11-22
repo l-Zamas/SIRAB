@@ -94,7 +94,7 @@ class SirabApplicationTests {
                 .andExpect(content().string(containsString("cada necesidad cuenta.")))
                 .andExpect(content().string(containsString("Registrar mi familia")))
                 .andExpect(content().string(containsString("Consultar mi estado")))
-                .andExpect(content().string(containsString("La consulta aún no está disponible.")))
+                .andExpect(content().string(containsString("/familia/consulta")))
                 .andExpect(content().string(containsString("id=\"como-funciona\"")))
                 .andExpect(content().string(containsString("id=\"necesidades\"")))
                 .andExpect(content().string(containsString("/familia/registro/consentimiento")))

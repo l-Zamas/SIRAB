@@ -52,6 +52,9 @@ class RegistroFamiliarServiceTests {
     @Mock
     private DeteccionDuplicadosService deteccionDuplicadosService;
 
+    @Mock
+    private CodigoConsultaService codigoConsultaService;
+
     @InjectMocks
     private RegistroFamiliarService service;
 
@@ -70,6 +73,9 @@ class RegistroFamiliarServiceTests {
                 true,
                 consentTime);
         when(familiaRepository.save(any(Familia.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(codigoConsultaService.generarCodigoUnico()).thenReturn("0123456789abcdef0123456789abcdef");
+        when(codigoConsultaService.hash("0123456789abcdef0123456789abcdef"))
+                .thenReturn("hash-consulta");
 
         service.registrar(command);
 

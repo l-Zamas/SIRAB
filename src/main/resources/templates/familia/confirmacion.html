@@ -19,6 +19,11 @@
     <p class="registro-etiqueta">Registro completado</p>
     <h1>Registro recibido</h1>
     <p class="registro-introduccion">El personal de campo verificará tu registro. No compartas datos personales en dispositivos públicos.</p>
+    <section th:if="${codigoConsulta}" aria-live="polite">
+        <h2>Tu código de consulta</h2>
+        <p>Guárdalo para consultar el estado de tu familia. No lo compartas.</p>
+        <code th:text="${codigoConsulta}"></code>
+    </section>
     <a class="registro-primario registro-enlace-primario" th:href="@{/}">Volver al inicio</a>
 </main>
 </body>

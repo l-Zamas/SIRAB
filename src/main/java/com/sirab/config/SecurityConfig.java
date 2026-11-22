@@ -19,6 +19,7 @@ public class SecurityConfig {
                         "/familia/registro/situacion", "/familia/registro/necesidades",
                         "/familia/registro/documento", "/familia/registro/resumen",
                         "/familia/registro/confirmar", "/familia/registro/confirmacion",
+                        "/familia/consulta",
                         "/login",
                         "/css/**", "/js/**", "/images/**", "/webjars/**",
                         "/favicon.ico", "/error")
