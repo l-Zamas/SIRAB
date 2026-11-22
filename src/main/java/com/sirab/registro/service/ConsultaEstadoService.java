@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.Familia;
+import com.sirab.registro.Necesidad;
 
 @Service
 public class ConsultaEstadoService {
@@ -21,9 +22,11 @@ public class ConsultaEstadoService {
     @Transactional(readOnly = true)
     public Optional<EstadoPublico> consultar(String codigo) {
         return codigoConsultaService.buscar(codigo)
-                .map(familia -> new EstadoPublico(familia.getEstado(), familia.getFechaCreacion()));
+                .map(familia -> new EstadoPublico(familia.getEstado(), familia.getFechaCreacion(),
+                        familia.getNombreRegistrante(), familia.getDireccion(), familia.getBarrio(), familia.getNecesidades()));
     }
 
-    public record EstadoPublico(EstadoRegistro estado, Instant fechaActualizacion) {
+    public record EstadoPublico(EstadoRegistro estado, Instant fechaActualizacion, String nombreRegistrante,
+            String direccion, String barrio, java.util.Set<Necesidad> necesidades) {
     }
 }

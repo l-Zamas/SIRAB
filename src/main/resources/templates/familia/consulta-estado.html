@@ -14,10 +14,18 @@
     <h1>Consultar mi estado</h1>
     <p class="registro-introduccion">Ingresa el código de consulta que recibiste al registrar tu familia.</p>
     <p class="aviso" th:if="${errorConsulta}" th:text="${errorConsulta}" role="alert"></p>
-    <section th:if="${estadoPublico}" aria-live="polite">
+    <section class="consulta-resultado" th:if="${estadoPublico}" aria-live="polite">
         <h2>Estado de la solicitud</h2>
         <p class="estado" th:text="${estadoPublico.estado.etiqueta}"></p>
-        <p>Fecha de registro: <span th:text="${#temporals.format(estadoPublico.fechaActualizacion, 'dd/MM/yyyy')}"></span></p>
+        <div class="consulta-tarjeta"><strong>Nombres y apellidos</strong><span th:text="${estadoPublico.nombreRegistrante}"></span></div>
+        <div class="consulta-tarjeta"><strong>Dirección</strong><span th:text="${estadoPublico.direccion}"></span></div>
+        <div class="consulta-tarjeta"><strong>Barrio</strong><span th:text="${estadoPublico.barrio}"></span></div>
+        <div class="consulta-tarjeta"><strong>Necesidades</strong><span th:text="${#strings.listJoin(estadoPublico.necesidades.![etiqueta], ', ')}"></span></div>
+        <div class="consulta-tarjeta"><strong>Fecha de registro</strong><span th:text="${#temporals.format(estadoPublico.fechaActualizacion, 'dd/MM/yyyy')}"></span></div>
+        <div class="aviso" th:if="${estadoPublico.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO) or estadoPublico.necesidades.contains(T(com.sirab.registro.Necesidad).MEDICAMENTOS)}">
+            <p th:if="${estadoPublico.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">Para alojamiento se requiere una fotografía de la vivienda.</p>
+            <p th:if="${estadoPublico.necesidades.contains(T(com.sirab.registro.Necesidad).MEDICAMENTOS)}">Para medicamentos se requiere adjuntar la fórmula médica.</p>
+        </div>
     </section>
     <form class="registro-formulario" th:action="@{/familia/consulta}" th:object="${consultaEstadoForm}" method="post">
         <label for="codigo">Código de consulta</label>
