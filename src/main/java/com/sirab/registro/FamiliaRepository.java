@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 public interface FamiliaRepository extends JpaRepository<Familia, Long> {
     Optional<Familia> findFirstByNombreRegistrante(String nombreRegistrante);
 
+    @EntityGraph(attributePaths = "necesidades")
     Optional<Familia> findByCodigoConsultaHash(String codigoConsultaHash);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

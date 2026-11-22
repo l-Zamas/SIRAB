@@ -2,6 +2,7 @@ package com.sirab.registro.service;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,8 @@ public class ConsultaEstadoService {
     public Optional<EstadoPublico> consultar(String codigo) {
         return codigoConsultaService.buscar(codigo)
                 .map(familia -> new EstadoPublico(familia.getEstado(), familia.getFechaCreacion(),
-                        familia.getNombreRegistrante(), familia.getDireccion(), familia.getBarrio(), familia.getNecesidades()));
+                        familia.getNombreRegistrante(), familia.getDireccion(), familia.getBarrio(),
+                        Set.copyOf(familia.getNecesidades())));
     }
 
     public record EstadoPublico(EstadoRegistro estado, Instant fechaActualizacion, String nombreRegistrante,
