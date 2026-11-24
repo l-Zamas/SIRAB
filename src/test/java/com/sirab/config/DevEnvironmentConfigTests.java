@@ -18,7 +18,7 @@ class DevEnvironmentConfigTests {
                 .run()) {
             var environment = context.getEnvironment();
             assertTrue(environment.containsProperty("SIRAB_DEV_CAMPO_PASSWORD"));
-            assertTrue(environment.containsProperty("SIRAB_DEV_ADMIN_PASSWORD"));
+            assertTrue(environment.containsProperty("SIRAB_DEV_COORDINACION_PASSWORD"));
             assertTrue(environment.getPropertySources().stream()
                     .anyMatch(propertySource -> propertySource.getName().contains(".env")));
         }

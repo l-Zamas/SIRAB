@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 public class SecurityConfig {
@@ -24,17 +25,19 @@ public class SecurityConfig {
                         "/css/**", "/js/**", "/images/**", "/webjars/**",
                         "/favicon.ico", "/error")
                 .permitAll()
+                .requestMatchers("/campo/registros/*/necesidades/**")
+                .hasAnyRole("PERSONAL_CAMPO", "COORDINACION")
                 .requestMatchers("/campo/**")
                 .hasRole("PERSONAL_CAMPO")
                 .requestMatchers("/coordinacion/**")
-                .hasAnyRole("COORDINACION", "ADMIN")
+                .hasRole("COORDINACION")
                 .requestMatchers("/admin/**")
-                .hasRole("ADMIN")
+                .denyAll()
                 .anyRequest()
                 .denyAll());
         http.formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/campo/registros")
+                .successHandler(redirectorPorRol())
                 .failureUrl("/login?error")
                 .permitAll());
         http.logout(logout -> logout
@@ -43,6 +46,17 @@ public class SecurityConfig {
         http.sessionManagement(session -> session
                 .sessionFixation(fixation -> fixation.migrateSession()));
         return http.build();
+    }
+
+    private AuthenticationSuccessHandler redirectorPorRol() {
+        return (request, response, authentication) -> {
+            String destino = authentication.getAuthorities().stream()
+                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                    .anyMatch("ROLE_COORDINACION"::equals)
+                            ? "/coordinacion/reportes"
+                            : "/campo/registros";
+            response.sendRedirect(request.getContextPath() + destino);
+        };
     }
 
     @Bean

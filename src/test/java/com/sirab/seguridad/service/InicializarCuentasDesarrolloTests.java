@@ -42,19 +42,19 @@ class InicializarCuentasDesarrolloTests {
         }).when(repository).save(any(CuentaUsuario.class));
 
         String campoPassword = UUID.randomUUID().toString();
-        String adminPassword = UUID.randomUUID().toString();
+        String coordinacionPassword = UUID.randomUUID().toString();
         InicializarCuentasDesarrollo initializer = new InicializarCuentasDesarrollo(
-                repository, passwordEncoder, campoPassword, adminPassword);
+                repository, passwordEncoder, campoPassword, coordinacionPassword);
         initializer.run(null);
 
         CuentaUsuario campo = cuentas.get("campo@sirab.local");
-        CuentaUsuario admin = cuentas.get("admin@sirab.local");
+        CuentaUsuario coordinacion = cuentas.get("coordinacion@sirab.local");
         assertEquals(RolUsuario.PERSONAL_CAMPO, campo.getRol());
-        assertEquals(RolUsuario.ADMIN, admin.getRol());
+        assertEquals(RolUsuario.COORDINACION, coordinacion.getRol());
         assertFalse(campo.getContrasenaHash().equals(campoPassword));
-        assertFalse(admin.getContrasenaHash().equals(adminPassword));
+        assertFalse(coordinacion.getContrasenaHash().equals(coordinacionPassword));
         assertTrue(passwordEncoder.matches(campoPassword, campo.getContrasenaHash()));
-        assertTrue(passwordEncoder.matches(adminPassword, admin.getContrasenaHash()));
+        assertTrue(passwordEncoder.matches(coordinacionPassword, coordinacion.getContrasenaHash()));
 
         String changedPassword = UUID.randomUUID().toString();
         String changedPasswordHash = passwordEncoder.encode(changedPassword);
@@ -76,7 +76,7 @@ class InicializarCuentasDesarrolloTests {
                 IllegalStateException.class, () -> initializer.run(null));
 
         assertTrue(exception.getMessage().contains("SIRAB_DEV_CAMPO_PASSWORD"));
-        assertTrue(exception.getMessage().contains("SIRAB_DEV_ADMIN_PASSWORD"));
+        assertTrue(exception.getMessage().contains("SIRAB_DEV_COORDINACION_PASSWORD"));
         verify(repository, never()).save(any(CuentaUsuario.class));
     }
 
@@ -85,16 +85,16 @@ class InicializarCuentasDesarrolloTests {
         String existingPassword = UUID.randomUUID().toString();
         CuentaUsuario campo = new CuentaUsuario(
                 "campo@sirab.local", passwordEncoder.encode(existingPassword), RolUsuario.PERSONAL_CAMPO);
-        CuentaUsuario admin = new CuentaUsuario(
-                "admin@sirab.local", passwordEncoder.encode(existingPassword), RolUsuario.ADMIN);
+        CuentaUsuario coordinacion = new CuentaUsuario(
+                "coordinacion@sirab.local", passwordEncoder.encode(existingPassword), RolUsuario.COORDINACION);
         when(repository.findByCorreo("campo@sirab.local")).thenReturn(Optional.of(campo));
-        when(repository.findByCorreo("admin@sirab.local")).thenReturn(Optional.of(admin));
+        when(repository.findByCorreo("coordinacion@sirab.local")).thenReturn(Optional.of(coordinacion));
 
         new InicializarCuentasDesarrollo(repository, passwordEncoder, "", "").run(null);
 
         verify(repository, never()).save(any(CuentaUsuario.class));
         assertTrue(passwordEncoder.matches(existingPassword, campo.getContrasenaHash()));
-        assertTrue(passwordEncoder.matches(existingPassword, admin.getContrasenaHash()));
+        assertTrue(passwordEncoder.matches(existingPassword, coordinacion.getContrasenaHash()));
     }
 
     @Test

@@ -23,17 +23,17 @@ public class InicializarCuentasDesarrollo implements ApplicationRunner {
     private final CuentaUsuarioRepository cuentaUsuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final String contrasenaCampo;
-    private final String contrasenaAdmin;
+    private final String contrasenaCoordinacion;
 
     public InicializarCuentasDesarrollo(
             CuentaUsuarioRepository cuentaUsuarioRepository,
             PasswordEncoder passwordEncoder,
             @Value("${SIRAB_DEV_CAMPO_PASSWORD:}") String contrasenaCampo,
-            @Value("${SIRAB_DEV_ADMIN_PASSWORD:}") String contrasenaAdmin) {
+            @Value("${SIRAB_DEV_COORDINACION_PASSWORD:}") String contrasenaCoordinacion) {
         this.cuentaUsuarioRepository = cuentaUsuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.contrasenaCampo = contrasenaCampo;
-        this.contrasenaAdmin = contrasenaAdmin;
+        this.contrasenaCoordinacion = contrasenaCoordinacion;
     }
 
     @Override
@@ -44,8 +44,8 @@ public class InicializarCuentasDesarrollo implements ApplicationRunner {
                 "campo@sirab.local", RolUsuario.PERSONAL_CAMPO,
                 "SIRAB_DEV_CAMPO_PASSWORD", contrasenaCampo);
         agregarSiNoExiste(cuentasPendientes,
-                "admin@sirab.local", RolUsuario.ADMIN,
-                "SIRAB_DEV_ADMIN_PASSWORD", contrasenaAdmin);
+                "coordinacion@sirab.local", RolUsuario.COORDINACION,
+                "SIRAB_DEV_COORDINACION_PASSWORD", contrasenaCoordinacion);
 
         List<String> variablesFaltantes = cuentasPendientes.stream()
                 .filter(cuenta -> !StringUtils.hasText(cuenta.contrasena()))
