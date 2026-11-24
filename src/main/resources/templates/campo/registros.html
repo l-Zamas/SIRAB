@@ -54,7 +54,7 @@
             </thead>
             <tbody>
             <tr th:each="registro : ${registros}">
-                <td th:text="${registro.solicitud.id}"></td>
+                <td th:text="${registro.solicitud.numeroSolicitudPublica}"></td>
                 <td th:text="${registro.solicitud.nombreRegistrante}"></td>
                 <td th:text="${#strings.isEmpty(registro.solicitud.barrio)
                     ? 'No indicado' : registro.solicitud.barrio}"></td>
@@ -78,7 +78,7 @@
                         <span th:text="${situacion.etiqueta}"></span><span th:if="${!iter.last}">, </span>
                     </span>
                 </td>
-                <td><span class="estado" th:text="${registro.solicitud.estado.etiqueta}"></span></td>
+                <td><span class="estado" th:classappend="| estado-${registro.solicitud.estado.name().toLowerCase()}|" th:text="${registro.solicitud.estado.etiqueta}"></span></td>
                 <td>
                     <a class="boton enlace-accion"
                        th:href="@{/campo/registros/{id}(id=${registro.solicitud.id})}"
@@ -107,11 +107,11 @@
                 </thead>
                 <tbody>
                 <tr th:each="registro : ${atendidos}">
-                    <td th:text="${registro.solicitud.id}"></td>
+                    <td th:text="${registro.solicitud.numeroSolicitudPublica}"></td>
                     <td th:text="${registro.solicitud.nombreRegistrante}"></td>
                     <td th:text="${#strings.isEmpty(registro.solicitud.barrio)
                         ? 'No indicado' : registro.solicitud.barrio}"></td>
-                    <td><span class="estado" th:text="${registro.solicitud.estado.etiqueta}"></span></td>
+                    <td><span class="estado" th:classappend="| estado-${registro.solicitud.estado.name().toLowerCase()}|" th:text="${registro.solicitud.estado.etiqueta}"></span></td>
                     <td>
                         <a class="boton enlace-accion"
                            th:href="@{/campo/registros/{id}(id=${registro.solicitud.id})}">Ver historial</a>

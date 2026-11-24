@@ -3,25 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reportes de coordinación - SIRAB</title>
+    <title>Centro de coordinación - SIRAB</title>
     <link rel="stylesheet" th:href="@{/css/registro.css}">
 </head>
-<body>
-<main class="campo-app">
-    <header class="campo-encabezado">
+<body class="coordinacion-body">
+<main class="campo-app coordinacion-panel">
+    <header class="coordinacion-hero">
         <div>
-            <p class="sobrelinea">Coordinación institucional</p>
-            <h1>Reportes y consolidados</h1>
-            <p>Resumen operativo de familias, necesidades, territorio y ayudas registradas.</p>
+            <p class="sobrelinea">Centro de coordinación · SIRAB</p>
+            <h1>Panel de respuesta a emergencias</h1>
+            <p>Supervisa solicitudes familiares, prioriza la atención y consulta el avance de cada necesidad.</p>
         </div>
-        <form th:action="@{/logout}" method="post">
-            <button class="secundario" type="submit">Cerrar sesión</button>
-        </form>
+        <div class="hero-acciones">
+            <span class="hero-badge">Operación activa</span>
+            <form th:action="@{/logout}" method="post">
+                <button class="secundario" type="submit">Cerrar sesión</button>
+            </form>
+        </div>
     </header>
 
-    <section class="campo-seccion">
-        <h2>Resumen general</h2>
-        <p class="resumen"><strong th:text="${reporte.totalFamilias}">0</strong> familias registradas</p>
+    <section class="indicadores" aria-label="Indicadores de solicitudes">
+        <article class="indicador indicador-total"><span>Total solicitudes</span><strong th:text="${reporte.totalFamilias}">0</strong><small>Registros recibidos</small></article>
+        <article class="indicador indicador-pendiente"><span>Pendientes</span><strong th:text="${reporte.familiasPorEstado.get(T(com.sirab.registro.EstadoRegistro).PENDIENTE)}">0</strong><small>Requieren verificación</small></article>
+        <article class="indicador indicador-atencion"><span>En atención</span><strong th:text="${reporte.familiasPorEstado.get(T(com.sirab.registro.EstadoRegistro).EN_ATENCION)}">0</strong><small>Gestión en curso</small></article>
+        <article class="indicador indicador-atendida"><span>Atendidas</span><strong th:text="${reporte.familiasPorEstado.get(T(com.sirab.registro.EstadoRegistro).ATENDIDO)}">0</strong><small>Seguimientos cerrados</small></article>
     </section>
 
     <section class="campo-seccion">
@@ -61,6 +66,39 @@
             </tr>
             </tbody>
         </table>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Filtrar solicitudes</h2>
+        <form th:action="@{/coordinacion/reportes}" method="get">
+            <label for="estado">Estado general</label>
+            <select id="estado" name="estado">
+                <option value="">Todos</option>
+                <option th:each="estado : ${estados}" th:value="${estado.name()}"
+                        th:text="${estado.etiqueta}" th:selected="${estado == estadoSeleccionado}"></option>
+            </select>
+            <label for="necesidad">Necesidad</label>
+            <select id="necesidad" name="necesidad">
+                <option value="">Todas</option>
+                <option th:each="necesidad : ${necesidades}" th:value="${necesidad.name()}"
+                        th:text="${necesidad.etiqueta}" th:selected="${necesidad == necesidadSeleccionada}"></option>
+            </select>
+            <button type="submit">Aplicar filtros</button>
+        </form>
+    </section>
+
+    <section class="campo-seccion">
+        <h2>Seguimiento de solicitudes y necesidades</h2>
+        <div class="tabla-contenedor">
+            <table><thead><tr><th>Solicitud</th><th>Familia</th><th>Estado</th><th>Necesidades</th><th>Acción</th></tr></thead>
+            <tbody><tr th:each="familia : ${solicitudes}">
+                <td th:text="${familia.numeroSolicitudPublica}"></td>
+                <td th:text="${familia.nombreRegistrante}"></td>
+                <td><span class="estado" th:classappend="| estado-${familia.estado.name().toLowerCase()}|" th:text="${familia.estado.etiqueta}"></span></td>
+                <td><span class="necesidad-chip" th:each="necesidad : ${familia.necesidades}" th:text="${necesidad.etiqueta}"></span></td>
+                <td><a class="boton enlace-accion" th:href="@{/coordinacion/solicitudes/{id}(id=${familia.id})}">Ver seguimiento</a></td>
+            </tr></tbody></table>
+        </div>
     </section>
 
     <section class="campo-seccion">

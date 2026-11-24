@@ -8,20 +8,22 @@
 </head>
 <body>
 <main class="campo-app">
-    <nav class="campo-navegacion" aria-label="Navegación de personal">
-        <a th:href="@{/campo/registros}">Volver a solicitudes</a>
-        <a th:href="@{/campo/duplicados}">Revisar posibles duplicados</a>
+    <nav class="campo-navegacion" aria-label="Navegación de solicitudes">
+        <a th:href="${vistaCoordinacion == true} ? @{/coordinacion/reportes} : @{/campo/registros}">Volver a solicitudes</a>
+        <a th:if="${vistaCoordinacion != true}" th:href="@{/campo/duplicados}">Revisar posibles duplicados</a>
         <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <button class="secundario" type="submit">Cerrar sesión</button>
         </form>
     </nav>
     <header class="campo-encabezado">
         <div>
-            <p class="sobrelinea">Solicitud <span th:text="${solicitud.id}"></span></p>
-            <h1>Verificación y atención</h1>
+            <p class="sobrelinea">Solicitud <span th:text="${solicitud.numeroSolicitudPublica}"></span></p>
+            <h1 th:text="${vistaCoordinacion == true} ? 'Seguimiento de solicitud' : 'Verificación y atención'"></h1>
             <p>Revisa la información registrada con la familia y documenta cada resultado.</p>
         </div>
-        <span class="estado" th:text="${solicitud.estado.etiqueta}"></span>
+        <span>Solicitud <strong th:text="${solicitud.numeroSolicitudPublica}"></strong></span>
+        <span class="estado" th:classappend="| estado-${solicitud.estado.name().toLowerCase()}|" th:text="${solicitud.estado.etiqueta}"></span>
     </header>
 
     <p class="aviso aviso-exito" role="status" th:if="${mensaje}" th:text="${mensaje}"></p>
@@ -70,7 +72,7 @@
         </ul>
     </section>
 
-    <section class="campo-seccion" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE}">
+    <section class="campo-seccion" th:if="${vistaCoordinacion != true and solicitud.estado == T(com.sirab.registro.EstadoRegistro).PENDIENTE}">
         <h2>Verificar información</h2>
         <p>Confirma o corrige los datos durante la revisión con la familia. Los cambios quedan registrados.</p>
         <form th:action="@{/campo/registros/{id}/verificacion(id=${solicitud.id})}"
@@ -135,30 +137,110 @@
         </form>
     </section>
 
-    <section class="campo-seccion" th:if="${!#lists.isEmpty(solicitud.verificaciones)}">
-        <h2>Verificar información — Historial de verificaciones</h2>
-        <article class="registro-historial" th:each="verificacion : ${solicitud.verificaciones}">
-            <h3 th:text="${verificacion.resultado == T(com.sirab.registro.ResultadoVerificacion).CORREGIDA
-                ? 'Datos corregidos' : 'Datos confirmados'}"></h3>
-            <p>
-                <span th:text="${#temporals.format(@fechaHoraBogota.convertir(verificacion.verificadaAt), 'dd/MM/yyyy HH:mm')}"></span>
-                · <span th:text="${verificacion.usuarioCorreo}"></span>
-            </p>
-            <p th:if="${verificacion.observacion}" th:text="${verificacion.observacion}"></p>
-            <ul th:if="${!#lists.isEmpty(verificacion.cambios)}">
-                <li th:each="cambio : ${verificacion.cambios}">
-                    <strong th:text="${cambio.campo}"></strong>:
-                    <span th:text="${cambio.valorAnterior == null ? 'Sin dato' : cambio.valorAnterior}"></span>
-                    → <span th:text="${cambio.valorNuevo == null ? 'Sin dato' : cambio.valorNuevo}"></span>
-                </li>
-            </ul>
-        </article>
+    <section class="campo-seccion">
+        <h2>Historial de verificaciones</h2>
+        <p class="nota" th:if="${#lists.isEmpty(solicitud.verificaciones)}">
+            No hay verificaciones registradas.
+        </p>
+        <ul class="lista-verificaciones" th:if="${!#lists.isEmpty(solicitud.verificaciones)}">
+            <li th:each="verificacion : ${solicitud.verificaciones}" class="registro-historial">
+                <h3 th:text="${verificacion.resultado == T(com.sirab.registro.ResultadoVerificacion).CORREGIDA
+                    ? 'Datos corregidos' : 'Datos confirmados'}"></h3>
+                <p>
+                    <span th:text="${#temporals.format(@fechaHoraBogota.convertir(verificacion.verificadaAt), 'dd/MM/yyyy HH:mm')}"></span>
+                    · <span th:text="${verificacion.usuarioCorreo}"></span>
+                </p>
+                <p class="registro-observacion" th:if="${verificacion.observacion}"
+                   th:text="${verificacion.observacion}"></p>
+                <ul th:if="${!#lists.isEmpty(verificacion.cambios)}">
+                    <li th:each="cambio : ${verificacion.cambios}">
+                        <strong th:text="${cambio.campo}"></strong>:
+                        <span th:text="${cambio.valorAnterior == null ? 'Sin dato' : cambio.valorAnterior}"></span>
+                        → <span th:text="${cambio.valorNuevo == null ? 'Sin dato' : cambio.valorNuevo}"></span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
     </section>
 
     <section class="campo-seccion"
-             th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO
-                 or solicitud.estado == T(com.sirab.registro.EstadoRegistro).ATENDIDO}">
+             th:if="${solicitud.estado != T(com.sirab.registro.EstadoRegistro).PENDIENTE}">
+        <h2>Seguimiento individual de necesidades</h2>
+        <form th:if="${vistaCoordinacion != true}" th:action="@{/campo/registros/{familiaId}/necesidades/atender(familiaId=${solicitud.id})}" method="post">
+        <div class="seguimiento-atenciones">
+            <div class="atencion-necesidad" th:each="seg : ${seguimientosNecesidad}"
+                 th:classappend="${!seg.vigente or seg.estado == T(com.sirab.registro.EstadoSeguimientoNecesidad).SATISFECHA ? ' necesidad-no-atendible' : ''}">
+                <h3 th:text="${seg.necesidad.etiqueta + ' · ' + seg.estado.etiqueta}"></h3>
+                <p th:if="${seg.necesidad != T(com.sirab.registro.Necesidad).MEDICAMENTOS and seg.necesidad != T(com.sirab.registro.Necesidad).ALOJAMIENTO}">
+                    <strong>Cantidad solicitada:</strong>
+                    <span th:text="${seg.cantidadSolicitada != null ? seg.cantidadSolicitada : 'No definida'}"></span>
+                    <span th:text="${seg.necesidad.unidadCantidad != null ? ' ' + seg.necesidad.unidadCantidad : ''}"></span>
+                    <span th:if="${seg.cantidadEntregada != null}"> · <strong>Acumulada:</strong>
+                        <span th:text="${seg.cantidadEntregada + ' ' + seg.necesidad.unidadCantidad}"></span>
+                    </span>
+                </p>
+                <div class="atencion-campos" th:if="${seg.vigente and seg.estado != T(com.sirab.registro.EstadoSeguimientoNecesidad).SATISFECHA and seg.necesidad != T(com.sirab.registro.Necesidad).ALOJAMIENTO}">
+                    <input type="hidden" name="seguimientoId" th:value="${seg.id}">
+                    <label>Cantidad entregada
+                        <input type="number" name="cantidad" min="1" step="1" inputmode="numeric"
+                               th:attr="aria-label=${'Cantidad entregada en ' + seg.necesidad.unidadCantidad}">
+                    </label>
+                    <label>Observación
+                        <input type="text" name="observacion" maxlength="1000">
+                    </label>
+                    <label class="atencion-completa"><input type="checkbox" name="completa" value="true"> Marcar como completa</label>
+                </div>
+            </div>
+        </div>
+        <div class="seguimiento-coordinacion" th:if="${vistaCoordinacion == true}">
+            <div class="tabla-contenedor">
+                <table>
+                    <thead><tr><th>Necesidad</th><th>Estado</th><th>Cantidad solicitada</th><th>Entrega acumulada</th><th>Unidad</th><th>Responsable</th></tr></thead>
+                    <tbody><tr th:each="seg : ${seguimientosNecesidad}">
+                        <td th:text="${seg.necesidad.etiqueta}"></td><td th:text="${seg.estado.etiqueta}"></td>
+                        <td th:text="${seg.necesidad.unidadCantidad == null ? 'No aplica' : (seg.cantidadSolicitada != null ? seg.cantidadSolicitada + ' ' + seg.necesidad.unidadCantidad : 'No definida')}"></td>
+                        <td th:text="${seg.necesidad.unidadCantidad == null ? 'No aplica' : seg.cantidadEntregada + ' ' + seg.necesidad.unidadCantidad}"></td><td th:text="${seg.necesidad.unidadCantidad == null ? 'No aplica' : seg.necesidad.unidadCantidad}"></td>
+                        <td th:text="${seg.atendidoPor != null ? seg.atendidoPor : 'Pendiente'}"></td>
+                    </tr></tbody>
+                </table>
+            </div>
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit" th:if="${hayNecesidadesAtendibles}">Confirmar atenciones seleccionadas</button>
+        </form>
+
         <h2>Entregas de ayuda</h2>
+        <p>Registra cada entrega vinculada a una necesidad. Las atenciones parciales no cierran la solicitud.</p>
+        <p th:if="${#lists.isEmpty(solicitud.entregas)}">Aún no hay entregas registradas.</p>
+        <div class="tabla-contenedor" th:unless="${#lists.isEmpty(solicitud.entregas)}">
+            <table>
+                <thead><tr><th>Necesidad</th><th>Cantidad</th><th>Fecha</th><th>Satisfacción</th><th>Registrada por</th><th>Observación</th></tr></thead>
+                <tbody><tr th:each="entrega : ${solicitud.entregas}">
+                    <td th:text="${entrega.tipoAyuda.etiqueta}"></td>
+                    <td th:text="${entrega.efectiva ? entrega.cantidadValor + ' ' + entrega.unidad : entrega.cantidad}"></td>
+                    <td th:text="${entrega.efectiva ? #temporals.format(@fechaHoraBogota.convertir(entrega.fechaHoraEntrega), 'dd/MM/yyyy HH:mm') : #temporals.format(entrega.fechaEntrega, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${entrega.efectiva ? (entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atención parcial') : 'Registro histórico'}"></td>
+                    <td th:text="${entrega.usuarioCorreo}"></td>
+                    <td th:text="${#strings.isEmpty(entrega.observacion) ? '—' : entrega.observacion}"></td>
+                </tr></tbody>
+            </table>
+        </div>
+
+        <div class="alojamiento-estado" th:if="${solicitud.necesidades.contains(T(com.sirab.registro.Necesidad).ALOJAMIENTO)}">
+            <h3>Estado del flujo de Alojamiento</h3>
+            <p th:if="${alojamientoSatisfecho}"><strong>Estado:</strong> Alojamiento efectivamente prestado y confirmado documentalmente.</p>
+            <p th:unless="${alojamientoSatisfecho}"><strong>Estado:</strong> En trámite de fases (requiere confirmación de prestación de alojamiento para habilitar el cierre).</p>
+        </div>
+
+        <div class="cierre-solicitud" th:if="${vistaCoordinacion == true and solicitud.estado != T(com.sirab.registro.EstadoRegistro).ATENDIDO}">
+            <form th:action="@{/coordinacion/solicitudes/{id}/atendido(id=${solicitud.id})}" method="post">
+                <label for="observacion-cierre">Observación de cierre (opcional)</label>
+                <textarea id="observacion-cierre" name="observacion" rows="2"></textarea>
+                <button type="submit">Cerrar solicitud</button>
+            </form>
+        </div>
+    </section>
+        <!-- Entregas de ayuda se muestran en la sección principal anterior. -->
         <p>Registra cada entrega vinculada a una necesidad. Las atenciones parciales no cierran la solicitud.</p>
         <p th:if="${#lists.isEmpty(solicitud.entregas)}">Aún no hay entregas registradas.</p>
         <div class="tabla-contenedor" th:unless="${#lists.isEmpty(solicitud.entregas)}">
@@ -176,11 +258,11 @@
                 <tbody>
                 <tr th:each="entrega : ${solicitud.entregas}">
                     <td th:text="${entrega.tipoAyuda.etiqueta}"></td>
-                    <td th:text="${entrega.efectiva ? entrega.cantidadValor + ' ' + entrega.unidad : entrega.cantidad}"></td>
+                    <td th:text="${entrega.efectiva ? #numbers.formatDecimal(entrega.cantidadValor, 0, 6) + ' ' + entrega.unidad : entrega.cantidad}"></td>
                     <td th:text="${entrega.efectiva ? #temporals.format(@fechaHoraBogota.convertir(entrega.fechaHoraEntrega), 'dd/MM/yyyy HH:mm') : #temporals.format(entrega.fechaEntrega, 'dd/MM/yyyy')}"></td>
                     <td th:text="${entrega.efectiva ? (entrega.satisfaceNecesidadCompleta ? 'Necesidad satisfecha' : 'Atención parcial') : 'Registro histórico'}"></td>
                     <td th:text="${entrega.usuarioCorreo}"></td>
-                    <td th:text="${#strings.isEmpty(entrega.observacion) ? '?' : entrega.observacion}"></td>
+                    <td th:text="${#strings.isEmpty(entrega.observacion) ? '—' : entrega.observacion}"></td>
                 </tr>
                 </tbody>
             </table>
@@ -211,7 +293,7 @@
             </div>
             <div th:each="asig : ${asignaciones}" class="entrega-asignacion">
                 <h4 th:text="${asig.articulo.nombre + ' — ' + asig.cantidad + ' ' + asig.unidad}"></h4>
-                <form th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}"
+                <form th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).EN_ATENCION}"
                       th:action="@{/campo/registros/{familiaId}/asignaciones/{asignacionId}/entrega(familiaId=${solicitud.id}, asignacionId=${asig.id})}"
                       method="post">
                     <label th:for="${'cantidad-' + asig.id}">Cantidad entregada</label>
@@ -266,7 +348,7 @@
             </p>
         </div>
 
-        <div class="cierre-solicitud" th:if="${solicitud.estado == T(com.sirab.registro.EstadoRegistro).VERIFICADO}">
+        <div class="cierre-solicitud" th:if="${vistaCoordinacion != true and solicitud.estado == T(com.sirab.registro.EstadoRegistro).EN_ATENCION}">
             <form th:if="${puedeMarcarAtendido}"
                   th:action="@{/campo/registros/{id}/atendido(id=${solicitud.id})}" method="post">
                 <label for="observacion-cierre">Observación de cierre (opcional)</label>
@@ -274,15 +356,7 @@
                 <button type="submit">Marcar solicitud como atendida</button>
             </form>
             <div class="aviso" th:unless="${puedeMarcarAtendido}">
-                <p>La solicitud solo puede cerrarse cuando exista una entrega completa para cada necesidad.</p>
-                <ul th:if="${!#sets.isEmpty(solicitud.necesidades)}">
-                    <li th:each="necesidad : ${solicitud.necesidades}"
-                        th:unless="${necesidadesSatisfechas.contains(necesidad)}"
-                        th:text="${necesidad.etiqueta + ' pendiente de satisfacción completa'}"></li>
-                </ul>
-                <p th:if="${#sets.isEmpty(solicitud.necesidades)}">
-                    No hay necesidades registradas ni entregas que respalden el cierre.
-                </p>
+                <p>El cierre de solicitudes corresponde a Coordinación.</p>
             </div>
         </div>
     </section>
@@ -299,7 +373,7 @@
                 <span th:if="${evento.actorTipo == T(com.sirab.registro.ActorTipoSolicitud).SISTEMA}">
                     · Sistema
                 </span>
-                <p th:if="${evento.observacion}" th:text="${evento.observacion}"></p>
+                <p class="historial-observacion" th:if="${evento.observacion}" th:text="${evento.observacion}"></p>
             </li>
         </ol>
     </section>

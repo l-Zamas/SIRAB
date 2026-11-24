@@ -40,6 +40,15 @@ form {
     margin-top: 1.5rem;
 }
 
+.campo-navegacion form { display: inline-flex; gap: .5rem; margin: 0; }
+.campo-navegacion { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.atencion-simple { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 0; }
+.atencion-simple input[type="text"] { min-width: 12rem; min-height: 2.35rem; }
+.atencion-simple button { min-height: 2.35rem; padding: .45rem .75rem; }
+.alojamiento-selector { display: inline; margin: 0; }
+.alojamiento-selector select { width: auto; min-width: 7.2rem; min-height: 2rem; padding: .25rem .45rem; border: 1px solid #b8c9d8; border-radius: .35rem; color: #173b5f; background: #f8fbfd; font: inherit; font-size: .85rem; }
+.atencion-completa { display: inline-block; padding: .45rem .75rem; border-radius: 999px; color: #176b50; background: #dff5ea; font-weight: 700; }
+
 .campo {
     display: grid;
     gap: 0.375rem;
@@ -258,6 +267,71 @@ a:focus-visible {
     border-color: #a32121;
 }
 
+.coordinacion-body {
+    min-height: 100vh;
+    padding: clamp(0.75rem, 2vw, 2rem);
+    color: #172b4d;
+    background: #eef3f8;
+}
+
+.coordinacion-panel {
+    width: min(100%, 76rem);
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.25rem;
+    box-shadow: 0 1.25rem 3rem rgba(24, 55, 88, 0.12);
+}
+
+.coordinacion-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    color: #fff;
+    background: linear-gradient(125deg, #123b62, #126b78 62%, #178b7e);
+}
+
+.coordinacion-hero h1 { margin: 0.25rem 0 0.65rem; font-size: clamp(1.7rem, 4vw, 2.65rem); }
+.coordinacion-hero p:not(.sobrelinea) { max-width: 42rem; margin: 0; color: #d8f2f0; }
+.coordinacion-hero .sobrelinea { color: #9ce4d9; }
+.hero-acciones { display: grid; justify-items: end; gap: 1rem; }
+.hero-badge { padding: 0.4rem 0.75rem; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; color: #d8fff7; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+.coordinacion-hero .secundario { color: #123b62; }
+
+.indicadores { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 0; background: #fff; }
+.indicador { display: grid; gap: .25rem; padding: 1.1rem; border: 1px solid #dce7ef; border-left: .35rem solid #23819a; border-radius: .8rem; background: #fbfdff; }
+.indicador strong { color: #123b62; font-size: 2rem; line-height: 1.1; }
+.indicador small { color: #63758b; }
+.indicador-pendiente { border-left-color: #db9b2b; }
+.indicador-atencion { border-left-color: #287fc1; }
+.indicador-atendida { border-left-color: #2b9b73; }
+
+.coordinacion-panel > .campo-seccion { margin: 1.5rem clamp(1rem, 3vw, 2.5rem); padding: 1.5rem; border: 1px solid #e0e9f0; border-radius: .9rem; background: #fff; }
+.coordinacion-panel > .campo-seccion h2 { margin-top: 0; color: #123b62; }
+.coordinacion-panel table { width: 100%; border-collapse: collapse; }
+.coordinacion-panel th { color: #63758b; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; }
+.coordinacion-panel td, .coordinacion-panel th { padding: .85rem .65rem; border-bottom: 1px solid #e7eef4; text-align: left; vertical-align: top; }
+.coordinacion-panel tbody tr:hover { background: #f5fafc; }
+.coordinacion-panel .estado, .necesidad-chip { display: inline-block; padding: .25rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 700; }
+.necesidad-chip { margin: .15rem; color: #176273; background: #e2f4f1; }
+.estado-pendiente { color: #9b1c1c; background: #fde2e2; border-color: #e0a3a3; }
+.estado-verificado { color: #205d91; background: #e1effa; }
+.estado-en_atencion { color: #205d91; background: #e1effa; border-color: #9cc9e8; }
+.estado-atendido { color: #176b50; background: #dff5ea; border-color: #9ac7a3; }
+.coordinacion-panel .enlace-accion { min-width: 8rem; padding: .45rem .7rem; font-size: .85rem; }
+
+@media (max-width: 760px) {
+    .coordinacion-hero { flex-direction: column; }
+    .hero-acciones { width: 100%; justify-items: start; }
+    .indicadores { grid-template-columns: repeat(2, 1fr); }
+    .coordinacion-panel > .campo-seccion { overflow-x: auto; }
+    .coordinacion-panel table { min-width: 42rem; }
+}
+
+@media (max-width: 430px) { .indicadores { grid-template-columns: 1fr; } }
+
 .error {
     margin: 0;
     color: #8b1e1e;
@@ -435,6 +509,56 @@ td {
     max-width: 54rem;
 }
 
+.seguimiento-atenciones {
+    display: grid;
+    gap: 1.25rem;
+    margin: 1.25rem 0;
+}
+
+.atencion-necesidad {
+    padding: 1.25rem;
+    border: 1px solid #d9dee7;
+    border-radius: .75rem;
+    background: #f8fbfd;
+    box-shadow: 0 1px 3px rgba(18, 59, 98, .08);
+}
+
+.atencion-necesidad h3 {
+    margin: 0 0 1rem;
+    color: #123b62;
+}
+
+.atencion-necesidad .atencion-campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.atencion-necesidad label {
+    display: grid;
+    gap: .4rem;
+    font-weight: 600;
+}
+
+.atencion-necesidad input[type="number"],
+.atencion-necesidad input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.atencion-necesidad .atencion-completa {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+@media (max-width: 42rem) {
+    .atencion-necesidad .atencion-campos {
+        grid-template-columns: 1fr;
+    }
+}
+
 .nota {
     color: #48515d;
     font-size: 0.9375rem;
@@ -451,15 +575,30 @@ td {
     background: #fff5f5;
 }
 
+.lista-verificaciones {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 .registro-historial {
     padding: 1rem 0;
     border-top: 1px solid #d9dee7;
     overflow-wrap: anywhere;
 }
 
+.lista-verificaciones > .registro-historial:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
 .registro-historial h3,
 .registro-historial p {
     margin-top: 0;
+}
+
+.registro-observacion {
+    margin-bottom: 0.75rem;
 }
 
 .registro-historial li {
@@ -473,12 +612,21 @@ td {
 }
 
 .lista-historial li {
-    padding-left: 0.25rem;
+    padding: 0.75rem 0.25rem;
+    border-bottom: 1px solid #d9dee7;
+}
+
+.lista-historial li:last-child {
+    border-bottom: 0;
 }
 
 .lista-historial p {
-    margin: 0.25rem 0;
+    margin: 0.75rem 0 0;
     color: #48515d;
+}
+
+.lista-historial .historial-observacion {
+    white-space: pre-line;
 }
 
 .cierre-solicitud {

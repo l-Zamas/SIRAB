@@ -21,7 +21,7 @@
     <p class="consulta-error" th:if="${errorConsulta}" th:text="${errorConsulta}" role="alert"></p>
     <section class="consulta-resultado" th:if="${estadoPublico}" aria-live="polite">
         <h2>Estado de la solicitud</h2>
-        <p class="estado" th:text="${estadoPublico.estado.etiqueta}"></p>
+        <p class="estado" th:classappend="| estado-${estadoPublico.estado.name().toLowerCase()}|" th:text="${estadoPublico.estado.etiqueta}"></p>
         <div class="consulta-tarjeta"><strong>Nombres y apellidos</strong><span th:text="${estadoPublico.nombreRegistrante}"></span></div>
         <div class="consulta-tarjeta"><strong>Dirección</strong><span th:text="${estadoPublico.direccion}"></span></div>
         <div class="consulta-tarjeta"><strong>Barrio</strong><span th:text="${estadoPublico.barrio}"></span></div>
