@@ -68,7 +68,7 @@ public class AlojamientoService {
             throw new IllegalStateException("La familia no tiene registrada la necesidad de alojamiento.");
         }
 
-        if (familia.getEstado() != EstadoRegistro.PENDIENTE && familia.getEstado() != EstadoRegistro.VERIFICADO) {
+        if (familia.getEstado() != EstadoRegistro.PENDIENTE && familia.getEstado() != EstadoRegistro.EN_ATENCION) {
             throw new IllegalStateException("No se puede registrar solicitud de alojamiento para una familia en estado " + familia.getEstado());
         }
 

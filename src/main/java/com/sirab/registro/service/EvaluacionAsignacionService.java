@@ -100,9 +100,9 @@ public class EvaluacionAsignacionService {
         }
 
         // 4. Validar estado de la familia
-        if (familia.getEstado() != EstadoRegistro.VERIFICADO) {
+        if (familia.getEstado() != EstadoRegistro.EN_ATENCION) {
             throw new IllegalStateException(
-                    "Solo se pueden evaluar solicitudes en estado VERIFICADO. Estado actual: "
+                    "Solo se pueden evaluar solicitudes en estado EN_ATENCION. Estado actual: "
                             + familia.getEstado());
         }
 

@@ -74,7 +74,7 @@ class EvaluacionAsignacionIntegrationTests {
         familia.setTelefonoContacto("3009998877");
         familia.setConsentimientoAt(Instant.now());
         familia.setConsentimientoVersion("v1");
-        familia.setEstado(EstadoRegistro.VERIFICADO);
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
         familia.setNecesidades(Set.of(Necesidad.AGUA));
         familia.setSituaciones(Set.of(SituacionFamiliar.MENORES_DE_CINCO));
         familia = familiaRepository.save(familia);

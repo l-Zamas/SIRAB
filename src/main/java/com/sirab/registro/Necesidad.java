@@ -15,4 +15,12 @@ public enum Necesidad {
     public String getEtiqueta() {
         return etiqueta;
     }
+
+    public String getUnidadCantidad() {
+        return switch (this) {
+            case AGUA -> "L";
+            case ALIMENTOS -> "kg";
+            case MEDICAMENTOS, ALOJAMIENTO -> null;
+        };
+    }
 }

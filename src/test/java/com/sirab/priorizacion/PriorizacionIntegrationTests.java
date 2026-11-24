@@ -49,7 +49,7 @@ class PriorizacionIntegrationTests {
                 EnumSet.allOf(SituacionFamiliar.class), EstadoRegistro.PENDIENTE, ahora.minusSeconds(86_400));
         crearFamilia("FAMILIA_ALTA", Set.of(Necesidad.ALOJAMIENTO, Necesidad.MEDICAMENTOS),
                 Set.of(SituacionFamiliar.ADULTOS_MAYORES, SituacionFamiliar.PERSONAS_CON_DISCAPACIDAD),
-                EstadoRegistro.VERIFICADO, ahora.minusSeconds(7 * 86_400L));
+                EstadoRegistro.EN_ATENCION, ahora.minusSeconds(7 * 86_400L));
         crearFamilia("FAMILIA_MEDIA", Set.of(Necesidad.ALOJAMIENTO),
                 Set.of(SituacionFamiliar.MENORES_DE_CINCO), EstadoRegistro.PENDIENTE,
                 ahora.minusSeconds(86_400));

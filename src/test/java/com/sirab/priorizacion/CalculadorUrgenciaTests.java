@@ -55,6 +55,7 @@ class CalculadorUrgenciaTests {
     void noMultiplicaUnaCondicionPorElNumeroDeIntegrantes() {
         SolicitudResumen familiaConVariosIntegrantes = new SolicitudResumen(
                 1L,
+                "SIRAB-000001",
                 CREACION,
                 "Familia de prueba",
                 "Barrio de prueba",
@@ -182,6 +183,7 @@ class CalculadorUrgenciaTests {
             Instant fechaCreacion) {
         return new SolicitudResumen(
                 1L,
+                "SIRAB-000001",
                 fechaCreacion,
                 "Familia de prueba",
                 "Barrio de prueba",

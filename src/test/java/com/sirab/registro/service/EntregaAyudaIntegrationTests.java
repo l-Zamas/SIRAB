@@ -137,7 +137,7 @@ class EntregaAyudaIntegrationTests {
         familia.setNumeroIntegrantes(4);
         familia.setSituaciones(situaciones != null ? situaciones : Set.of());
         familia.setNecesidades(necesidades != null ? necesidades : Set.of());
-        familia.setEstado(EstadoRegistro.VERIFICADO);
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
         return familiaRepository.save(familia);
     }
 

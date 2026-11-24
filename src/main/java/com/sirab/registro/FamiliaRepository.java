@@ -24,6 +24,9 @@ public interface FamiliaRepository extends JpaRepository<Familia, Long> {
     List<Familia> findByDuplicadoNombreNormalizadoIsNullAndIdGreaterThanOrderByIdAsc(
             Long id, Pageable pageable);
 
+    @EntityGraph(attributePaths = "necesidades")
+    List<Familia> findAll();
+
     List<Familia> findAllByIdGreaterThanOrderByIdAsc(Long id, Pageable pageable);
 
     @Query("""

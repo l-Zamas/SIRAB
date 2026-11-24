@@ -170,7 +170,7 @@ class DeteccionDuplicadosIntegrationTests {
 
         assertEquals(EstadoPosibleDuplicado.SIN_COINCIDENCIA,
                 posibleDuplicadoRepository.findById(posibleId).orElseThrow().getEstado());
-        assertEquals(EstadoRegistro.VERIFICADO,
+        assertEquals(EstadoRegistro.EN_ATENCION,
                 familiaRepository.findById(primera.getId()).orElseThrow().getEstado());
 
         registroFamiliarService.verificar(

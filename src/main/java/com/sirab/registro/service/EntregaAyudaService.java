@@ -13,7 +13,10 @@ import com.sirab.registro.AsignacionAyudaRepository;
 import com.sirab.registro.DecisionAyuda;
 import com.sirab.registro.EntregaAyuda;
 import com.sirab.registro.EntregaAyudaRepository;
+import com.sirab.registro.ActorTipoSolicitud;
 import com.sirab.registro.EstadoRegistro;
+import com.sirab.registro.EstadoSolicitudHistorial;
+import com.sirab.registro.EstadoSolicitudHistorialRepository;
 import com.sirab.registro.Familia;
 import com.sirab.registro.LoteInventario;
 import com.sirab.registro.LoteInventarioRepository;
@@ -30,6 +33,8 @@ public class EntregaAyudaService {
     private final AsignacionAyudaRepository asignacionRepository;
     private final LoteInventarioRepository loteRepository;
     private final MovimientoInventarioRepository movimientoRepository;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private EstadoSolicitudHistorialRepository historialRepository;
 
     public EntregaAyudaService(
             EntregaAyudaRepository entregaRepository,
@@ -52,8 +57,8 @@ public class EntregaAyudaService {
                 .orElseThrow(() -> new IllegalArgumentException("La asignación especificada no existe."));
 
         Familia familia = asignacion.getFamilia();
-        if (familia.getEstado() != EstadoRegistro.VERIFICADO) {
-            throw new IllegalStateException("Solo se pueden registrar entregas para familias en estado VERIFICADO.");
+        if (familia.getEstado() != EstadoRegistro.EN_ATENCION) {
+            throw new IllegalStateException("Solo se pueden registrar entregas para familias en estado EN_ATENCION.");
         }
 
         BigDecimal totalEntregado = entregaRepository.sumarCantidadEntregadaPorAsignacion(asignacion.getId());

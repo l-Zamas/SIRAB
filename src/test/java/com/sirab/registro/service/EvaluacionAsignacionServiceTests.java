@@ -63,7 +63,7 @@ class EvaluacionAsignacionServiceTests {
         familiaVerificada.setBarrio("Centro");
         familiaVerificada.setDireccion("Calle 1 # 2-3");
         familiaVerificada.setDireccionReferencia("Casa blanca");
-        familiaVerificada.setEstado(EstadoRegistro.VERIFICADO);
+        familiaVerificada.setEstado(EstadoRegistro.EN_ATENCION);
         familiaVerificada.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS));
         familiaVerificada.setSituaciones(Set.of(SituacionFamiliar.MENORES_DE_CINCO));
         familiaVerificada = familiaRepository.save(familiaVerificada);
@@ -199,7 +199,7 @@ class EvaluacionAsignacionServiceTests {
         otraFamilia.setTelefonoContacto("3119876543");
         otraFamilia.setConsentimientoAt(Instant.now());
         otraFamilia.setConsentimientoVersion("v1");
-        otraFamilia.setEstado(EstadoRegistro.VERIFICADO);
+        otraFamilia.setEstado(EstadoRegistro.EN_ATENCION);
         otraFamilia.setNecesidades(Set.of(Necesidad.AGUA));
         otraFamilia = familiaRepository.save(otraFamilia);
 
@@ -326,7 +326,7 @@ class EvaluacionAsignacionServiceTests {
                         LocalDate.of(2026, 3, 1),
                         "coord@sirab.local")));
 
-        assertTrue(ex.getMessage().contains("VERIFICADO"));
+        assertTrue(ex.getMessage().contains("EN_ATENCION"));
     }
 
     @Test
@@ -342,7 +342,7 @@ class EvaluacionAsignacionServiceTests {
                         LocalDate.of(2026, 3, 1),
                         "coord@sirab.local")));
 
-        assertTrue(ex.getMessage().contains("VERIFICADO"));
+        assertTrue(ex.getMessage().contains("EN_ATENCION"));
     }
 
     @Test

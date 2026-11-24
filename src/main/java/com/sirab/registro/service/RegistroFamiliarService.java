@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,10 @@ public class RegistroFamiliarService {
     private final DeteccionDuplicadosService deteccionDuplicadosService;
     private final CodigoConsultaService codigoConsultaService;
     private final EvidenciaFamiliaService evidenciaFamiliaService;
+    @Autowired(required = false)
+    private JdbcTemplate jdbcTemplate;
+    @Autowired(required = false)
+    private SeguimientoNecesidadService seguimientoNecesidadService;
 
     @Autowired(required = false)
     private ConfirmacionPrestacionAlojamientoRepository confirmacionPrestacionAlojamientoRepository;
@@ -108,6 +113,7 @@ public class RegistroFamiliarService {
         familia.setConsentimientoVersion(CONSENTIMIENTO_VERSION);
         String codigoConsulta = codigoConsultaService.generarCodigoUnico();
         familia.setCodigoConsultaHash(codigoConsultaService.hash(codigoConsulta));
+        familia.setNumeroSolicitudPublica(siguienteNumeroSolicitud());
         IndiceDuplicadosInitializer.actualizarIndice(familia);
         Familia guardada = familiaRepository.save(familia);
         historialRepository.save(new EstadoSolicitudHistorial(
@@ -119,6 +125,9 @@ public class RegistroFamiliarService {
                 Instant.now(),
                 "Solicitud registrada por el flujo ciudadano."));
         deteccionDuplicadosService.detectarPara(guardada, false);
+        if (seguimientoNecesidadService != null) {
+            seguimientoNecesidadService.inicializar(guardada.getId(), "sistema@sirab.local", com.sirab.seguridad.entity.RolUsuario.PERSONAL_CAMPO);
+        }
         if (command.evidenciaAlojamiento() != null) {
             evidenciaFamiliaService.asociar(guardada, command.evidenciaAlojamiento(), command.nombreEvidenciaAlojamiento(), command.tipoEvidenciaAlojamiento(), com.sirab.registro.TipoDocumentoPrivado.EVIDENCIA_ALOJAMIENTO);
         }
@@ -159,6 +168,7 @@ public class RegistroFamiliarService {
                     familia.getBarrio(),
                     familia.getDireccion(),
                     familia.getDireccionReferencia(),
+                    familia.getNumeroSolicitudPublica(),
                     familia.getSituaciones(),
                     familia.getNecesidades(),
                     familia.getEstado(),
@@ -171,6 +181,15 @@ public class RegistroFamiliarService {
 
     @Transactional
     public boolean verificar(Long familiaId, String usuarioCorreo, SolicitudVerificacionCommand command) {
+        return verificar(familiaId, usuarioCorreo, com.sirab.seguridad.entity.RolUsuario.PERSONAL_CAMPO, command);
+    }
+
+    @Transactional
+    public boolean verificar(Long familiaId, String usuarioCorreo, com.sirab.seguridad.entity.RolUsuario rol,
+            SolicitudVerificacionCommand command) {
+        if (rol != com.sirab.seguridad.entity.RolUsuario.PERSONAL_CAMPO) {
+            throw new SecurityException("Solo PERSONAL_CAMPO puede verificar solicitudes.");
+        }
         deteccionDuplicadosService.iniciarOperacion();
         Familia familia = familiaRepository.findById(familiaId).orElse(null);
         if (familia == null) {
@@ -207,10 +226,15 @@ public class RegistroFamiliarService {
         familia.setDireccionReferencia(direccionReferencia);
         familia.setSituaciones(situaciones);
         familia.setNecesidades(necesidades);
-        familia.setEstado(EstadoRegistro.VERIFICADO);
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
         IndiceDuplicadosInitializer.actualizarIndice(familia);
         familiaRepository.save(familia);
         deteccionDuplicadosService.detectarPara(familia, datosComparacionModificados);
+        if (seguimientoNecesidadService != null) {
+            seguimientoNecesidadService.inicializar(familiaId, usuarioCorreo, com.sirab.seguridad.entity.RolUsuario.PERSONAL_CAMPO);
+            seguimientoNecesidadService.sincronizarVigencia(familiaId, necesidades, usuarioCorreo,
+                    com.sirab.seguridad.entity.RolUsuario.PERSONAL_CAMPO, command.observacion());
+        }
 
         Instant ahora = Instant.now();
         String observacion = normalizarObservacion(command.observacion());
@@ -222,7 +246,7 @@ public class RegistroFamiliarService {
         historialRepository.save(new EstadoSolicitudHistorial(
                 familia,
                 EstadoRegistro.PENDIENTE,
-                EstadoRegistro.VERIFICADO,
+                EstadoRegistro.EN_ATENCION,
                 ActorTipoSolicitud.USUARIO,
                 usuarioCorreo,
                 ahora,
@@ -243,7 +267,7 @@ public class RegistroFamiliarService {
     @Transactional(readOnly = true)
     public boolean puedeMarcarAtendido(Long familiaId) {
         return familiaRepository.findById(familiaId)
-                .filter(familia -> familia.getEstado() == EstadoRegistro.VERIFICADO)
+                .filter(familia -> familia.getEstado() == EstadoRegistro.EN_ATENCION)
                 .map(familia -> necesidadesSatisfechas(familia, familiaId))
                 .orElse(false);
     }
@@ -254,34 +278,50 @@ public class RegistroFamiliarService {
         if (familia == null) {
             return false;
         }
-        exigirEstado(familia, EstadoRegistro.VERIFICADO);
         exigirActor(usuarioCorreo);
-        if (!necesidadesSatisfechas(familia, familiaId)) {
-            throw new IllegalStateException(
-                    "No se puede marcar como atendida: falta registrar la satisfacción completa de cada necesidad.");
-        }
-
         Instant ahora = Instant.now();
-        String observacionCierre = normalizarObservacion(observacion);
-        familia.setEstado(EstadoRegistro.ATENDIDO);
+        EstadoRegistro anterior = familia.getEstado();
+        if (anterior == EstadoRegistro.ATENDIDO) {
+            throw new IllegalStateException("La solicitud ya está cerrada y no puede cerrarse nuevamente.");
+        }
+        EstadoRegistro siguiente = EstadoRegistro.ATENDIDO;
+        familia.setEstado(siguiente);
         familiaRepository.save(familia);
         historialRepository.save(new EstadoSolicitudHistorial(
                 familia,
-                EstadoRegistro.VERIFICADO,
-                EstadoRegistro.ATENDIDO,
+                anterior,
+                siguiente,
                 ActorTipoSolicitud.USUARIO,
                 usuarioCorreo,
                 ahora,
-                observacionCierre));
+                siguiente == EstadoRegistro.ATENDIDO ? "Solicitud marcada como atendida." : "Solicitud reabierta."));
         return true;
     }
 
+    private EstadoRegistro estadoAnteriorNoFinalizado(Long familiaId) {
+        return historialRepository.findByFamilia_IdOrderByFechaHoraAsc(familiaId).stream()
+                .map(EstadoSolicitudHistorial::getEstadoAnterior)
+                .filter(estado -> estado != null && estado != EstadoRegistro.ATENDIDO)
+                .reduce((primero, ultimo) -> ultimo)
+                .orElse(EstadoRegistro.EN_ATENCION);
+    }
+
     private boolean necesidadesSatisfechas(Familia familia, Long familiaId) {
+        if (seguimientoNecesidadService != null) {
+            List<com.sirab.registro.SeguimientoNecesidad> seguimientos = seguimientoNecesidadService.listar(familiaId);
+            if (!seguimientos.isEmpty()) {
+                return seguimientoNecesidadService.todasSatisfechas(familiaId);
+            }
+        }
         Set<Necesidad> necesidades = familia.getNecesidades();
         if (necesidades.isEmpty()) {
             return false;
         }
         return necesidades.stream().allMatch(necesidad -> esNecesidadSatisfecha(familiaId, necesidad));
+    }
+
+    private boolean seguimientosCompatiblesConCierre(Long familiaId) {
+        return true;
     }
 
     private boolean esNecesidadSatisfecha(Long familiaId, Necesidad necesidad) {
@@ -311,9 +351,30 @@ public class RegistroFamiliarService {
         return false;
     }
 
+    private String siguienteNumeroSolicitud() {
+        if (jdbcTemplate == null) {
+            return null;
+        }
+        Long actual = jdbcTemplate.queryForObject(
+                "SELECT valor FROM secuencia_numero_solicitud WHERE nombre = 'solicitud' FOR UPDATE",
+                Long.class);
+        if (actual == null) {
+            throw new IllegalStateException("No se pudo generar el número público de solicitud.");
+        }
+        long siguiente = actual + 1;
+        int actualizada = jdbcTemplate.update(
+                "UPDATE secuencia_numero_solicitud SET valor = ? WHERE nombre = 'solicitud'",
+                siguiente);
+        if (actualizada != 1) {
+            throw new IllegalStateException("No se pudo generar el número público de solicitud.");
+        }
+        return "SIRAB-" + String.format("%06d", siguiente);
+    }
+
     private SolicitudResumen resumen(Familia familia) {
         return new SolicitudResumen(
                 familia.getId(),
+                familia.getNumeroSolicitudPublica(),
                 familia.getFechaCreacion(),
                 familia.getNombreRegistrante(),
                 familia.getBarrio(),
@@ -404,6 +465,7 @@ public class RegistroFamiliarService {
 
     public record SolicitudResumen(
             Long id,
+            String numeroSolicitudPublica,
             Instant fechaCreacion,
             String nombreRegistrante,
             String barrio,
@@ -426,6 +488,7 @@ public class RegistroFamiliarService {
             String barrio,
             String direccion,
             String direccionReferencia,
+            String numeroSolicitudPublica,
             Set<SituacionFamiliar> situaciones,
             Set<Necesidad> necesidades,
             EstadoRegistro estado,

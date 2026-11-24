@@ -2,7 +2,7 @@ package com.sirab.registro;
 
 public enum EstadoRegistro {
     PENDIENTE("Pendiente"),
-    VERIFICADO("Verificado"),
+    EN_ATENCION("En atención"),
     ATENDIDO("Atendido");
 
     private final String etiqueta;

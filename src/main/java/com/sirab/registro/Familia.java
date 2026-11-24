@@ -69,6 +69,9 @@ public class Familia {
     @Column(name = "codigo_consulta_hash", length = 64, unique = true)
     private String codigoConsultaHash;
 
+    @Column(name = "numero_solicitud_publica", updatable = false, length = 32, unique = true)
+    private String numeroSolicitudPublica;
+
     @ElementCollection
     @CollectionTable(
             name = "familia_necesidad",
@@ -207,6 +210,14 @@ public class Familia {
 
     public void setCodigoConsultaHash(String codigoConsultaHash) {
         this.codigoConsultaHash = codigoConsultaHash;
+    }
+
+    public String getNumeroSolicitudPublica() {
+        return numeroSolicitudPublica;
+    }
+
+    public void setNumeroSolicitudPublica(String numeroSolicitudPublica) {
+        this.numeroSolicitudPublica = numeroSolicitudPublica;
     }
 
     public Set<Necesidad> getNecesidades() {

@@ -76,13 +76,13 @@ class AlojamientoServiceTests {
         familiaConAlojamiento = new Familia();
         familiaConAlojamiento.setNombreRegistrante("Familia Damnificada");
         familiaConAlojamiento.setDireccionReferencia("Zona afectada");
-        familiaConAlojamiento.setEstado(EstadoRegistro.VERIFICADO);
+        familiaConAlojamiento.setEstado(EstadoRegistro.EN_ATENCION);
         familiaConAlojamiento.setNecesidades(Set.of(Necesidad.ALOJAMIENTO));
 
         familiaSinAlojamiento = new Familia();
         familiaSinAlojamiento.setNombreRegistrante("Familia Otra");
         familiaSinAlojamiento.setDireccionReferencia("Otra zona");
-        familiaSinAlojamiento.setEstado(EstadoRegistro.VERIFICADO);
+        familiaSinAlojamiento.setEstado(EstadoRegistro.EN_ATENCION);
         familiaSinAlojamiento.setNecesidades(Set.of(Necesidad.AGUA));
 
         fotoDoc = new DocumentoPrivado(

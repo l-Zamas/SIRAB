@@ -180,11 +180,11 @@ class SirabApplicationTests {
 
     @Test
     @Transactional
-    void persistedAdminAccountRetainsAdministrativeAccess() throws Exception {
-        String correo = "admin-" + java.util.UUID.randomUUID() + "@sirab.local";
+    void adminEndpointIsUnavailableWithoutAnAdministrativeRole() throws Exception {
+        String correo = "coordinacion-" + java.util.UUID.randomUUID() + "@sirab.local";
         String password = java.util.UUID.randomUUID().toString();
         cuentaUsuarioRepository.saveAndFlush(new CuentaUsuario(
-                correo, passwordEncoder.encode(password), RolUsuario.ADMIN));
+                correo, passwordEncoder.encode(password), RolUsuario.COORDINACION));
         MockHttpSession session = new MockHttpSession();
 
         org.springframework.test.web.servlet.MvcResult loginResult = mockMvc.perform(post("/login")
@@ -193,12 +193,18 @@ class SirabApplicationTests {
                         .param("username", correo)
                         .param("password", password))
                 .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/coordinacion/reportes"))
                 .andReturn();
         MockHttpSession authenticatedSession =
                 (MockHttpSession) loginResult.getRequest().getSession(false);
 
+        mockMvc.perform(get("/coordinacion/reportes").session(authenticatedSession))
+                .andExpect(status().isOk())
+                .andExpect(view().name("coordinacion/reportes"));
+        mockMvc.perform(get("/campo/registros").session(authenticatedSession))
+                .andExpect(status().isForbidden());
         mockMvc.perform(get("/admin/no-configurado").session(authenticatedSession))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -575,11 +581,10 @@ class SirabApplicationTests {
                         .with(user("coordinacion").roles("COORDINACION")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("coordinacion/reportes"))
-                .andExpect(content().string(containsString("Reportes y consolidados")));
-        mockMvc.perform(get("/coordinacion/reportes")
-                        .with(user("admin").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(view().name("coordinacion/reportes"));
+                .andExpect(content().string(containsString("Panel de respuesta a emergencias")));
+        mockMvc.perform(get("/admin/no-configurado")
+                        .with(user("coordinacion").roles("COORDINACION")))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -595,7 +600,7 @@ class SirabApplicationTests {
         Long familiaId = familia.getId();
 
         mockMvc.perform(get("/campo/registros/{id}", familiaId)
-                        .with(user("admin").roles("ADMIN")))
+                        .with(user("coordinacion").roles("COORDINACION")))
                 .andExpect(status().isForbidden());
 
         mockMvc.perform(post("/campo/registros/{id}/verificacion", familiaId)
@@ -632,7 +637,7 @@ class SirabApplicationTests {
                 .andExpect(redirectedUrl("/campo/registros/" + familiaId));
         entityManager.flush();
         entityManager.clear();
-        assertEquals(EstadoRegistro.VERIFICADO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
+        assertEquals(EstadoRegistro.EN_ATENCION, familiaRepository.findById(familiaId).orElseThrow().getEstado());
         assertEquals(1, verificacionRepository.findByFamilia_IdOrderByVerificadaAtDesc(familiaId).size());
 
         mockMvc.perform(post("/campo/registros/{id}/atendido", familiaId)
@@ -641,10 +646,10 @@ class SirabApplicationTests {
                 .andExpect(status().is3xxRedirection());
         entityManager.flush();
         entityManager.clear();
-        assertEquals(EstadoRegistro.VERIFICADO, familiaRepository.findById(familiaId).orElseThrow().getEstado());
+        assertEquals(EstadoRegistro.EN_ATENCION, familiaRepository.findById(familiaId).orElseThrow().getEstado());
 
         var historial = historialRepository.findByFamilia_IdOrderByFechaHoraAsc(familiaId);
         assertEquals(1, historial.size());
-        assertEquals(EstadoRegistro.VERIFICADO, historial.get(0).getEstadoNuevo());
+        assertEquals(EstadoRegistro.EN_ATENCION, historial.get(0).getEstadoNuevo());
     }
 }

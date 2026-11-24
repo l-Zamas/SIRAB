@@ -134,7 +134,7 @@ class RegistroFamiliarServiceTests {
                 Set.of(Necesidad.AGUA, Necesidad.ALOJAMIENTO),
                 "Verificación presencial"));
 
-        assertEquals(EstadoRegistro.VERIFICADO, familia.getEstado());
+        assertEquals(EstadoRegistro.EN_ATENCION, familia.getEstado());
         ArgumentCaptor<VerificacionSolicitud> verificacionCaptor =
                 ArgumentCaptor.forClass(VerificacionSolicitud.class);
         verify(verificacionRepository).save(verificacionCaptor.capture());
@@ -147,7 +147,7 @@ class RegistroFamiliarServiceTests {
                 ArgumentCaptor.forClass(EstadoSolicitudHistorial.class);
         verify(historialRepository).save(historialCaptor.capture());
         assertEquals(EstadoRegistro.PENDIENTE, historialCaptor.getValue().getEstadoAnterior());
-        assertEquals(EstadoRegistro.VERIFICADO, historialCaptor.getValue().getEstadoNuevo());
+        assertEquals(EstadoRegistro.EN_ATENCION, historialCaptor.getValue().getEstadoNuevo());
     }
 
     @Test
@@ -162,7 +162,7 @@ class RegistroFamiliarServiceTests {
     @Test
     void impideMarcarAtendidoMientrasUnaNecesidadNoTengaEntregaCompleta() {
         Familia familia = new Familia();
-        familia.setEstado(EstadoRegistro.VERIFICADO);
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
         familia.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS));
         when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
         when(entregaRepository.existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(
@@ -172,14 +172,14 @@ class RegistroFamiliarServiceTests {
         assertThrows(IllegalStateException.class,
                 () -> service.marcarAtendido(1L, "campo@sirab.local", "Cierre"));
 
-        assertEquals(EstadoRegistro.VERIFICADO, familia.getEstado());
+        assertEquals(EstadoRegistro.EN_ATENCION, familia.getEstado());
         verifyNoInteractions(historialRepository);
     }
 
     @Test
     void marcaAtendidoCuandoTodasLasNecesidadesTienenEntregaCompleta() {
         Familia familia = new Familia();
-        familia.setEstado(EstadoRegistro.VERIFICADO);
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
         familia.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALOJAMIENTO));
         when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
         when(entregaRepository.existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(
@@ -191,7 +191,7 @@ class RegistroFamiliarServiceTests {
         ArgumentCaptor<EstadoSolicitudHistorial> historialCaptor =
                 ArgumentCaptor.forClass(EstadoSolicitudHistorial.class);
         verify(historialRepository).save(historialCaptor.capture());
-        assertEquals(EstadoRegistro.VERIFICADO, historialCaptor.getValue().getEstadoAnterior());
+        assertEquals(EstadoRegistro.EN_ATENCION, historialCaptor.getValue().getEstadoAnterior());
         assertEquals(EstadoRegistro.ATENDIDO, historialCaptor.getValue().getEstadoNuevo());
         assertEquals("campo@sirab.local", historialCaptor.getValue().getUsuarioCorreo());
     }

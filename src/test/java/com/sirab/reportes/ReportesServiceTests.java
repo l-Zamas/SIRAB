@@ -34,7 +34,7 @@ class ReportesServiceTests {
 
     @Test
     void consolidaFamiliasEstadosNecesidadesYBarriosSinDuplicarFamilias() {
-        Familia agua = familia(EstadoRegistro.VERIFICADO, "Centro", Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS));
+        Familia agua = familia(EstadoRegistro.EN_ATENCION, "Centro", Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS));
         Familia sinBarrio = familia(EstadoRegistro.PENDIENTE, " ", Set.of(Necesidad.AGUA));
         when(familiaRepository.findAll()).thenReturn(List.of(agua, sinBarrio));
         when(entregaRepository.findAll()).thenReturn(List.of());
@@ -42,7 +42,10 @@ class ReportesServiceTests {
         ReportesService.ReporteCoordinacion reporte = reportesService.generarReporte();
 
         assertEquals(2, reporte.totalFamilias());
-        assertEquals(1L, reporte.familiasPorEstado().get(EstadoRegistro.VERIFICADO));
+        assertEquals(1L, reporte.familiasPorEstado().get(EstadoRegistro.PENDIENTE));
+        assertEquals(1L, reporte.familiasPorEstado().get(EstadoRegistro.EN_ATENCION));
+        assertEquals(0L, reporte.familiasPorEstado().get(EstadoRegistro.ATENDIDO));
+        assertEquals(2L, reporte.familiasPorEstado().values().stream().mapToLong(Long::longValue).sum());
         assertEquals(2L, reporte.familiasPorNecesidad().get(Necesidad.AGUA));
         assertEquals(1L, reporte.familiasPorNecesidad().get(Necesidad.ALIMENTOS));
         assertEquals(1L, reporte.familiasPorBarrio().get("Sin barrio informado"));

@@ -71,7 +71,7 @@ class EntregaAyudaServiceTests {
         familia = new Familia();
         familia.setNombreRegistrante("Familia Pérez");
         familia.setDireccionReferencia("Frente a escuela");
-        familia.setEstado(EstadoRegistro.VERIFICADO);
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
 
         articuloAgua = new ArticuloAyuda("AGUA-01", "Bidón Agua", Necesidad.AGUA, "Litros", true, Instant.now(), "admin@sirab.local");
 
@@ -149,7 +149,7 @@ class EntregaAyudaServiceTests {
 
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> entregaAyudaService.registrarEntrega(command, "campo@sirab.local"));
-        assertTrue(ex.getMessage().contains("VERIFICADO"));
+        assertTrue(ex.getMessage().contains("EN_ATENCION"));
     }
 
     @Test

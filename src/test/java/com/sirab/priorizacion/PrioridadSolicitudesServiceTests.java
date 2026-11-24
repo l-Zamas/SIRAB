@@ -132,6 +132,7 @@ class PrioridadSolicitudesServiceTests {
             EstadoRegistro estado) {
         return new SolicitudResumen(
                 id,
+                "SIRAB-" + String.format("%06d", id),
                 fechaCreacion,
                 "Familia " + id,
                 "Barrio",
