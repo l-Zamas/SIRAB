@@ -34,7 +34,7 @@ SIRAB se organiza en cuatro pilares:
 | Vistas | Thymeleaf (renderizado en el servidor) con fragmentos reutilizables |
 | Base de datos | MySQL |
 | Migraciones | Flyway |
-| Seguridad | Spring Security con roles (`PERSONAL_CAMPO`, `COORDINACION`, `ADMIN`) |
+| Seguridad | Spring Security con roles (`PERSONAL_CAMPO`, `COORDINACION`) |
 | Estilos | CSS propio basado en *design tokens* (variables CSS) exportados del prototipo |
 | Modo sin conexión | Service Worker + IndexedDB (JavaScript mínimo, ver [sección 5](#5-arquitectura)) |
 | Pruebas | JUnit 5, Mockito, Spring Boot Test, Testcontainers |
