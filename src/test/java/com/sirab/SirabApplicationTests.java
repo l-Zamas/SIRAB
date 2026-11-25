@@ -571,6 +571,43 @@ class SirabApplicationTests {
     }
 
     @Test
+    @Transactional
+    void coordinationClosureRequiresEnAtencionAndAllowsPendingNeeds() throws Exception {
+        Familia familia = new Familia();
+        familia.setNombreRegistrante("CIERRE_COORDINACION");
+        familia.setDireccionReferencia("REFERENCIA_CIERRE");
+        familia.setNumeroIntegrantes(1);
+        familia.setNecesidades(Set.of(Necesidad.AGUA));
+        familia.setConsentimientoAt(Instant.now());
+        familia = familiaRepository.saveAndFlush(familia);
+
+        mockMvc.perform(post("/coordinacion/solicitudes/{id}/atendido", familia.getId())
+                        .with(user("coordinacion").roles("COORDINACION"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+        entityManager.clear();
+        assertEquals(EstadoRegistro.PENDIENTE, familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
+        assertEquals(0, historialRepository.count());
+
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
+        familiaRepository.saveAndFlush(familia);
+
+        mockMvc.perform(post("/coordinacion/solicitudes/{id}/atendido", familia.getId())
+                        .with(user("coordinacion").roles("COORDINACION"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+        entityManager.clear();
+        assertEquals(EstadoRegistro.ATENDIDO, familiaRepository.findById(familia.getId()).orElseThrow().getEstado());
+        assertEquals(1, historialRepository.count());
+
+        mockMvc.perform(post("/coordinacion/solicitudes/{id}/atendido", familia.getId())
+                        .with(user("coordinacion").roles("COORDINACION"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+        assertEquals(1, historialRepository.count());
+    }
+
+    @Test
     void coordinationReportsRequireCoordinatorOrAdminRole() throws Exception {
         mockMvc.perform(get("/coordinacion/reportes"))
                 .andExpect(status().is3xxRedirection());

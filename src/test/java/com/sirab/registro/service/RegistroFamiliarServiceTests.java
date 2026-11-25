@@ -160,39 +160,40 @@ class RegistroFamiliarServiceTests {
     }
 
     @Test
-    void impideMarcarAtendidoMientrasUnaNecesidadNoTengaEntregaCompleta() {
+    void noPermiteCerrarSolicitudPendiente() {
         Familia familia = new Familia();
-        familia.setEstado(EstadoRegistro.EN_ATENCION);
-        familia.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS));
+        familia.setEstado(EstadoRegistro.PENDIENTE);
         when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
-        when(entregaRepository.existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(
-                eq(1L), any(Necesidad.class))).thenAnswer(invocation ->
-                        invocation.getArgument(1, Necesidad.class) == Necesidad.AGUA);
 
         assertThrows(IllegalStateException.class,
-                () -> service.marcarAtendido(1L, "campo@sirab.local", "Cierre"));
+                () -> service.marcarAtendido(1L, "coordinacion@sirab.local", "Cierre"));
 
-        assertEquals(EstadoRegistro.EN_ATENCION, familia.getEstado());
+        assertEquals(EstadoRegistro.PENDIENTE, familia.getEstado());
         verifyNoInteractions(historialRepository);
     }
 
     @Test
-    void marcaAtendidoCuandoTodasLasNecesidadesTienenEntregaCompleta() {
+    void permiteCerrarSolicitudEnAtencionAunqueTengaNecesidadesPendientes() {
         Familia familia = new Familia();
         familia.setEstado(EstadoRegistro.EN_ATENCION);
-        familia.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALOJAMIENTO));
+        familia.setNecesidades(Set.of(Necesidad.AGUA, Necesidad.ALIMENTOS));
         when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
-        when(entregaRepository.existsByFamilia_IdAndTipoAyudaAndSatisfaceNecesidadCompletaTrue(
-                eq(1L), any())).thenReturn(true);
 
-        service.marcarAtendido(1L, "campo@sirab.local", "Atención completa");
+        service.marcarAtendido(1L, "coordinacion@sirab.local", "Cierre manual");
 
         assertEquals(EstadoRegistro.ATENDIDO, familia.getEstado());
-        ArgumentCaptor<EstadoSolicitudHistorial> historialCaptor =
-                ArgumentCaptor.forClass(EstadoSolicitudHistorial.class);
-        verify(historialRepository).save(historialCaptor.capture());
-        assertEquals(EstadoRegistro.EN_ATENCION, historialCaptor.getValue().getEstadoAnterior());
-        assertEquals(EstadoRegistro.ATENDIDO, historialCaptor.getValue().getEstadoNuevo());
-        assertEquals("campo@sirab.local", historialCaptor.getValue().getUsuarioCorreo());
+        verify(historialRepository).save(any(EstadoSolicitudHistorial.class));
+    }
+
+    @Test
+    void noPermiteCerrarSolicitudAtendidaNuevamente() {
+        Familia familia = new Familia();
+        familia.setEstado(EstadoRegistro.ATENDIDO);
+        when(familiaRepository.findById(1L)).thenReturn(java.util.Optional.of(familia));
+
+        assertThrows(IllegalStateException.class,
+                () -> service.marcarAtendido(1L, "coordinacion@sirab.local", "Cierre duplicado"));
+
+        verifyNoInteractions(historialRepository);
     }
 }

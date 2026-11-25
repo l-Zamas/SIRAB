@@ -267,8 +267,7 @@ public class RegistroFamiliarService {
     @Transactional(readOnly = true)
     public boolean puedeMarcarAtendido(Long familiaId) {
         return familiaRepository.findById(familiaId)
-                .filter(familia -> familia.getEstado() == EstadoRegistro.EN_ATENCION)
-                .map(familia -> necesidadesSatisfechas(familia, familiaId))
+                .map(familia -> familia.getEstado() == EstadoRegistro.EN_ATENCION)
                 .orElse(false);
     }
 
@@ -279,11 +278,14 @@ public class RegistroFamiliarService {
             return false;
         }
         exigirActor(usuarioCorreo);
-        Instant ahora = Instant.now();
         EstadoRegistro anterior = familia.getEstado();
         if (anterior == EstadoRegistro.ATENDIDO) {
             throw new IllegalStateException("La solicitud ya está cerrada y no puede cerrarse nuevamente.");
         }
+        if (anterior != EstadoRegistro.EN_ATENCION) {
+            throw new IllegalStateException("La solicitud debe estar en atención antes de cerrarse.");
+        }
+        Instant ahora = Instant.now();
         EstadoRegistro siguiente = EstadoRegistro.ATENDIDO;
         familia.setEstado(siguiente);
         familiaRepository.save(familia);

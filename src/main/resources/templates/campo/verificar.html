@@ -232,7 +232,7 @@
             <p th:unless="${alojamientoSatisfecho}"><strong>Estado:</strong> En trámite de fases (requiere confirmación de prestación de alojamiento para habilitar el cierre).</p>
         </div>
 
-        <div class="cierre-solicitud" th:if="${vistaCoordinacion == true and solicitud.estado != T(com.sirab.registro.EstadoRegistro).ATENDIDO}">
+        <div class="cierre-solicitud" th:if="${vistaCoordinacion == true and solicitud.estado == T(com.sirab.registro.EstadoRegistro).EN_ATENCION}">
             <form th:action="@{/coordinacion/solicitudes/{id}/atendido(id=${solicitud.id})}" method="post">
                 <label for="observacion-cierre">Observación de cierre (opcional)</label>
                 <textarea id="observacion-cierre" name="observacion" rows="2"></textarea>

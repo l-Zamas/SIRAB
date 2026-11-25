@@ -165,11 +165,9 @@ class EntregaAyudaIntegrationTests {
                 "Ingreso para prueba");
         LoteInventario lote = inventarioService.ingresarLote(cmdLote, "bodeguero@sirab.local");
 
-        // Al inicio, la familia NO puede marcarse como atendida
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        // El cierre manual se habilita desde EN_ATENCION, aunque aún no haya entregas completas.
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
         final Long familiaId = familia.getId();
-        assertThrows(IllegalStateException.class,
-                () -> registroFamiliarService.marcarAtendido(familiaId, "campo@sirab.local", "Cierre prematuro"));
 
         // 5. Realizar entrega parcial de 20 Litros
         RegistrarEntregaAsignacionCommand cmdEntrega1 = new RegistrarEntregaAsignacionCommand(
@@ -191,8 +189,8 @@ class EntregaAyudaIntegrationTests {
         List<MovimientoInventario> movimientos = movimientoRepository.findByLote_IdOrderByRegistradoAtDescIdDesc(lote.getId());
         assertEquals(2, movimientos.size()); // 1 INGRESO + 1 SALIDA_ENTREGA
 
-        // Aún no puede marcarse atendido
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        // El cierre manual sigue habilitado aunque la atención sea parcial.
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         // 6. Realizar segunda entrega de 40 Litros (completando los 60 Litros asignados)
         RegistrarEntregaAsignacionCommand cmdEntrega2 = new RegistrarEntregaAsignacionCommand(
@@ -223,13 +221,13 @@ class EntregaAyudaIntegrationTests {
         // Familia con necesidad ALOJAMIENTO
         Familia familia = crearFamiliaVerificada("Familia Alojamiento Int", Set.of(Necesidad.ALOJAMIENTO), Set.of(SituacionFamiliar.ADULTOS_MAYORES));
 
-        // Sin flujo, no puede marcarse atendido
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        // El cierre manual se habilita desde EN_ATENCION sin exigir completar el flujo.
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         // Fase 1: Solicitud
         SolicitudAlojamiento sol = alojamientoService.registrarSolicitud(
                 familia.getId(), "campo@sirab.local", "Pérdida de vivienda");
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         // Guardar documento fotográfico para la verificación
         DocumentoPrivado foto = new DocumentoPrivado(
@@ -240,12 +238,12 @@ class EntregaAyudaIntegrationTests {
         // Fase 2: Verificación técnica
         alojamientoService.verificarAlojamiento(
                 sol.getId(), ResultadoVerificacionAlojamiento.VERIFICADA, foto.getId(), "perito@sirab.local", "Daño irreparable");
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         // Fase 3: Aprobación provisional
         AprobacionProvisionalAlojamiento prov = alojamientoService.aprobarProvisionalmente(
                 sol.getId(), DecisionAyuda.APROBADA, "coordinacion@sirab.local", "Cumple criterios provisionales");
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         // Fase 4: Aprobación definitiva
         DocumentoPrivado decision = new DocumentoPrivado(
@@ -254,7 +252,7 @@ class EntregaAyudaIntegrationTests {
         decision = documentoRepository.save(decision);
         AprobacionDefinitivaAlojamiento def = alojamientoService.registrarAprobacionDefinitiva(
                 sol.getId(), "UNGRD", "RESOLUCION-999", DecisionAyuda.APROBADA, decision.getId(), "ungrd@sirab.local", "Aprobación oficial");
-        assertFalse(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
+        assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         // Fase 5: Confirmación de prestación efectiva
         DocumentoPrivado evidenciaPrestacion = new DocumentoPrivado(
@@ -264,7 +262,7 @@ class EntregaAyudaIntegrationTests {
         alojamientoService.confirmarPrestacion(
                 sol.getId(), def.getId(), Instant.now(), evidenciaPrestacion.getId(), "enlace@sirab.local", "Entrega formal de albergue temporal");
 
-        // Tras la confirmación, SÍ puede marcarse como atendido
+        // El cierre continúa habilitado después de completar las fases.
         assertTrue(registroFamiliarService.puedeMarcarAtendido(familia.getId()));
 
         registroFamiliarService.marcarAtendido(familia.getId(), "campo@sirab.local", "Cierre con alojamiento confirmado");
