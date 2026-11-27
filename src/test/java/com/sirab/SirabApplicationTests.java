@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.regex.Pattern;
 
 import com.sirab.registro.EstadoRegistro;
+import com.sirab.registro.EstadoSolicitudHistorial;
 import com.sirab.registro.ActorTipoSolicitud;
 import com.sirab.registro.EstadoSolicitudHistorialRepository;
 import com.sirab.registro.EntregaAyudaRepository;
