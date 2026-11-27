@@ -209,6 +209,39 @@
         <button type="submit" th:if="${hayNecesidadesAtendibles}">Confirmar atenciones seleccionadas</button>
         </form>
 
+        <section class="seguimiento-historial" th:if="${vistaCoordinacion == true}">
+            <h2>Historial individual de necesidades</h2>
+            <p th:if="${#lists.isEmpty(historialNecesidad)}">Aún no hay intervenciones registradas.</p>
+            <div class="tabla-contenedor" th:unless="${#lists.isEmpty(historialNecesidad)}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th scope="col">Necesidad</th>
+                        <th scope="col">Estado anterior</th>
+                        <th scope="col">Estado nuevo</th>
+                        <th scope="col">Cantidad entregada</th>
+                        <th scope="col">Responsable</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Fecha y hora</th>
+                        <th scope="col">Observación</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="evento : ${historialNecesidad}">
+                        <td th:text="${evento.seguimiento.necesidad.etiqueta}"></td>
+                        <td th:text="${evento.estadoAnterior != null ? evento.estadoAnterior.etiqueta : 'Sin estado anterior'}"></td>
+                        <td th:text="${evento.estadoNuevo.etiqueta}"></td>
+                        <td th:text="${evento.cantidadEntregada != null ? (evento.seguimiento.necesidad.unidadCantidad != null ? evento.cantidadEntregada + ' ' + evento.seguimiento.necesidad.unidadCantidad : evento.cantidadEntregada) : 'No aplica'}"></td>
+                        <td th:text="${evento.usuarioCorreo}"></td>
+                        <td th:text="${evento.rolUsuario}"></td>
+                        <td th:text="${#temporals.format(@fechaHoraBogota.convertir(evento.fechaHora), 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#strings.isEmpty(evento.observacion) ? '—' : evento.observacion}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <h2>Entregas de ayuda</h2>
         <p>Registra cada entrega vinculada a una necesidad. Las atenciones parciales no cierran la solicitud.</p>
         <p th:if="${#lists.isEmpty(solicitud.entregas)}">Aún no hay entregas registradas.</p>

@@ -204,7 +204,7 @@ public class SeguimientoNecesidadService {
     @Transactional(readOnly = true)
     public List<SeguimientoNecesidad> listarHistorial(Long familiaId) { return seguimientoRepository.findByFamilia_IdOrderByNecesidadAsc(familiaId); }
     @Transactional(readOnly = true)
-    public List<HistorialNecesidad> historial(Long familiaId) { return historialRepository.findBySeguimiento_Familia_IdOrderByFechaHoraAsc(familiaId); }
+    public List<HistorialNecesidad> historial(Long familiaId) { return historialRepository.findBySeguimiento_Familia_IdOrderByFechaHoraDesc(familiaId); }
     @Transactional(readOnly = true)
     public boolean todasSatisfechas(Long familiaId) { List<SeguimientoNecesidad> lista = listar(familiaId); return !lista.isEmpty() && lista.stream().allMatch(this::necesidadSatisfecha); }
 

@@ -26,7 +26,11 @@ import com.sirab.registro.EstadoRegistro;
 import com.sirab.registro.ActorTipoSolicitud;
 import com.sirab.registro.EstadoSolicitudHistorialRepository;
 import com.sirab.registro.EntregaAyudaRepository;
+import com.sirab.registro.EstadoSeguimientoNecesidad;
 import com.sirab.registro.Familia;
+import com.sirab.registro.HistorialNecesidad;
+import com.sirab.registro.HistorialNecesidadRepository;
+import com.sirab.registro.SeguimientoNecesidad;
 import com.sirab.registro.FamiliaRepository;
 import com.sirab.registro.Necesidad;
 import com.sirab.registro.SituacionFamiliar;
@@ -70,6 +74,9 @@ class SirabApplicationTests {
 
     @Autowired
     private EntregaAyudaRepository entregaAyudaRepository;
+
+    @Autowired
+    private HistorialNecesidadRepository historialNecesidadRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -605,6 +612,50 @@ class SirabApplicationTests {
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection());
         assertEquals(1, historialRepository.count());
+    }
+
+    @Test
+    @Transactional
+    void coordinationDetailShowsIndividualNeedsHistoryAndKeepsGeneralHistorySeparate() throws Exception {
+        Familia familia = new Familia();
+        familia.setNombreRegistrante("HISTORIAL_NECESIDADES");
+        familia.setDireccionReferencia("REFERENCIA_HISTORIAL");
+        familia.setNumeroIntegrantes(1);
+        familia.setNecesidades(Set.of(Necesidad.AGUA));
+        familia.setEstado(EstadoRegistro.EN_ATENCION);
+        familia.setConsentimientoAt(Instant.now());
+        familia = familiaRepository.saveAndFlush(familia);
+        historialRepository.saveAndFlush(new EstadoSolicitudHistorial(
+                familia, null, EstadoRegistro.PENDIENTE, ActorTipoSolicitud.SISTEMA,
+                "sistema@sirab.local", Instant.parse("2026-01-01T10:00:00Z"), "Registro inicial"));
+
+        SeguimientoNecesidad seguimiento = new SeguimientoNecesidad(
+                familia, Necesidad.AGUA, EstadoSeguimientoNecesidad.EN_ATENCION, Instant.now());
+        entityManager.persist(seguimiento);
+        entityManager.flush();
+        historialNecesidadRepository.saveAndFlush(new HistorialNecesidad(
+                seguimiento, EstadoSeguimientoNecesidad.DECLARADA, EstadoSeguimientoNecesidad.VERIFICADA,
+                "campo@sirab.local", RolUsuario.PERSONAL_CAMPO, null, null,
+                Instant.parse("2026-01-01T11:00:00Z")));
+        historialNecesidadRepository.saveAndFlush(new HistorialNecesidad(
+                seguimiento, EstadoSeguimientoNecesidad.VERIFICADA, EstadoSeguimientoNecesidad.EN_ATENCION,
+                "coordinacion@sirab.local", RolUsuario.COORDINACION, null, "Seguimiento actualizado",
+                Instant.parse("2026-01-01T12:00:00Z")));
+
+        mockMvc.perform(get("/coordinacion/solicitudes/{id}", familia.getId())
+                        .with(user("coordinacion").roles("COORDINACION")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("campo/verificar"))
+                .andExpect(content().string(containsString("Historial individual de necesidades")))
+                .andExpect(content().string(containsString("Agua")))
+                .andExpect(content().string(containsString("campo@sirab.local")))
+                .andExpect(content().string(containsString("PERSONAL_CAMPO")))
+                .andExpect(content().string(containsString("coordinacion@sirab.local")))
+                .andExpect(content().string(containsString("Seguimiento actualizado")))
+                .andExpect(content().string(containsString("No aplica")))
+                .andExpect(content().string(containsString("Historial de estados")))
+                .andExpect(content().string(org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.stringContainsInOrder("coordinacion@sirab.local", "campo@sirab.local"))));
     }
 
     @Test
